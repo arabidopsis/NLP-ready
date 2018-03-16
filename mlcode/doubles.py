@@ -3,6 +3,7 @@ import csv
 import glob
 from collections import defaultdict
 
+DATADIR = '../data/'
 
 def read_issn():
 
@@ -17,7 +18,7 @@ def read_issn():
 
 def get_dir(xmld, ext='.xml'):
     res = []
-    for f in glob.glob('%s/*%s' % (xmld, ext)):
+    for f in glob.glob(DATADIR + '%s/*%s' % (xmld, ext)):
         _, fname = os.path.split(f)
         pmid, _ = os.path.splitext(fname)
         res.append(pmid)
@@ -27,13 +28,13 @@ def get_dir(xmld, ext='.xml'):
 def summary():
     issns = read_issn()
     dd = {}
-    for xmld in glob.glob('xml_*'):
+    for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         cnt, name = issns.get(issn, (0, issn))
         pmids = get_dir(xmld)
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
-    for xmld in glob.glob('failed_*'):
+    for xmld in glob.glob(DATADIR + 'failed_*'):
         _, issn = xmld.split('_')
         pmids = get_dir(xmld)
         name, issn, cnt, n, _ = dd[issn]
@@ -48,7 +49,7 @@ def summary():
 def counts():
     ISSN = {}
     res = defaultdict(list)
-    for xmld in glob.glob('xml_*'):
+    for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         for pmid in get_dir(xmld):
             res[pmid].append(issn)
@@ -64,9 +65,9 @@ def counts():
 def parsed():
     ISSN = {}
     res = defaultdict(list)
-    for xmld in glob.glob('cleaned_*'):
+    for xmld in glob.glob(DATADIR + 'cleaned_*'):
         _, issn = xmld.split('_')
-        for f in glob.glob('%s/*.txt' % xmld):
+        for f in glob.glob(DATADIR + '%s/*.txt' % xmld):
             _, fname = os.path.split(f)
             pmid, _ = os.path.splitext(fname)
             pmid, _ = pmid.split('_')
@@ -80,5 +81,5 @@ def parsed():
 
 
 if __name__ == '__main__':
-    # summary()
-    counts()
+    summary()
+    # counts()
