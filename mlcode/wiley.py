@@ -7,6 +7,7 @@ import click
 from io import BytesIO
 from bs4 import BeautifulSoup
 
+DATADIR = '../data/'
 JCSV = 'journals.csv'
 
 # generated from downloads.py:wiley_issn()
@@ -24,7 +25,7 @@ WILEY_ISSN = {'1460-2075': 'EMBO J.', '1399-3054': 'Physiol Plant',
 
 
 def readxml(d):
-    for f in os.listdir(d):
+    for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
         if ext == '.xml':
             yield f
@@ -36,10 +37,10 @@ def download_wiley(journal, sleep=5.0, mx=0):
               }
     fdir = 'failed_%s' % journal
     gdir = 'xml_%s' % journal
-    if not os.path.isdir(fdir):
-        os.mkdir(fdir)
-    if not os.path.isdir(gdir):
-        os.mkdir(gdir)
+    if not os.path.isdir(DATADIR + fdir):
+        os.mkdir(DATADIR + fdir)
+    if not os.path.isdir(DATADIR + gdir):
+        os.mkdir(DATADIR + gdir)
     failed = set(readxml(fdir))
     done = set(readxml(gdir))
 
@@ -75,7 +76,7 @@ def download_wiley(journal, sleep=5.0, mx=0):
             d = gdir
             done.add(pmid)
 
-        with open('{}/{}.xml'.format(d, pmid), 'wb') as fp:
+        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'wb') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -126,12 +127,12 @@ class Wiley(object):
 
 def gen_wiley(journal):
     print(journal)
-    if not os.path.isdir('cleaned_%s' % journal):
-        os.mkdir('cleaned_%s' % journal)
+    if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
+        os.mkdir(DATADIR + 'cleaned_%s' % journal)
     gdir = 'xml_%s' % journal
     for pmid in readxml(gdir):
         print(pmid)
-        fname = gdir + '/{}.xml'.format(pmid)
+        fname = DATADIR + gdir + '/{}.xml'.format(pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
         e = Wiley(soup)
@@ -142,7 +143,7 @@ def gen_wiley(journal):
             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
                 pmid, a is None, m is None, r is None), fg='red')
             continue
-        fname = 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
+        fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
         if os.path.exists(fname):
             click.secho('overwriting %s' % fname, fg='yellow')
 
@@ -167,4 +168,4 @@ if __name__ == '__main__':
 
     # gen_wiley(journal='0960-7412')
     # gen_wiley(journal='1467-7652')
-    gen_wiley(journal='1365-313X')
+    # gen_wiley(journal='1365-313X')

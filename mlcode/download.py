@@ -12,7 +12,7 @@ from io import BytesIO
 
 from bs4 import BeautifulSoup
 
-
+DATADIR = '../data/'
 JCSV = 'journals.csv'
 
 
@@ -29,7 +29,7 @@ def read_suba_papers_csv():
 
 def readxml(d):
     """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(d):
+    for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
         if ext == '.xml':
             yield f

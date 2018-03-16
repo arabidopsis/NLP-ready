@@ -9,6 +9,7 @@ from lxml import etree
 from io import BytesIO
 from bs4 import BeautifulSoup
 
+DATADIR = '../data/'
 
 JCSV = 'journals.csv'
 
@@ -50,7 +51,7 @@ def read_suba_papers_csv():
 
 def readxml(d):
     """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(d):
+    for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
         if ext == '.xml':
             yield f
@@ -98,7 +99,7 @@ def download_elsevier(sleep=0.5, use_issn=False):
         else:
             d = 'xml_elsevier'
             done.add(pmid)
-        with open('{}/{}.xml'.format(d, pmid), 'w') as fp:
+        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
         todox.remove(pmid)
         print('%d failed, %d done %s todo %s' % (len(failed), len(done), len(todox), pmid))
@@ -107,7 +108,7 @@ def download_elsevier(sleep=0.5, use_issn=False):
 
 def getxmlelsevier(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open('xml_elsevier/{}.xml'.format(pmid), 'rb') as fp:
+    with open(DATADIR + 'xml_elsevier/{}.xml'.format(pmid), 'rb') as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -192,8 +193,8 @@ class Elsevier(object):
 
 def gen_elsevier():
     """Convert Elsevier XML files into "cleaned" text files."""
-    if not os.path.isdir('cleaned_elsevier'):
-        os.mkdir('cleaned_elsevier')
+    if not os.path.isdir(DATADIR + 'cleaned_elsevier'):
+        os.mkdir(DATADIR + 'cleaned_elsevier')
 
     for pmid in readxml('xml_elsevier'):
 
@@ -207,7 +208,7 @@ def gen_elsevier():
             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
                 pmid, a is None, m is None, r is None), fg='red')
             continue
-        fname = 'cleaned_elsevier/{}_cleaned.txt'.format(pmid)
+        fname = DATADIR + 'cleaned_elsevier/{}_cleaned.txt'.format(pmid)
         if os.path.exists(fname):
             click.secho('overwriting %s' % fname, fg='yellow')
 

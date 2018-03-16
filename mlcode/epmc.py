@@ -8,6 +8,7 @@ import requests
 import click
 from lxml import etree
 
+DATADIR = '../data/'
 
 XML = 'https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML'  # noqa: E221
 
@@ -40,7 +41,7 @@ def read_suba_papers_csv():
 
 def readxml(d):
     """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(d):
+    for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
         if ext == '.xml':
             yield f
@@ -88,7 +89,7 @@ def download_epmc(sleep=0.5):
                 txt = 'ok'
                 done.add(pmid)
 
-        with open('{}/{}.xml'.format(d, pmid), 'w') as fp:
+        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 
         print('%d failed (%s), %d done' % (len(failed), txt, len(done)))
@@ -213,8 +214,8 @@ def getpmcids(pmids):
 
 def gen_epmc():
     """Convert EPMC XML files into "cleaned" text files."""
-    if not os.path.isdir('cleaned_epmc'):
-        os.mkdir('cleaned_epmc')
+    if not os.path.isdir(DATADIR + 'cleaned_epmc'):
+        os.mkdir(DATADIR + 'cleaned_epmc')
     for pmid in readxml('xml_epmc'):
 
         root = getxmlepmc(pmid)
@@ -227,7 +228,7 @@ def gen_epmc():
             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
                 pmid, a is None, m is None, r is None), fg='red')
             continue
-        fname = 'cleaned_epmc/{}_cleaned.txt'.format(pmid)
+        fname = DATADIR + 'cleaned_epmc/{}_cleaned.txt'.format(pmid)
         if os.path.exists(fname):
             click.secho('overwriting %s' % fname, fg='yellow')
 
@@ -241,5 +242,6 @@ def gen_epmc():
 
 
 if __name__ == '__main__':
-    download_epmc(sleep=2.0)
-    gen_epmc()
+    # download_epmc(sleep=2.0)
+    # gen_epmc()
+    pmc_subset()
