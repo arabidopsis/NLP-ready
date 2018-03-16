@@ -5,6 +5,7 @@ from collections import defaultdict
 
 DATADIR = '../data/'
 
+
 def read_issn():
 
     ISSN = {}
@@ -54,7 +55,6 @@ def counts():
         for pmid in get_dir(xmld):
             res[pmid].append(issn)
 
-
     print('done:', len(res))
     for pmid in res:
         issns = res[pmid]
@@ -71,7 +71,8 @@ def parsed():
             _, fname = os.path.split(f)
             pmid, _ = os.path.splitext(fname)
             pmid, _ = pmid.split('_')
-            res[issn] = [pmid for fname in get_dir(xmld, ext='.txt') for pmid in [fname.split('_')[0]]]
+            res[issn] = [pmid for fname in get_dir(xmld, ext='.txt')
+                         for pmid in [fname.split('_')[0]]]
 
     print('done:', len(res))
     for pmid in res:
