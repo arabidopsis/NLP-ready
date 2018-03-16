@@ -1,0 +1,245 @@
+import csv
+import os
+import re
+import gzip
+import time
+# import sys
+import requests
+import click
+from lxml import etree
+
+
+XML = 'https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML'  # noqa: E221
+
+
+def epmc(pmcid, session=None):
+    """Given a PUBMED id return the Europmc XML as text."""
+    url = XML.format(pmcid=pmcid)
+    resp = (session or requests).get(url)
+    if resp.status_code == 404:
+        return None
+    resp.raise_for_status()
+    txt = resp.text
+
+    # ipt = BytesIO(resp.content)
+    # t = etree.parse(ipt)
+    # txt = etree.tostring(t, pretty_print=True, encoding='unicode')
+    return txt
+
+
+def read_suba_papers_csv():
+    """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
+    # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
+    R = csv.reader(open('suba_papers.csv', encoding='latin1'))
+    next(R)
+    # print(header)
+    for row in R:
+        # print(row)
+        yield row
+
+
+def readxml(d):
+    """Scan directory d and return the pubmed ids."""
+    for f in os.listdir(d):
+        f, ext = os.path.splitext(f)
+        if ext == '.xml':
+            yield f
+
+
+def download_epmc(sleep=0.5):
+    """Download any EuroPMC XML files using SUBA4 pubmed ids."""
+    failed = set(readxml('failed_epmc'))
+    done = set(readxml('xml_epmc'))
+    session = requests.Session()
+
+    pmids = set()
+    for row in read_suba_papers_csv():
+        pmid = row[0].upper()
+        if not pmid:
+            continue
+        if pmid in failed or pmid in done:
+            continue
+
+        pmids.add(pmid)
+
+    print('%d failed, %d done, %d todo' % (len(failed), len(done), len(pmids)))
+    if not pmids:
+        return
+
+    p2mc = getpmcids(pmids)
+
+    for pmid in pmids:
+        if pmid not in p2mc:
+            d = 'failed_epmc'
+            xml = 'nopmcid'
+            failed.add(pmid)
+            txt = 'nopmcid'
+        else:
+            pmcid = p2mc[pmid]
+
+            xml = epmc(pmcid, session=session)
+            if xml is None:
+                d = 'failed_epmc'
+                xml = 'failed'
+                failed.add(pmid)
+                txt = 'failed'
+            else:
+                d = 'xml_epmc'
+                txt = 'ok'
+                done.add(pmid)
+
+        with open('{}/{}.xml'.format(d, pmid), 'w') as fp:
+            fp.write(xml)
+
+        print('%d failed (%s), %d done' % (len(failed), txt, len(done)))
+        if txt != 'nopmcid':
+            time.sleep(sleep)
+
+
+def getxmlepmc(pmid):
+    parser = etree.XMLParser(ns_clean=True)
+    with open('xml_epmc/{}.xml'.format(pmid), 'rb') as fp:
+        tree = etree.parse(fp, parser)
+
+    root = tree.getroot()
+    return root
+
+
+TRANS = 'translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")'
+
+EXREFS = {'xref'}
+
+EITALIC = {'i'}
+
+
+def para2txt3(e):
+    for t in e.xpath('.//text()'):
+        p = t.getparent()
+        if p.tag in EXREFS:
+            if p.tail == t:
+                yield p.tail
+            else:
+                yield 'CITATION'  # '[%s]' % p.attrib['rid']
+        elif p.tag in EITALIC and p.tail != t:
+            # yield '<i>%s</i>' % t
+            yield str(t)
+        else:
+            yield str(t)
+
+
+class EPMC(object):
+    SPACE = re.compile(r'\s+', re.I)
+
+    def __init__(self, root):
+        self.root = root
+
+    def abstract(self):
+        res = self.root.xpath('/article/front/article-meta/abstract')
+        if not res:
+            return None
+        return res[0]
+
+    def methods(self):
+        mm = self.root.xpath('/article/body/sec[@sec-type="methods"]')
+        if not mm:
+            mm = self.root.xpath('/article/body/sec/title[contains(' + TRANS + ',"methods")]/..')
+        if not mm:
+            mm = self.root.xpath(
+                '/article/body/sec/title[contains(' + TRANS + ',"experimental")]/..')
+        if not mm:
+            return None
+        return mm[0]
+
+    def results(self):
+        res = self.root.xpath('/article/body/sec/title[contains(' + TRANS + ',"results")]/..')
+        if not res:
+            return None
+        return res[0]
+
+    def tostr(self, r):
+        for p in r.xpath('.//p'):
+            res = []
+            for t in para2txt3(p):
+                res.append(t)
+
+            txt = ''.join(res)
+            txt = self.SPACE.sub(' ', txt)
+            yield txt.strip()
+
+
+# PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/
+
+def pmc_subset():
+    pmids = set(row[0].upper() for row in read_suba_papers_csv())
+    with open('PMC-ids-partial.csv', 'w') as out:
+        W = csv.writer(out)
+        W.writerow(['pmid', 'pmcid'])
+        with gzip.open('PMC-ids.csv.gz', 'rt') as fp:
+            R = csv.reader(fp)
+            next(R)  # skip header
+            for row in R:
+                pmcid, pmid = row[8:10]
+                if pmcid and pmid in pmids:
+                    W.writerow([pmid, pmcid])
+
+
+def getpmcids(pmids):
+    """Map pubmed ids to the "open access" fulltext PMC ids."""
+    ret = {}
+    pmids = set(pmids)
+    if os.path.exists('PMC-ids-partial.csv'):
+        with open('PMC-ids-partial.csv', 'r') as fp:
+            R = csv.reader(fp)
+            next(R)
+            for pmid, pmcid in R:
+                ret[pmid] = pmcid
+
+        return ret
+
+    if not os.path.exists('PMC-ids.csv.gz'):
+        raise RuntimeError(
+            'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"')
+    with gzip.open('PMC-ids.csv.gz', 'rt') as fp:
+        R = csv.reader(fp)
+        next(R)  # skip header
+        for row in R:
+            pmcid, pmid = row[8:10]
+            if pmcid and pmid in pmids:
+                assert pmid not in ret, pmid
+                ret[pmid] = pmcid
+
+    return ret
+
+
+def gen_epmc():
+    """Convert EPMC XML files into "cleaned" text files."""
+    if not os.path.isdir('cleaned_epmc'):
+        os.mkdir('cleaned_epmc')
+    for pmid in readxml('xml_epmc'):
+
+        root = getxmlepmc(pmid)
+        e = EPMC(root)
+
+        a = e.abstract()
+        m = e.methods()
+        r = e.results()
+        if a is None or m is None or r is None:
+            click.secho('{}: missing: abs {}, methods {}, results {}'.format(
+                pmid, a is None, m is None, r is None), fg='red')
+            continue
+        fname = 'cleaned_epmc/{}_cleaned.txt'.format(pmid)
+        if os.path.exists(fname):
+            click.secho('overwriting %s' % fname, fg='yellow')
+
+        with open(fname, 'w', encoding='utf-8') as fp:
+            w = ' '.join(e.tostr(a))
+            print('!~ABS~! %s' % w, file=fp)
+            w = ' '.join(e.tostr(r))
+            print('!~RES~! %s' % w, file=fp)
+            w = ' '.join(e.tostr(m))
+            print('!~MM~! %s' % w, file=fp)
+
+
+if __name__ == '__main__':
+    download_epmc(sleep=2.0)
+    gen_epmc()
