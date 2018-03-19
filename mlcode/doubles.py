@@ -2,6 +2,7 @@ import os
 import csv
 import glob
 from collections import defaultdict
+from tabulate import tabulate
 
 DATADIR = '../data/'
 
@@ -41,9 +42,11 @@ def summary():
         dd[issn] = (name, issn, cnt, n, len(pmids))
 
     res = sorted(dd.values(), key=lambda t: t[0])
-    print('issn,\t\tcount,\tdone,\tfailed,\ttotal,\tname')
+    header='issn,count,done,failed,total,tname'.split(',')
+    tbl = []
     for name, issn, cnt, done, failed in res:
-        print('%s,\t%d,\t%d,\t%d,\t%d,\t"%s"' % (issn, cnt, done, failed, done + failed, name))
+        tbl.append((issn, cnt, done, failed, done + failed, name))
+    print(tabulate(tbl,headers=header,tablefmt='rst'))
 
 
 def counts():
