@@ -12,16 +12,25 @@ JCSV = 'journals.csv'
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
-WILEY_ISSN = {'1460-2075': 'EMBO J.', '1399-3054': 'Physiol Plant',
-              '1365-313X': 'Plant J.', '1600-0854': 'Traffic',
+WILEY_ISSN = {'1460-2075': 'EMBO J.',
+              # '1399-3054': 'Physiol Plant',
+              '1365-313X': 'Plant J.',
+              # '1600-0854': 'Traffic',
               '0960-7412': 'Plant J.',  # added by hand
-              '1467-7652': 'Plant Biotechnol. J.', '1469-8137': 'New Phytol.',
-              '1469-3178': 'EMBO Rep.', '1873-3468': 'FEBS Lett.',
-              '1567-1364': 'FEMS Yeast Res.', '1522-2683': 'Electrophoresis',
-              '1744-7909': 'J Integr Plant Biol', '1742-4658': 'FEBS J.',
-              '1744-4292': 'Mol. Syst. Biol.', '1364-3703': 'Mol. Plant Pathol.',
-              '1365-2591': 'Int Endod J', '1615-9861': 'Proteomics',
-              '1365-3040': 'Plant Cell Environ.'}
+              '1467-7652': 'Plant Biotechnol. J.',
+              # '1469-8137': 'New Phytol.',
+              # '1469-3178': 'EMBO Rep.',
+              '1873-3468': 'FEBS Lett.',
+              # '1567-1364': 'FEMS Yeast Res.',
+              '1522-2683': 'Electrophoresis',
+              # '1744-7909': 'J Integr Plant Biol',
+              # '1742-4658': 'FEBS J.',
+              # '1744-4292': 'Mol. Syst. Biol.',
+              # '1364-3703': 'Mol. Plant Pathol.',
+              # '1365-2591': 'Int Endod J', 
+              # '1615-9861': 'Proteomics',
+              #'1365-3040': 'Plant Cell Environ.'
+              }
 
 
 def readxml(d):
@@ -76,7 +85,7 @@ def download_wiley(journal, sleep=5.0, mx=0):
             if not a:
                 a = soup.select('article div.article__body article')
 
-            assert a and len(a) == 1, (pmid, resp.text)
+            assert a and len(a) == 1, (pmid, resp.url, doi)
             d = gdir
             done.add(pmid)
 
@@ -163,6 +172,7 @@ def gen_wiley(journal):
 
 def download_all(sleep=10., mx=5):
     for issn in WILEY_ISSN:
+        print('ISSN', issn)
         download_wiley(journal=issn, sleep=sleep, mx=mx)
 
 
@@ -170,7 +180,8 @@ if __name__ == '__main__':
     # download_wiley(journal='0960-7412', sleep=20., mx=50)
     # download_wiley(journal='1467-7652', sleep=10., mx=5)
     # download_wiley(journal='1365-313X', sleep=10., mx=20)
-    download_wiley(journal='1873-3468', sleep=10., mx=20)
+    # download_wiley(journal='1873-3468', sleep=10., mx=20)
+    download_all(sleep=60. * 2, mx=0)
 
     # gen_wiley(journal='0960-7412')
     # gen_wiley(journal='1467-7652')

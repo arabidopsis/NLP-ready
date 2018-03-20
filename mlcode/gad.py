@@ -152,7 +152,7 @@ def gen_gad(journal):
 
 
 if __name__ == '__main__':
-    download_gad(journal='1549-5477', sleep=10., mx=5)
-    # download_jbc(journal='0890-9369', sleep=10., mx=5)
-    # gen_jbc(journal='0890-9369')
-    # gen_jbc(journal='1549-5477')
+    # download_gad(journal='1549-5477', sleep=10., mx=5)
+    download_gad(journal='0890-9369', sleep=10., mx=5)
+    # gen_gad(journal='1549-5477')
+    # gen_gad(journal='0890-9369')

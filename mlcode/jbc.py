@@ -149,7 +149,7 @@ def gen_jbc(journal):
 
 
 if __name__ == '__main__':
-    download_jbc(journal='0021-9258', sleep=10., mx=5)
-    # download_jbc(journal='1083-351X', sleep=10., mx=5)
+    download_jbc(journal='0021-9258', sleep=60. * 2, mx=0)
+    download_jbc(journal='1083-351X', sleep=60. * 2, mx=0)
     # gen_jbc(journal='0021-9258')
     # gen_jbc(journal='1083-351X')

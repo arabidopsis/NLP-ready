@@ -150,7 +150,7 @@ def gen_oup(journal):
 
 
 if __name__ == '__main__':
-    # download_oup(journal='1471-9053', sleep=10., mx=5)
-    # download_oup(journal='0032-0781', sleep=10., mx=5)
-    gen_oup(journal='1471-9053')
+    # download_oup(journal='1471-9053', sleep=60. *2, mx=0)
+    download_oup(journal='0032-0781', sleep=60. * 2, mx=0)
+    # gen_oup(journal='1471-9053')
     # gen_oup(journal='0032-0781')

@@ -159,12 +159,11 @@ def gen_aspb(journal):
 
 
 if __name__ == '__main__':
-    
-    # download_aspb(sleep=60*2., mx=0, journal='1040-4651')
+    download_aspb(sleep=60.*2, mx=0, journal='1040-4651')
     download_aspb(sleep=60.*2, mx=0, journal='0032-0889')
-    # download_aspb(sleep=60.*2, mx=0, journal='1532-298X') # web issn for the plant cell
-    # download_aspb(sleep=10., mx=5, journal='1532-2548') # web issn for plant physiology
-    # gen_aspb(journal='1040-4651')
-    # gen_aspb(journal='0032-0889')
-    # gen_aspb(journal='1532-298X') # web issn for the plant cell
-    # gen_aspb(journal='1532-2548')
+    download_aspb(sleep=60.*2, mx=0, journal='1532-298X') # web issn for the plant cell
+    download_aspb(sleep=60.*2, mx=0, journal='1532-2548') # web issn for plant physiology
+    gen_aspb(journal='1040-4651')
+    gen_aspb(journal='0032-0889')
+    gen_aspb(journal='1532-298X') # web issn for the plant cell
+    gen_aspb(journal='1532-2548')

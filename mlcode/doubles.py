@@ -85,5 +85,5 @@ def parsed():
 
 
 if __name__ == '__main__':
-    summary()
-    # counts()
+    # summary()
+    counts()
