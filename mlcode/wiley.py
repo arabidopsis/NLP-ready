@@ -52,7 +52,8 @@ def download_wiley(journal, sleep=5.0, mx=0):
         todo = {pmid: (doi, issn) for pmid, issn, name, year,
                 doi in R if doi and issn in ISSN and pmid not in allpmid}
 
-    print('%s: %d failed, %d done, %d todo' % (WILEY_ISSN.get(journal, journal), len(failed), len(done), len(todo)))
+    print('%s: %d failed, %d done, %d todo' %
+          (WILEY_ISSN.get(journal, journal), len(failed), len(done), len(todo)))
     if not todo:
         return
     lst = sorted(todo.items(), key=lambda t: t[0])
@@ -72,6 +73,9 @@ def download_wiley(journal, sleep=5.0, mx=0):
             xml = resp.content
             soup = BeautifulSoup(BytesIO(xml), 'html.parser')
             a = soup.select('article.journal article.issue article.article')
+            if not a:
+                a = soup.select('article div.article__body article')
+
             assert a and len(a) == 1, (pmid, resp.text)
             d = gdir
             done.add(pmid)
@@ -131,7 +135,6 @@ def gen_wiley(journal):
         os.mkdir(DATADIR + 'cleaned_%s' % journal)
     gdir = 'xml_%s' % journal
     for pmid in readxml(gdir):
-        print(pmid)
         fname = DATADIR + gdir + '/{}.xml'.format(pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
@@ -143,6 +146,8 @@ def gen_wiley(journal):
             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
                 pmid, a is None, m is None, r is None), fg='red')
             continue
+        else:
+            print(pmid)
         fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
         if os.path.exists(fname):
             click.secho('overwriting %s' % fname, fg='yellow')
