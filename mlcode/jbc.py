@@ -19,7 +19,8 @@ def readxml(d):
 
 
 def download_jbc(journal, sleep=5.0, mx=0):
-    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
+    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+                            '(KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
               'Referer': 'http://www.jbc.org'
               }
     fdir = 'failed_%s' % journal
@@ -101,7 +102,7 @@ class JBC(object):
             return secs[0]
         for sec in self.article.select('div.section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'results':
+            if h2 and h2.string.lower() == 'methods':
                 return sec
 
         return None
