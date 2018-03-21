@@ -37,7 +37,7 @@ def get_dir(xmld, ext='.xml'):
 
 
 def getext(xmld):
-    if xmld.endswith(('epmc','elsevier')):
+    if xmld.endswith(('epmc', 'elsevier')):
         return '.xml'
     return '.html'
 
@@ -50,7 +50,7 @@ def get_all_done():
             yield issn, pmid
 
 
-def summary():
+def summary(showall=True):
     issns = read_issn()
     dd = {}
     for xmld in glob.glob(DATADIR + 'xml_*'):
@@ -65,16 +65,22 @@ def summary():
         name, issn, cnt, n, _ = dd[issn]
         dd[issn] = (name, issn, cnt, n, len(pmids))
 
+    if showall:
+        for issn in issns:
+            if issn not in dd:
+                cnt, name = issns[issn]
+                dd[issn] = (name, issn, cnt, 0, 0)
+
     res = sorted(dd.values(), key=lambda t: t[0])
-    header = 'issn,count,done,failed,total,tname'.split(',')
+    header = 'issn,count,done,failed,total,todo,tname'.split(',')
     tbl = []
     tcnt = tdone = tfailed = 0
     for name, issn, cnt, done, failed in res:
-        tbl.append((issn, cnt, done, failed, done + failed, name))
+        tbl.append((issn, cnt, done, failed, done + failed, cnt - (done + failed), name))
         tdone += done
         tfailed += failed
         tcnt += cnt
-    tbl.append(['total', tcnt, tdone, tfailed, tdone + tfailed, ''])
+    tbl.append(['total', tcnt, tdone, tfailed, tdone + tfailed, '', ''])
     print(tabulate(tbl, headers=header, tablefmt='rst'))
 
 
@@ -119,5 +125,5 @@ def parsed():
 
 
 if __name__ == '__main__':
-    summary()
-    # counts()
+    # summary()
+    counts()

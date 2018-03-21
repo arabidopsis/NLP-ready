@@ -1,25 +1,47 @@
 import csv
 import os
 import re
+import sys
 import time
 import requests
 import click
-from io import BytesIO
+from selenium import webdriver
+from io import BytesIO, StringIO
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
 DATADIR = '../data/'
 JCSV = 'journals.csv'
 
 
+def getpage(doi, driver):
+
+    driver.get('http://doi.org/{}'.format(doi))
+
+    h = driver.find_element_by_tag_name('html')
+    txt = h.get_attribute('outerHTML')
+    soup = BeautifulSoup(StringIO(txt), 'lxml')
+    secs = soup.select('article div.Body section')
+    assert len(secs) > 3, (doi, secs)
+
+    return txt
+
+
 def readxml(d):
     for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
-        if ext == '.xml':
+        if ext == '.html':
             yield f
 
 
+def dump(pmid, xml):
+    with open('dump_{}.html'.format(pmid), 'wb') as fp:
+        fp.write(xml)
+
+
 def download_cell(journal, sleep=5.0, mx=0):
-    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
+    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+              ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
               'Referer': 'http://www.sciencedirect.com'
               }
     fdir = 'failed_%s' % journal
@@ -43,30 +65,53 @@ def download_cell(journal, sleep=5.0, mx=0):
     lst = sorted(todo.items(), key=lambda t: t[0])
     if mx > 0:
         lst = lst[:mx]
-
+    options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+    # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
+    driver = webdriver.Chrome(chrome_options=options)
     for idx, (pmid, (doi, issn)) in enumerate(lst):
-        resp = requests.get('http://doi.org/{}'.format(doi), headers=header)
-        if resp.status_code == 404:
-            xml = b'failed404'
-            d = fdir
-            failed.add(pmid)
-        else:
-            resp.raise_for_status()
-            header['Referer'] = resp.url
-            xml = resp.content
-            soup = BeautifulSoup(BytesIO(xml), 'html.parser')
-            a = soup.select('article.Abstracts')
-            assert a and len(a) == 1, (pmid, resp.url, len(a), doi)
-            d = gdir
-            done.add(pmid)
+        print(pmid, doi)
+        xml = getpage(doi, driver)
+        # session = requests.Session()
+        # resp = session.get('http://doi.org/{}'.format(doi), headers=header)
+        # if resp.status_code == 404:
+        #     xml = b'failed404'
+        #     d = fdir
+        #     failed.add(pmid)
+        # else:
+        #     resp.raise_for_status()
+        #     header['Referer'] = resp.url
+        #     xml = resp.content
+        # soup = BeautifulSoup(StringIO(xml), 'lxml')
+        # a = soup.select('article div.Abstracts')
+        #     if not a:
+        #         m = soup.select('meta[http-equiv="REFRESH"]')
+        #         if m:
+        #             c = m[0].attrs['content']
+        #             c = c.split(';')[-1].strip()
+        #             _, c = c.split('=', 1)
+        #             c = c[1:-1]
+        #             p = urlparse(resp.url)
+        #             c = '%s://%s%s' % (p.scheme, p.netloc, c)
+        #             resp = session.get(c, headers=header)
+        #             xml = resp.content
+        #             soup = BeautifulSoup(BytesIO(xml), 'lxml')
+        #             a = soup.select('article div.Abstracts')
+        #         if not m or not a:
+        #             print('failed', resp.url, file=sys.stderr)
+        #             dump(pmid, xml)
+        # assert a and len(a) == 1, (pmid, len(a), doi)
+        d = gdir
+        done.add(pmid)
 
-        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'wb') as fp:
+        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 
         del todo[pmid]
         print('%d failed, %d done, %d todo: %s' % (len(failed), len(done), len(todo), pmid))
         if sleep > 0 and idx < len(lst) - 1:
             time.sleep(sleep)
+    driver.close()
 
 
 class CELL(object):
@@ -79,16 +124,19 @@ class CELL(object):
         self.article = a
 
     def results(self):
-        secs = self.article.select('.Body section')
+
+        secs = self.article.select('div.Body section')
         for sec in secs:
-            if sec.find('h2').text.lower == 'results and discussion':
+            h2 = sec.find('h2')
+            if h2 and h2.text.lower() == 'results':
                 return sec
         return None
 
     def methods(self):
-        secs = self.article.select('.Body section')
+        secs = self.article.select('div.Body section')
         for sec in secs:
-            if sec.find('h2').text.lower == 'experimental procedures':
+            h2 = sec.find('h2')
+            if h2 and h2.text.lower() == 'experimental procedures':
                 return sec
         return None
 
@@ -111,9 +159,9 @@ def gen_cell(journal):
     gdir = 'xml_%s' % journal
     for pmid in readxml(gdir):
 
-        fname = DATADIR + gdir + '/{}.xml'.format(pmid)
+        fname = DATADIR + gdir + '/{}.html'.format(pmid)
         with open(fname, 'rb') as fp:
-            soup = BeautifulSoup(fp, 'html.parser')
+            soup = BeautifulSoup(fp, 'lxml')
 
         e = CELL(soup)
         # for s in e.article.select('div.section'):
@@ -142,5 +190,5 @@ def gen_cell(journal):
 
 if __name__ == '__main__':
 
-    download_cell(journal='1097-4172', sleep=10., mx=1)
-    # gen_cell(journal='1097-4172')
+    # download_cell(journal='1097-4172', sleep=10., mx=1)
+    gen_cell(journal='1097-4172')
