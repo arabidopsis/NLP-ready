@@ -12,10 +12,8 @@ JCSV = 'journals.csv'
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
-WILEY_ISSN = {'1460-2075': 'EMBO J.',
-              # '1399-3054': 'Physiol Plant',
-              '1365-313X': 'Plant J.',
-              # '1600-0854': 'Traffic',
+WILEY_ISSN = {'1460-2075': 'EMBO J.', '1399-3054': 'Physiol Plant',
+              '1365-313X': 'Plant J.', '1600-0854': 'Traffic',
               '0960-7412': 'Plant J.',  # added by hand
               '1467-7652': 'Plant Biotechnol. J.',
               '1469-8137': 'New Phytol.',
@@ -38,6 +36,11 @@ def readxml(d):
         f, ext = os.path.splitext(f)
         if ext == '.html':
             yield f
+
+
+def dump(pmid, xml):
+    with open('dump_{}.html'.format(pmid), 'wb') as fp:
+        fp.write(xml)
 
 
 def download_wiley(journal, sleep=5.0, mx=0):
@@ -80,11 +83,14 @@ def download_wiley(journal, sleep=5.0, mx=0):
             resp.raise_for_status()
             header['Referer'] = resp.url
             xml = resp.content
-            soup = BeautifulSoup(BytesIO(xml), 'html.parser')
+            # soup = BeautifulSoup(BytesIO(xml), 'html.parser')
+            soup = BeautifulSoup(BytesIO(xml), 'lxml')
             a = soup.select('article.journal article.issue article.article')
             if not a:
                 a = soup.select('article div.article__body article')
-            print(soup.select('article'))
+            # print(soup.select('article'))
+            if not a:
+                dump(pmid, xml)
 
             assert a and len(a) == 1, (pmid, resp.url, doi, len(a))
             d = gdir
@@ -139,6 +145,44 @@ class Wiley(object):
         return txt
 
 
+class Wiley2(object):
+    SPACE = re.compile(r'\s+', re.I)
+
+    def __init__(self, root):
+        self.root = root
+        a = root.select('article div.article__body article')[0]
+        assert a
+        self.article = a
+
+    def results(self):
+        for sec in self.article.select('.article-section.article-section__full div.article-section__content'):
+            h2 = sec.find('h2')
+            if h2 and h2.string.lower().endswith('results and discussion'):
+                return sec
+
+        return None
+
+    def methods(self):
+        for sec in self.article.select('section.article-body-section'):
+            h2 = sec.find('h2')
+            if h2 and h2.string.lower().endswith('matherials and methods'):
+                return sec
+
+        return None
+
+    def abstract(self):
+        for s in self.article.select('section.article-section__abstract'):
+            return s
+        return None
+
+    def tostr(self, sec):
+        for a in sec.select('p a[title="Link to bibliographic citation"]'):
+            a.replace_with('CITATION')
+
+        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        return txt
+
+
 def gen_wiley(journal):
     print(journal)
     if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
@@ -147,8 +191,12 @@ def gen_wiley(journal):
     for pmid in readxml(gdir):
         fname = DATADIR + gdir + '/{}.html'.format(pmid)
         with open(fname, 'rb') as fp:
-            soup = BeautifulSoup(fp, 'html.parser')
-        e = Wiley(soup)
+            # soup = BeautifulSoup(fp, 'html.parser')
+            soup = BeautifulSoup(fp, 'lxml')
+        try:
+            e = Wiley(soup)
+        except:
+            e = Wiley2(soup)
         a = e.abstract()
         m = e.methods()
         r = e.results()
@@ -173,7 +221,6 @@ def gen_wiley(journal):
 
 def download_all(sleep=10., mx=5):
     for issn in WILEY_ISSN:
-        print('ISSN', issn)
         download_wiley(journal=issn, sleep=sleep, mx=mx)
 
 
@@ -182,7 +229,7 @@ if __name__ == '__main__':
     # download_wiley(journal='1467-7652', sleep=10., mx=5)
     # download_wiley(journal='1365-313X', sleep=10., mx=20)
     # download_wiley(journal='1873-3468', sleep=10., mx=20)
-    download_all(sleep=60. * 2, mx=0)
+    download_wiley(journal='1469-8137', sleep=10., mx=2)
 
     # gen_wiley(journal='0960-7412')
     # gen_wiley(journal='1467-7652')

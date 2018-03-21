@@ -185,9 +185,6 @@ def journal_summary():
 HREF = re.compile(r'^/journal/.*/\(ISSN\)(.{4}-.{4})$')
 
 
-HREF = re.compile(r'^/journal/.*/\(ISSN\)(.{4}-.{4})$')
-
-
 def fetch_issn(href, session=None):
     session = session or requests
     resp = session.get('http://onlinelibrary.wiley.com' + href)
