@@ -7,13 +7,14 @@ import click
 from io import BytesIO
 from bs4 import BeautifulSoup
 
+DATADIR = '../data/'
 JCSV = 'journals.csv'
 
 
 def readxml(d):
-    for f in os.listdir(d):
+    for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
-        if ext == '.xml':
+        if ext == '.html':
             yield f
 
 
@@ -64,7 +65,7 @@ def download_aspb(journal, sleep=5.0, mx=0):
                 d = gdir
                 done.add(pmid)
 
-        with open('{}/{}.xml'.format(d, pmid), 'wb') as fp:
+        with open('{}/{}.html'.format(d, pmid), 'wb') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -86,9 +87,11 @@ class ASPB(object):
             if 'results' in s.attrs['class']:
                 return s
         for s in self.article.select('div.section'):
-            txt = s.find('h2').string.lower()
-            if txt.find('results') >= 0:
-                return s
+            n = s.find('h2')
+            if n:
+                txt = n.text.lower()
+                if txt.find('methods') >= 0:
+                    return s
         return None
 
     def methods(self):
@@ -98,9 +101,11 @@ class ASPB(object):
             if 'methods' in s.attrs['class']:
                 return s
         for s in self.article.select('div.section'):
-            txt = s.find('h2').string.lower()
-            if txt.find('methods') >= 0:
-                return s
+            n = s.find('h2')
+            if n:
+                txt = n.text.lower()
+                if txt.find('methods') >= 0:
+                    return s
         return None
 
     def abstract(self):
@@ -127,15 +132,17 @@ def gen_aspb(journal):
         os.mkdir('cleaned_%s' % journal)
     for pmid in readxml('xml_%s' % journal):
         print(pmid)
-        fname = 'xml_{}/{}.xml'.format(journal, pmid)
+        fname = 'xml_{}/{}.html'.format(journal, pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
         a = soup.select('div.article.fulltext-view')[0]
         for sec in a.select('div.section'):
             for c in sec.attrs['class']:
                 cc.add(c)
-            txt = sec.find('h2').string  # .lower()
-            cc.add(txt)
+            n = sec.find('h2')
+            if n:
+                txt = n.text  # .lower()
+                cc.add(txt)
         e = ASPB(soup)
         a = e.abstract()
         m = e.methods()

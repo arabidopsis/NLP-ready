@@ -14,7 +14,7 @@ JCSV = 'journals.csv'
 def readxml(d):
     for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
-        if ext == '.xml':
+        if ext == '.html':
             yield f
 
 
@@ -67,7 +67,7 @@ def download_jbc(journal, sleep=5.0, mx=0):
                 d = gdir
                 done.add(pmid)
 
-        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'wb') as fp:
+        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'wb') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -124,7 +124,7 @@ def gen_jbc(journal):
     gdir = 'xml_%s' % journal
     for pmid in readxml(gdir):
         print(pmid)
-        fname = DATADIR + gdir + '/{}.xml'.format(pmid)
+        fname = DATADIR + gdir + '/{}.html'.format(pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
         e = JBC(soup)

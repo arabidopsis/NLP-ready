@@ -18,7 +18,7 @@ WILEY_ISSN = {'1460-2075': 'EMBO J.',
               # '1600-0854': 'Traffic',
               '0960-7412': 'Plant J.',  # added by hand
               '1467-7652': 'Plant Biotechnol. J.',
-              # '1469-8137': 'New Phytol.',
+              '1469-8137': 'New Phytol.',
               # '1469-3178': 'EMBO Rep.',
               '1873-3468': 'FEBS Lett.',
               # '1567-1364': 'FEMS Yeast Res.',
@@ -36,7 +36,7 @@ WILEY_ISSN = {'1460-2075': 'EMBO J.',
 def readxml(d):
     for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
-        if ext == '.xml':
+        if ext == '.html':
             yield f
 
 
@@ -84,12 +84,13 @@ def download_wiley(journal, sleep=5.0, mx=0):
             a = soup.select('article.journal article.issue article.article')
             if not a:
                 a = soup.select('article div.article__body article')
+            print(soup.select('article'))
 
-            assert a and len(a) == 1, (pmid, resp.url, doi)
+            assert a and len(a) == 1, (pmid, resp.url, doi, len(a))
             d = gdir
             done.add(pmid)
 
-        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'wb') as fp:
+        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'wb') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -144,7 +145,7 @@ def gen_wiley(journal):
         os.mkdir(DATADIR + 'cleaned_%s' % journal)
     gdir = 'xml_%s' % journal
     for pmid in readxml(gdir):
-        fname = DATADIR + gdir + '/{}.xml'.format(pmid)
+        fname = DATADIR + gdir + '/{}.html'.format(pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
         e = Wiley(soup)

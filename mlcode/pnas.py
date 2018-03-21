@@ -14,7 +14,7 @@ JCSV = 'journals.csv'
 def readxml(d):
     for f in os.listdir(DATADIR + d):
         f, ext = os.path.splitext(f)
-        if ext == '.xml':
+        if ext == '.html':
             yield f
 
 
@@ -60,7 +60,7 @@ def download_pnas(journal, sleep=5.0, mx=0):
             d = gdir
             done.add(pmid)
 
-        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'wb') as fp:
+        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'wb') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -95,7 +95,12 @@ class PNAS(object):
         secs = self.article.select('div.section.methods')
         if not secs:
             secs = self.article.select('div.section.materials-methods')
-        return secs[0] if secs else None
+        if secs:
+            return secs[0]
+        for sec in self.article.select('div.section'):
+            if sec.find('h2').text.lower() == 'materials and methods':
+                return sec
+        return None
 
     def abstract(self):
         secs = self.article.select('div.section.abstract')
@@ -110,12 +115,18 @@ class PNAS(object):
 
 def gen_pnas(journal):
     print(journal)
+    with open(JCSV, 'r', encoding='utf8') as fp:
+        R = csv.reader(fp)
+        next(R)
+        done = {pmid: doi for pmid, issn, name, year,
+                doi in R if doi and issn == journal}
+
     if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
         os.mkdir(DATADIR + 'cleaned_%s' % journal)
     gdir = 'xml_%s' % journal
     for pmid in readxml(gdir):
 
-        fname = DATADIR + gdir + '/{}.xml'.format(pmid)
+        fname = DATADIR + gdir + '/{}.html'.format(pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
 
@@ -126,14 +137,14 @@ def gen_pnas(journal):
         m = e.methods()
         r = e.results()
         if a is None or m is None or r is None:
-            click.secho('{}: missing: abs {}, methods {}, results {}'.format(
-                pmid, a is None, m is None, r is None), fg='red')
+            click.secho('{}: missing: abs {}, methods {}, results {} doi={}'.format(
+                pmid, a is None, m is None, r is None, done[pmid]), fg='red')
             continue
         fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
         if os.path.exists(fname):
-            click.secho('overwriting %s' % fname, fg='yellow')
+            click.secho('overwriting %s, %s' % (fname, done[pmid]), fg='yellow')
         else:
-            print(pmid)
+            print(pmid, done[pmid])
 
         with open(fname, 'w', encoding='utf-8') as fp:
             w = ' '.join(e.tostr(a))
@@ -145,7 +156,7 @@ def gen_pnas(journal):
 
 
 if __name__ == '__main__':
-    download_pnas(journal='0027-8424', sleep=60. * 2, mx=0)
+    # download_pnas(journal='0027-8424', sleep=60. * 2, mx=0)
     # download_pnas(journal='1091-6490', sleep=10., mx=5)
-    # gen_pnas(journal='0027-8424')
-    # gen_pnas(journal='1091-6490')
+    gen_pnas(journal='0027-8424')
+    gen_pnas(journal='1091-6490')
