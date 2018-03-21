@@ -36,10 +36,16 @@ def get_dir(xmld, ext='.xml'):
     return res
 
 
+def getext(xmld):
+    if xmld.endswith(('epmc','elsevier')):
+        return '.xml'
+    return '.html'
+
+
 def get_all_done():
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
-        pmids = get_dir(xmld)
+        pmids = get_dir(xmld, ext=getext())
         for pmid in pmids:
             yield issn, pmid
 
@@ -50,12 +56,12 @@ def summary():
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         cnt, name = issns.get(issn, (0, issn))
-        pmids = get_dir(xmld)
+        pmids = get_dir(xmld, ext=getext())
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
     for xmld in glob.glob(DATADIR + 'failed_*'):
         _, issn = xmld.split('_')
-        pmids = get_dir(xmld)
+        pmids = get_dir(xmld, ext=getext())
         name, issn, cnt, n, _ = dd[issn]
         dd[issn] = (name, issn, cnt, n, len(pmids))
 
@@ -77,7 +83,7 @@ def counts():
     res = defaultdict(list)
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
-        for pmid in get_dir(xmld):
+        for pmid in get_dir(xmld, ext=getext()):
             res[pmid].append(issn)
 
     print('done:', len(res))
@@ -113,5 +119,5 @@ def parsed():
 
 
 if __name__ == '__main__':
-    # summary()
-    counts()
+    summary()
+    # counts()
