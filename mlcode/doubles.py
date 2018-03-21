@@ -45,7 +45,7 @@ def getext(xmld):
 def get_all_done():
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
-        pmids = get_dir(xmld, ext=getext())
+        pmids = get_dir(xmld, ext=getext(xmld))
         for pmid in pmids:
             yield issn, pmid
 
@@ -56,12 +56,12 @@ def summary():
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         cnt, name = issns.get(issn, (0, issn))
-        pmids = get_dir(xmld, ext=getext())
+        pmids = get_dir(xmld, ext=getext(xmld))
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
     for xmld in glob.glob(DATADIR + 'failed_*'):
         _, issn = xmld.split('_')
-        pmids = get_dir(xmld, ext=getext())
+        pmids = get_dir(xmld, ext=getext(xmld))
         name, issn, cnt, n, _ = dd[issn]
         dd[issn] = (name, issn, cnt, n, len(pmids))
 
@@ -83,7 +83,7 @@ def counts():
     res = defaultdict(list)
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
-        for pmid in get_dir(xmld, ext=getext()):
+        for pmid in get_dir(xmld, ext=getext(xmld)):
             res[pmid].append(issn)
 
     print('done:', len(res))
