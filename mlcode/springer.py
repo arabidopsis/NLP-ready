@@ -80,12 +80,12 @@ def download_springer(journal, sleep=5.0, mx=0):
             time.sleep(sleep)
 
 
-class PNAS(object):
+class Springer(object):
     SPACE = re.compile(r'\s+', re.I)
 
     def __init__(self, root):
         self.root = root
-        a = root.select('div.article.fulltext-view')[0]
+        a = root.select('main#main-content article.main-body__content')
         assert a
         self.article = a
 
@@ -124,7 +124,7 @@ class PNAS(object):
         return txt
 
 
-def gen_pnas(journal):
+def gen_springer(journal):
     print(journal)
     with open(JCSV, 'r', encoding='utf8') as fp:
         R = csv.reader(fp)
@@ -141,7 +141,7 @@ def gen_pnas(journal):
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
 
-        e = PNAS(soup)
+        e = Springer(soup)
         # for s in e.article.select('div.section'):
         #     print(s.attrs)
         a = e.abstract()
@@ -168,6 +168,6 @@ def gen_pnas(journal):
 
 if __name__ == '__main__':
     # download_springer(journal='1573-5028', sleep=10., mx=5)
-    download_springer(journal='0167-4412', sleep=10., mx=5)
+    download_springer(journal='0167-4412', sleep=60. * 2, mx=0)
     # gen_pnas(journal='1573-5028')
-    # gen_pnas(journal='0167-4412')
+    gen_springer(journal='0167-4412')

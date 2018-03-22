@@ -156,7 +156,7 @@ def gen_pnas(journal):
 
 
 if __name__ == '__main__':
-    # download_pnas(journal='0027-8424', sleep=60. * 2, mx=0)
-    # download_pnas(journal='1091-6490', sleep=10., mx=5)
-    gen_pnas(journal='0027-8424')
-    gen_pnas(journal='1091-6490')
+    download_pnas(journal='0027-8424', sleep=60. * 2, mx=0)
+    download_pnas(journal='1091-6490', sleep=60. * 2, mx=0)
+    # gen_pnas(journal='0027-8424')
+    # gen_pnas(journal='1091-6490')

@@ -229,7 +229,8 @@ if __name__ == '__main__':
     # download_wiley(journal='1467-7652', sleep=10., mx=5)
     # download_wiley(journal='1365-313X', sleep=10., mx=20)
     # download_wiley(journal='1873-3468', sleep=10., mx=20)
-    download_wiley(journal='1469-8137', sleep=10., mx=2)
+    # download_wiley(journal='1469-8137', sleep=10., mx=2)
+    download_wiley(journal='1742-4658', sleep=60. * 2, mx=0)
 
     # gen_wiley(journal='0960-7412')
     # gen_wiley(journal='1467-7652')

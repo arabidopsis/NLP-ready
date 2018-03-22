@@ -86,13 +86,14 @@ def summary(showall=True):
 
 def counts():
     ISSN = read_issn()
+    papers = {pmid for pmid, t in read_papers().items() if t[0]} # papers with doi
     res = defaultdict(list)
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         for pmid in get_dir(xmld, ext=getext(xmld)):
             res[pmid].append(issn)
 
-    print('done:', len(res))
+    print('done:', len(res), 'possible', len(papers))
 
     def d(issn):
         if issn in ISSN:
@@ -125,5 +126,5 @@ def parsed():
 
 
 if __name__ == '__main__':
-    # summary()
-    counts()
+    summary()
+    # counts()
