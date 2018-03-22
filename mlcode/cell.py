@@ -22,6 +22,8 @@ def getpage(doi, driver):
     txt = h.get_attribute('outerHTML')
     soup = BeautifulSoup(StringIO(txt), 'lxml')
     secs = soup.select('article div.Body section')
+    if not secs:
+        secs = soup.select('div.fullText section')
     assert len(secs) > 3, (doi, secs)
 
     return txt
@@ -39,11 +41,11 @@ def dump(pmid, xml):
         fp.write(xml)
 
 
-def download_cell(journal, sleep=5.0, mx=0):
-    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
-              ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
-              'Referer': 'http://www.sciencedirect.com'
-              }
+def download_cell(journal, sleep=5.0, mx=0, headless=True, close=True):
+    # header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
+    #           ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
+    #           'Referer': 'http://www.sciencedirect.com'
+    #           }
     fdir = 'failed_%s' % journal
     gdir = 'xml_%s' % journal
     if not os.path.isdir(DATADIR + fdir):
@@ -66,7 +68,8 @@ def download_cell(journal, sleep=5.0, mx=0):
     if mx > 0:
         lst = lst[:mx]
     options = webdriver.ChromeOptions()
-    options.add_argument('headless')
+    if headless:
+        options.add_argument('headless')
     # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
     driver = webdriver.Chrome(chrome_options=options)
     for idx, (pmid, (doi, issn)) in enumerate(lst):
@@ -111,7 +114,10 @@ def download_cell(journal, sleep=5.0, mx=0):
         print('%d failed, %d done, %d todo: %s' % (len(failed), len(done), len(todo), pmid))
         if sleep > 0 and idx < len(lst) - 1:
             time.sleep(sleep)
-    driver.close()
+    if close:
+        driver.close()
+    else:
+        return driver
 
 
 class CELL(object):
@@ -119,7 +125,9 @@ class CELL(object):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('article')[0]
+        a = root.select('article')
+
+        a = a[0]
         assert a
         self.article = a
 
@@ -152,6 +160,47 @@ class CELL(object):
         return txt
 
 
+class CELL2(object):
+    SPACE = re.compile(r'\s+', re.I)
+
+    def __init__(self, root):
+        self.root = root
+        a = root.select('div.fullText')
+
+        a = a[0]
+        assert a
+        self.article = a
+
+    def results(self):
+        secs = self.article.select('section')
+        for sec in secs:
+            h2 = sec.find('h2')
+            if h2 and h2.text.lower() == 'results':
+                return sec
+        return None
+
+    def methods(self):
+        secs = self.article.select('section')
+        for sec in secs:
+            h2 = sec.find('h2')
+            if h2 and h2.text.lower() == 'experimental procedures':
+                return sec
+        return None
+
+    def abstract(self):
+        secs = self.article.select('section.abstract')
+        for sec in secs:
+            return sec
+        return None
+
+    def tostr(self, sec):
+        for a in sec.select('p span.bibRef'):
+
+            a.replace_with('CITATION')
+        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        return txt
+
+
 def gen_cell(journal):
     print(journal)
     if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
@@ -163,7 +212,11 @@ def gen_cell(journal):
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'lxml')
 
-        e = CELL(soup)
+        try:
+            e = CELL(soup)
+        except:
+            e = CELL2(soup)
+            click.secho('cell2', fg='yellow')
         # for s in e.article.select('div.section'):
         #     print(s.attrs)
         a = e.abstract()
@@ -188,7 +241,34 @@ def gen_cell(journal):
             print('!~MM~! %s' % w, file=fp)
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option('--sleep', default=10.)
+@click.option('--mx', default=1)
+@click.option('--head', default=False, is_flag=True)
+@click.option('--noclose', default=False, is_flag=True)
+@click.option('--issn', default='1097-4172,0092-8674', show_default=True)
+def download(sleep, mx, issn, head, noclose):
+    for i in issn.split(','):
+        driver = download_cell(journal=i, sleep=sleep, mx=mx, headless=not head, close=not noclose)
+    if noclose:
+        import code
+        code.interact(local=locals())
+
+
+@cli.command()
+@click.option('--issn', default='1097-4172,0092-8674', show_default=True)
+def clean(issn):
+    for i in issn.split(','):
+        gen_cell(journal=i)
+
+
 if __name__ == '__main__':
+    cli()
 
     # download_cell(journal='1097-4172', sleep=10., mx=1)
-    gen_cell(journal='1097-4172')
+    # gen_cell(journal='1097-4172')
