@@ -87,34 +87,24 @@ class Springer(object):
         self.root = root
         a = root.select('main#main-content article.main-body__content')
         assert a
-        self.article = a
+        self.article = a[0]
 
     def results(self):
-        secs = self.article.select('div.section.results-discussion')
+        secs = self.article.select('section.SectionTypeResults')
         if secs:
             return secs[0]
-        for sec in self.article.select('div.section'):
-            h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'results':
-                return sec
-            if h2 and h2.string.lower() == 'results and discussion':
-                return sec
 
         return None
 
     def methods(self):
-        secs = self.article.select('div.section.methods')
-        if not secs:
-            secs = self.article.select('div.section.materials-methods')
+        secs = self.article.select('section.SectionTypeMaterialsAndMethods')
         if secs:
             return secs[0]
-        for sec in self.article.select('div.section'):
-            if sec.find('h2').text.lower() == 'materials and methods':
-                return sec
+
         return None
 
     def abstract(self):
-        secs = self.article.select('div.section.abstract')
+        secs = self.article.select('section.Abstract')
         return secs[0] if secs else None
 
     def tostr(self, sec):
