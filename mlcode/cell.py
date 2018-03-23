@@ -175,8 +175,10 @@ class CELL2(object):
         secs = self.article.select('section')
         for sec in secs:
             h2 = sec.find('h2')
-            if h2 and h2.text.lower() == 'results':
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt == 'results' or txt == 'results and discussion':
+                    return sec
         return None
 
     def methods(self):
@@ -223,8 +225,8 @@ def gen_cell(journal):
         m = e.methods()
         r = e.results()
         if a is None or m is None or r is None:
-            click.secho('{}: missing: abs {}, methods {}, results {}'.format(
-                pmid, a is None, m is None, r is None), fg='red')
+            click.secho('{} {}: missing: abs {}, methods {}, results {}'.format(
+                pmid, journal, a is None, m is None, r is None), fg='red')
             continue
         fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
         if os.path.exists(fname):
