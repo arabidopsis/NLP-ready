@@ -27,14 +27,6 @@ def read_suba_papers_csv():
         yield row
 
 
-def readxml(d):
-    """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.xml':
-            yield f
-
-
 def getpmcids(pmids):
     """Map pubmed ids to the "open access" fulltext PMC ids."""
     ret = {}

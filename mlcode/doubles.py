@@ -4,8 +4,7 @@ import glob
 from collections import defaultdict
 from tabulate import tabulate
 
-DATADIR = '../data/'
-JCSV = 'journals.csv'
+from mlabc import DATADIR, JCSV
 
 
 def read_papers():
@@ -71,22 +70,22 @@ def summary(showall=True):
                 cnt, name = issns[issn]
                 dd[issn] = (name, issn, cnt, 0, 0)
 
-    res = sorted(dd.values(), key=lambda t: t[0])
     header = 'issn,count,done,failed,total,todo,tname'.split(',')
     tbl = []
     tcnt = tdone = tfailed = 0
-    for name, issn, cnt, done, failed in res:
+    for name, issn, cnt, done, failed in dd.values():
         tbl.append((issn, cnt, done, failed, done + failed, cnt - (done + failed), name))
         tdone += done
         tfailed += failed
         tcnt += cnt
+    tbl = sorted(tbl, key=lambda t: -t[5])
     tbl.append(['total', tcnt, tdone, tfailed, tdone + tfailed, '', ''])
     print(tabulate(tbl, headers=header, tablefmt='rst'))
 
 
 def counts():
     ISSN = read_issn()
-    papers = {pmid for pmid, t in read_papers().items() if t[0]} # papers with doi
+    papers = {pmid for pmid, t in read_papers().items() if t[0]}  # papers with doi
     res = defaultdict(list)
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')

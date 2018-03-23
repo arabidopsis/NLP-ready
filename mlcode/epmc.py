@@ -8,7 +8,8 @@ import requests
 import click
 from lxml import etree
 
-DATADIR = '../data/'
+from mlabc import DATADIR, readxml
+
 
 XML = 'https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML'  # noqa: E221
 
@@ -37,14 +38,6 @@ def read_suba_papers_csv():
     for row in R:
         # print(row)
         yield row
-
-
-def readxml(d):
-    """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.xml':
-            yield f
 
 
 def download_epmc(sleep=0.5):

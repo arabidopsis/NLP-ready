@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from io import StringIO
 import sys
 import time
-#doi = sys.argv[1]
+# doi = sys.argv[1]
 doi = '10.1016/j.cell.2007.12.028'
 # chrome = webdriver.PhantomJS()
 # chrome.set_window_size(1120, 550)
@@ -21,4 +21,3 @@ soup = BeautifulSoup(StringIO(txt), 'lxml')
 secs = soup.select('article div.Body section')
 for sec in secs:
     print(sec)
-

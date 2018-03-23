@@ -1,76 +1,7 @@
-import csv
-import os
-import re
-import time
-import requests
-import click
-from io import BytesIO
-from bs4 import BeautifulSoup
-
-DATADIR = '../data/'
-JCSV = 'journals.csv'
+from mlabc import Download, Clean, Generate
 
 
-def readxml(d):
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.html':
-            yield f
-
-
-def download_pnas(journal, sleep=5.0, mx=0):
-    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
-              'Referer': 'http://www.pnas.org'
-              }
-    fdir = 'failed_%s' % journal
-    gdir = 'xml_%s' % journal
-    if not os.path.isdir(DATADIR + fdir):
-        os.mkdir(DATADIR + fdir)
-    if not os.path.isdir(DATADIR + gdir):
-        os.mkdir(DATADIR + gdir)
-    failed = set(readxml(fdir))
-    done = set(readxml(gdir))
-
-    ISSN = {journal}
-    allpmid = failed | done
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        todo = {pmid: (doi, issn) for pmid, issn, name, year,
-                doi in R if doi and issn in ISSN and pmid not in allpmid}
-
-    print('%s: %d failed, %d done, %d todo' % (journal, len(failed), len(done), len(todo)))
-    lst = sorted(todo.items(), key=lambda t: t[0])
-    if mx > 0:
-        lst = lst[:mx]
-
-    for idx, (pmid, (doi, issn)) in enumerate(lst):
-        resp = requests.get('http://doi.org/{}'.format(doi), headers=header)
-        if resp.status_code == 404:
-            xml = b'failed404'
-            d = fdir
-            failed.add(pmid)
-        else:
-            resp.raise_for_status()
-            header['Referer'] = resp.url
-            xml = resp.content
-            soup = BeautifulSoup(BytesIO(xml), 'html.parser')
-            a = soup.select('div.article.fulltext-view')
-            assert a and len(a) == 1, (pmid, resp.url)
-            d = gdir
-            done.add(pmid)
-
-        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'wb') as fp:
-            fp.write(xml)
-
-        del todo[pmid]
-        print('%d failed, %d done, %d todo: %s' % (len(failed), len(done), len(todo), pmid))
-        if sleep > 0 and idx < len(lst) - 1:
-            time.sleep(sleep)
-
-
-class PNAS(object):
-    SPACE = re.compile(r'\s+', re.I)
+class PNAS(Clean):
 
     def __init__(self, root):
         self.root = root
@@ -107,56 +38,51 @@ class PNAS(object):
         return secs[0] if secs else None
 
     def tostr(self, sec):
+        for a in sec.select('div.fig'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
+            # a.replace_with('[[FIGURE]]')
         for a in sec.select('p a.xref-bibr'):
             a.replace_with('CITATION')
+
+        def p(tag):
+            return tag.name == 'p' or (tag.name == 'div' and ['fig'] == tag['class'])
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        # txt = [self.SPACE.sub(' ', p.text) for p in sec.find_all(p)]
         return txt
 
 
-def gen_pnas(journal):
-    print(journal)
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        done = {pmid: doi for pmid, issn, name, year,
-                doi in R if doi and issn == journal}
+def download_pnas(issn, sleep=5.0, mx=0):
+    class D(Download):
+        Referer = 'http://www.pnas.org'
 
-    if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
-        os.mkdir(DATADIR + 'cleaned_%s' % journal)
-    gdir = 'xml_%s' % journal
-    for pmid in readxml(gdir):
+        def check_soup(self, paper, soup, resp):
+            a = soup.select('div.article.fulltext-view')
+            assert a and len(a) == 1, (paper.pmid, resp.url)
 
-        fname = DATADIR + gdir + '/{}.html'.format(pmid)
-        with open(fname, 'rb') as fp:
-            soup = BeautifulSoup(fp, 'html.parser')
+    o = D(issn, sleep=sleep, mx=mx)
+    o.run()
 
-        e = PNAS(soup)
-        # for s in e.article.select('div.section'):
-        #     print(s.attrs)
-        a = e.abstract()
-        m = e.methods()
-        r = e.results()
-        if a is None or m is None or r is None:
-            click.secho('{}: missing: abs {}, methods {}, results {} doi={}'.format(
-                pmid, a is None, m is None, r is None, done[pmid]), fg='red')
-            continue
-        fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
-        if os.path.exists(fname):
-            click.secho('overwriting %s, %s' % (fname, done[pmid]), fg='yellow')
-        else:
-            print(pmid, done[pmid])
 
-        with open(fname, 'w', encoding='utf-8') as fp:
-            w = ' '.join(e.tostr(a))
-            print('!~ABS~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(r))
-            print('!~RES~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(m))
-            print('!~MM~! %s' % w, file=fp)
+class GeneratePNAS(Generate):
+    def create_clean(self, soup, pmid):
+        return PNAS(soup)
+
+
+def gen_pnas(issn):
+    e = GeneratePNAS(issn)
+    e.run()
+
+
+def html_pnas(issn):
+    e = GeneratePNAS(issn)
+    print(e.tohtml())
 
 
 if __name__ == '__main__':
-    download_pnas(journal='0027-8424', sleep=60. * 2, mx=0)
-    download_pnas(journal='1091-6490', sleep=60. * 2, mx=0)
-    # gen_pnas(journal='0027-8424')
-    # gen_pnas(journal='1091-6490')
+    # download_pnas(issn='0027-8424', sleep=60. * 2, mx=0)
+    # download_pnas(issn='1091-6490', sleep=60. * 2, mx=0)
+    # gen_pnas(issn='0027-8424')
+    # gen_pnas(issn='1091-6490')
+    html_pnas(issn='1091-6490')

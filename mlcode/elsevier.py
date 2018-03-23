@@ -1,6 +1,5 @@
 import csv
 import os
-import re
 import time
 # import sys
 import requests
@@ -9,9 +8,7 @@ from lxml import etree
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-DATADIR = '../data/'
-
-JCSV = 'journals.csv'
+from mlabc import DATADIR, JCSV, Clean
 
 
 PMID_ELSEVIER = 'http://api.elsevier.com/content/article/pubmed_id/{}'
@@ -139,8 +136,7 @@ def para2txt2(e):
             yield str(t)
 
 
-class Elsevier(object):
-    SPACE = re.compile(r'\s+', re.I)
+class Elsevier(Clean):
 
     def __init__(self, root):
         self.root = root

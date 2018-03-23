@@ -1,21 +1,12 @@
 import csv
 import os
-import re
 import time
 import requests
 import click
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-DATADIR = '../data/'
-JCSV = 'journals.csv'
-
-
-def readxml(d):
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.xml':
-            yield f
+from mlabc import DATADIR, JCSV, readxml, Clean
 
 
 def download_gad(journal, sleep=5.0, mx=0):
@@ -75,8 +66,7 @@ def download_gad(journal, sleep=5.0, mx=0):
         time.sleep(sleep)
 
 
-class GAD(object):
-    SPACE = re.compile(r'\s+', re.I)
+class GAD(Clean):
 
     def __init__(self, root):
         self.root = root

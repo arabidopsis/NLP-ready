@@ -6,9 +6,9 @@ import time
 import requests
 import click
 from selenium import webdriver
-from io import BytesIO, StringIO
+from io import StringIO
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+
 
 DATADIR = '../data/'
 JCSV = 'journals.csv'
@@ -216,7 +216,7 @@ def gen_cell(journal):
 
         try:
             e = CELL(soup)
-        except:
+        except Exception:
             e = CELL2(soup)
             click.secho('cell2', fg='yellow')
         # for s in e.article.select('div.section'):

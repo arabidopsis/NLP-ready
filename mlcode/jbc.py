@@ -1,83 +1,9 @@
-import csv
-import os
-import re
-import time
+
 import requests
-import click
-from io import BytesIO
-from bs4 import BeautifulSoup
-
-DATADIR = '../data/'
-JCSV = 'journals.csv'
+from mlabc import Clean, Download, Generate
 
 
-def readxml(d):
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.html':
-            yield f
-
-
-def download_jbc(journal, sleep=5.0, mx=0):
-    header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-                            '(KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
-              'Referer': 'http://www.jbc.org'
-              }
-    fdir = 'failed_%s' % journal
-    gdir = 'xml_%s' % journal
-    if not os.path.isdir(DATADIR + fdir):
-        os.mkdir(DATADIR + fdir)
-    if not os.path.isdir(DATADIR + gdir):
-        os.mkdir(DATADIR + gdir)
-    failed = set(readxml(fdir))
-    done = set(readxml(gdir))
-
-    ISSN = {journal}
-    allpmid = failed | done
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        todo = {pmid: (doi, issn, int(year)) for pmid, issn, name, year,
-                doi in R if doi and issn in ISSN and pmid not in allpmid}
-
-    print('%s: %d failed, %d done, %d todo' % (journal, len(failed), len(done), len(todo)))
-    lst = sorted(todo.items(), key=lambda t: t[0])
-    if mx > 0:
-        lst = lst[:mx]
-    for pmid, (doi, issn, year) in lst:
-        resp = requests.get('http://doi.org/{}'.format(doi), headers=header)
-        if not resp.url.endswith('.full'):
-            resp = requests.get(resp.url + '.full', headers=header)
-
-        if resp.status_code == 404:
-            xml = b'failed404'
-            d = fdir
-            failed.add(pmid)
-        else:
-            resp.raise_for_status()
-            header['Referer'] = resp.url
-            xml = resp.content
-            soup = BeautifulSoup(BytesIO(xml), 'html.parser')
-            a = soup.select('div.article.fulltext-view')
-            if not a and year <= 2001:  # probably only a (scanned?) PDF version
-                xml = b'failed-only-pdf'
-                d = fdir
-                failed.add(pmid)
-            else:
-                assert a and len(a) == 1, (pmid, resp.url)
-                d = gdir
-                done.add(pmid)
-
-        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'wb') as fp:
-            fp.write(xml)
-
-        del todo[pmid]
-        print('%d failed, %d done, %d todo: %s' % (len(failed), len(done), len(todo), pmid))
-        time.sleep(sleep)
-
-
-class JBC(object):
-    SPACE = re.compile(r'\s+', re.I)
+class JBC(Clean):
 
     def __init__(self, root):
         self.root = root
@@ -112,45 +38,60 @@ class JBC(object):
         return secs[0] if secs else None
 
     def tostr(self, sec):
+        # import sys
+        for a in sec.select('div.table.pos-float'):
+            # print(a, file=sys.stderr)
+            new_tag = self.root.new_tag("p")
+            new_tag.string = "[[TABLE]]"
+            a.replace_with(new_tag)
         for a in sec.select('p a.xref-bibr'):
             a.replace_with('CITATION')
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
 
-def gen_jbc(journal):
-    print(journal)
-    if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
-        os.mkdir(DATADIR + 'cleaned_%s' % journal)
-    gdir = 'xml_%s' % journal
-    for pmid in readxml(gdir):
-        print(pmid)
-        fname = DATADIR + gdir + '/{}.html'.format(pmid)
-        with open(fname, 'rb') as fp:
-            soup = BeautifulSoup(fp, 'html.parser')
-        e = JBC(soup)
-        a = e.abstract()
-        m = e.methods()
-        r = e.results()
-        if a is None or m is None or r is None:
-            click.secho('{}: missing: abs {}, methods {}, results {}'.format(
-                pmid, a is None, m is None, r is None), fg='red')
-            continue
-        fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
-        if os.path.exists(fname):
-            click.secho('overwriting %s' % fname, fg='yellow')
+def download_jbc(issn, sleep=5.0, mx=0):
+    class D(Download):
+        Referer = 'http://www.jbc.org'
 
-        with open(fname, 'w', encoding='utf-8') as fp:
-            w = ' '.join(e.tostr(a))
-            print('!~ABS~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(r))
-            print('!~RES~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(m))
-            print('!~MM~! %s' % w, file=fp)
+        def get_response(self, paper, header):
+            resp = requests.get('http://doi.org/{}'.format(paper.doi), headers=header)
+            if not resp.url.endswith('.full'):
+                resp = requests.get(resp.url + '.full', headers=header)
+            return resp
+
+        def check_soup(self, paper, soup, resp):
+            a = soup.select('div.article.fulltext-view')
+            if not a:
+                if paper.year <= 2001:  # probably only a (scanned?) PDF version
+                    return b'failed-only-pdf'
+                else:
+                    assert a, (a, resp.url, paper.doi)
+
+    download = D(issn, sleep=sleep, mx=mx)
+    download.run()
+
+
+class GenerateJBC(Generate):
+    def create_clean(self, soup, pmid):
+        return JBC(soup)
+
+
+def gen_jbc(issn):
+
+    e = GenerateJBC(issn)
+    e.run()
+
+
+def html_jbc(issn):
+
+    e = GenerateJBC(issn)
+    print(e.tohtml())
 
 
 if __name__ == '__main__':
-    download_jbc(journal='0021-9258', sleep=60. * 2, mx=0)
-    download_jbc(journal='1083-351X', sleep=60. * 2, mx=0)
-    # gen_jbc(journal='0021-9258')
-    # gen_jbc(journal='1083-351X')
+    # download_jbc(issn='0021-9258', sleep=60. * 2, mx=0)
+    # download_jbc(issn='1083-351X', sleep=60. * 2, mx=0)
+    # gen_jbc(issn='0021-9258')
+    # gen_jbc(issn='1083-351X')
+    html_jbc(issn='0021-9258')
