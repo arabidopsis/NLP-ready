@@ -25,10 +25,10 @@ def download_aspb(journal, sleep=5.0, mx=0):
 
     fdir = 'failed_%s' % journal
     gdir = 'xml_%s' % journal
-    if not os.path.isdir(fdir):
-        os.mkdir(fdir)
-    if not os.path.isdir(gdir):
-        os.mkdir(gdir)
+    if not os.path.isdir(DATADIR + fdir):
+        os.mkdir(DATADIR + fdir)
+    if not os.path.isdir(DATADIR + gdir):
+        os.mkdir(DATADIR + gdir)
     failed = set(readxml(fdir))
     done = set(readxml(gdir))
 
@@ -65,7 +65,7 @@ def download_aspb(journal, sleep=5.0, mx=0):
                 d = gdir
                 done.add(pmid)
 
-        with open('{}/{}.html'.format(d, pmid), 'wb') as fp:
+        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'wb') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -128,12 +128,12 @@ class ASPB(object):
 
 def gen_aspb(journal):
     cc = set()
-    if not os.path.isdir('cleaned_%s' % journal):
-        os.mkdir('cleaned_%s' % journal)
+    if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
+        os.mkdir(DATADIR + 'cleaned_%s' % journal)
     for pmid in readxml('xml_%s' % journal):
         print(pmid)
         fname = 'xml_{}/{}.html'.format(journal, pmid)
-        with open(fname, 'rb') as fp:
+        with open(DATADIR + fname, 'rb') as fp:
             soup = BeautifulSoup(fp, 'html.parser')
         a = soup.select('div.article.fulltext-view')[0]
         for sec in a.select('div.section'):
@@ -150,7 +150,7 @@ def gen_aspb(journal):
         if a is None or m is None or r is None:
             print(pmid, '...missing: abs, methods, results:', a is None, m is None, r is None)
             continue
-        fname = 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
+        fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
         if os.path.exists(fname):
             click.secho('overwriting %s' % fname, fg='red')
 

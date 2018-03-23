@@ -167,7 +167,7 @@ def gen_springer(journal):
 
 
 if __name__ == '__main__':
-    # download_springer(journal='1573-5028', sleep=10., mx=5)
+    download_springer(journal='1573-5028', sleep=60. * 2, mx=0)
     download_springer(journal='0167-4412', sleep=60. * 2, mx=0)
-    # gen_pnas(journal='1573-5028')
-    gen_springer(journal='0167-4412')
+    # gen_springer(journal='1573-5028')
+    # gen_springer(journal='0167-4412')
