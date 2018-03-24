@@ -137,6 +137,14 @@ class Generate(object):
         return template.render(papers=papers, issn=self.issn, this=self)
 
 
+def FakeResponse(object):
+    content = None
+    status_code = 200
+
+    def raise_for_status(self):
+        pass
+
+
 class Download(object):
     parser = 'lxml'
     Referer = 'http://google.com'
@@ -161,6 +169,12 @@ class Download(object):
     def check_soup(self, paper, soup, resp):
         raise RuntimeError("not implemented")
 
+    def start(self):
+        pass
+
+    def end(self):
+        pass
+
     def run(self):
         header = {'User-Agent': USER_AGENT,
                   'Referer': self.Referer
@@ -184,7 +198,7 @@ class Download(object):
         lst = sorted(todo.values(), key=lambda p: p.pmid)
         if self.mx > 0:
             lst = lst[:self.mx]
-
+        self.start()
         for idx, paper in enumerate(lst):
             resp = self.get_response(paper, header)
             if resp.status_code == 404:
@@ -209,6 +223,8 @@ class Download(object):
                 fp.write(xml)
 
             del todo[paper.pmid]
-            print('%d failed, %d done, %d todo: %s' % (len(failed), len(done), len(todo), paper.pmid))
+            print('%d failed, %d done, %d todo: %s' %
+                  (len(failed), len(done), len(todo), paper.pmid))
             if self.sleep > 0 and idx < len(lst) - 1:
                 time.sleep(self.sleep)
+        self.end()

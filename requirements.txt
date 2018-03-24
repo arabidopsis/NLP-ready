@@ -3,3 +3,4 @@ click
 bs4
 lxml
 tabulate
+selenium

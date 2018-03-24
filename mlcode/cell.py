@@ -1,17 +1,48 @@
 import csv
 import os
-import re
-import sys
 import time
-import requests
 import click
 from selenium import webdriver
 from io import StringIO
 from bs4 import BeautifulSoup
 
+from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCSV
 
-DATADIR = '../data/'
-JCSV = 'journals.csv'
+
+class DownloadWiley(Download):
+
+    def start(self):
+        options = webdriver.ChromeOptions()
+        if self.headless:
+            options.add_argument('headless')
+        self.driver = webdriver.Chrome(chrome_options=options)
+
+    def end(self):
+        if self.close:
+            self.driver.close()
+
+    def get_response(self, paper, header):
+        self.driver.get('http://doi.org/{}'.format(paper.doi))
+
+        h = self.driver.find_element_by_tag_name('html')
+        txt = h.get_attribute('outerHTML')
+        resp = FakeResponse()
+        resp.content = txt.encode('utf-8')
+        return resp
+
+    def check_soup(self, paper, soup, resp):
+        secs = soup.select('article div.Body section')
+        if not secs:
+            secs = soup.select('div.fullText section')
+        assert len(secs) > 3, (paper.doi, secs)
+
+
+def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
+    download = Download(issn, sleep=sleep, mx=mx)
+    download.close = close
+    download.headless = headless
+
+    download.run()
 
 
 def getpage(doi, driver):
@@ -29,25 +60,13 @@ def getpage(doi, driver):
     return txt
 
 
-def readxml(d):
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.html':
-            yield f
-
-
-def dump(pmid, xml):
-    with open('dump_{}.html'.format(pmid), 'wb') as fp:
-        fp.write(xml)
-
-
-def download_cell(journal, sleep=5.0, mx=0, headless=True, close=True):
+def download_cell_old(issn, sleep=5.0, mx=0, headless=True, close=True):
     # header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
     #           ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
     #           'Referer': 'http://www.sciencedirect.com'
     #           }
-    fdir = 'failed_%s' % journal
-    gdir = 'xml_%s' % journal
+    fdir = 'failed_%s' % issn
+    gdir = 'xml_%s' % issn
     if not os.path.isdir(DATADIR + fdir):
         os.mkdir(DATADIR + fdir)
     if not os.path.isdir(DATADIR + gdir):
@@ -55,7 +74,7 @@ def download_cell(journal, sleep=5.0, mx=0, headless=True, close=True):
     failed = set(readxml(fdir))
     done = set(readxml(gdir))
 
-    ISSN = {journal}
+    ISSN = {issn}
     allpmid = failed | done
     with open(JCSV, 'r', encoding='utf8') as fp:
         R = csv.reader(fp)
@@ -63,7 +82,7 @@ def download_cell(journal, sleep=5.0, mx=0, headless=True, close=True):
         todo = {pmid: (doi, issn) for pmid, issn, name, year,
                 doi in R if doi and issn in ISSN and pmid not in allpmid}
 
-    print('%s: %d failed, %d done, %d todo' % (journal, len(failed), len(done), len(todo)))
+    print('%s: %d failed, %d done, %d todo' % (issn, len(failed), len(done), len(todo)))
     lst = sorted(todo.items(), key=lambda t: t[0])
     if mx > 0:
         lst = lst[:mx]
@@ -75,35 +94,6 @@ def download_cell(journal, sleep=5.0, mx=0, headless=True, close=True):
     for idx, (pmid, (doi, issn)) in enumerate(lst):
         print(pmid, doi)
         xml = getpage(doi, driver)
-        # session = requests.Session()
-        # resp = session.get('http://doi.org/{}'.format(doi), headers=header)
-        # if resp.status_code == 404:
-        #     xml = b'failed404'
-        #     d = fdir
-        #     failed.add(pmid)
-        # else:
-        #     resp.raise_for_status()
-        #     header['Referer'] = resp.url
-        #     xml = resp.content
-        # soup = BeautifulSoup(StringIO(xml), 'lxml')
-        # a = soup.select('article div.Abstracts')
-        #     if not a:
-        #         m = soup.select('meta[http-equiv="REFRESH"]')
-        #         if m:
-        #             c = m[0].attrs['content']
-        #             c = c.split(';')[-1].strip()
-        #             _, c = c.split('=', 1)
-        #             c = c[1:-1]
-        #             p = urlparse(resp.url)
-        #             c = '%s://%s%s' % (p.scheme, p.netloc, c)
-        #             resp = session.get(c, headers=header)
-        #             xml = resp.content
-        #             soup = BeautifulSoup(BytesIO(xml), 'lxml')
-        #             a = soup.select('article div.Abstracts')
-        #         if not m or not a:
-        #             print('failed', resp.url, file=sys.stderr)
-        #             dump(pmid, xml)
-        # assert a and len(a) == 1, (pmid, len(a), doi)
         d = gdir
         done.add(pmid)
 
@@ -120,8 +110,7 @@ def download_cell(journal, sleep=5.0, mx=0, headless=True, close=True):
         return driver
 
 
-class CELL(object):
-    SPACE = re.compile(r'\s+', re.I)
+class CELL(Clean):
 
     def __init__(self, root):
         self.root = root
@@ -160,8 +149,7 @@ class CELL(object):
         return txt
 
 
-class CELL2(object):
-    SPACE = re.compile(r'\s+', re.I)
+class CELL2(Clean):
 
     def __init__(self, root):
         self.root = root
@@ -203,44 +191,18 @@ class CELL2(object):
         return txt
 
 
-def gen_cell(journal):
-    print(journal)
-    if not os.path.isdir(DATADIR + 'cleaned_%s' % journal):
-        os.mkdir(DATADIR + 'cleaned_%s' % journal)
-    gdir = 'xml_%s' % journal
-    for pmid in readxml(gdir):
-
-        fname = DATADIR + gdir + '/{}.html'.format(pmid)
-        with open(fname, 'rb') as fp:
-            soup = BeautifulSoup(fp, 'lxml')
-
+class GenerateCell(Generate):
+    def create_clean(self, soup, pmid):
         try:
             e = CELL(soup)
         except Exception:
             e = CELL2(soup)
-            click.secho('cell2', fg='yellow')
-        # for s in e.article.select('div.section'):
-        #     print(s.attrs)
-        a = e.abstract()
-        m = e.methods()
-        r = e.results()
-        if a is None or m is None or r is None:
-            click.secho('{} {}: missing: abs {}, methods {}, results {}'.format(
-                pmid, journal, a is None, m is None, r is None), fg='red')
-            continue
-        fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(journal, pmid)
-        if os.path.exists(fname):
-            click.secho('overwriting %s' % fname, fg='yellow')
-        else:
-            print(pmid)
+        return e
 
-        with open(fname, 'w', encoding='utf-8') as fp:
-            w = ' '.join(e.tostr(a))
-            print('!~ABS~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(r))
-            print('!~RES~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(m))
-            print('!~MM~! %s' % w, file=fp)
+
+def gen_cell(issn):
+    e = GenerateCell(issn)
+    e.run()
 
 
 @click.group()
@@ -256,7 +218,7 @@ def cli():
 @click.option('--issn', default='1097-4172,0092-8674', show_default=True)
 def download(sleep, mx, issn, head, noclose):
     for i in issn.split(','):
-        driver = download_cell(journal=i, sleep=sleep, mx=mx, headless=not head, close=not noclose)
+        driver = download_cell(issn=i, sleep=sleep, mx=mx, headless=not head, close=not noclose)
     if noclose:
         import code
         code.interact(local=locals())
@@ -266,7 +228,7 @@ def download(sleep, mx, issn, head, noclose):
 @click.option('--issn', default='1097-4172,0092-8674', show_default=True)
 def clean(issn):
     for i in issn.split(','):
-        gen_cell(journal=i)
+        gen_cell(issn=i)
 
 
 if __name__ == '__main__':

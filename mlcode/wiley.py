@@ -101,15 +101,17 @@ class Wiley2(Clean):
         return txt
 
 
+class GenerateWiley(Generate):
+    def create_clean(self, soup, pmid):
+        try:
+            e = Wiley(soup)
+        except Exception:
+            e = Wiley2(soup)
+        return e
+
+
 def gen_wiley(issn):
-    class G(Generate):
-        def create_clean(self, soup, pmid):
-            try:
-                e = Wiley(soup)
-            except Exception:
-                e = Wiley2(soup)
-            return e
-    e = G(issn)
+    e = GenerateWiley(issn)
     e.run()
 
 
