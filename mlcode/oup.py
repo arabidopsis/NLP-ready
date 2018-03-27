@@ -2,6 +2,7 @@ from collections import defaultdict
 from mlabc import Download, Clean, Generate
 
 OUP_ISSN = {'1460-2431': 'J. Exp. Bot.',
+            '0022-0957': 'J. Exp. Bot.',
             '1471-9053': 'Plant Cell Physiol'
             }
 
@@ -78,7 +79,8 @@ def gen_oup(issn):
 
 
 if __name__ == '__main__':
-    download_oup(issn='1460-2431', sleep=60. * 2, mx=0)
+    download_oup(issn='0022-0957', sleep=60. * 2, mx=0)
+    # download_oup(issn='1460-2431', sleep=60. * 2, mx=0)
     # download_oup(issn='1471-9053', sleep=60. * 2, mx=0)
     # download_oup(issn='0032-0781', sleep=60. * 2, mx=0)
     # gen_oup(issn='1471-9053')
