@@ -4,6 +4,9 @@ from mlabc import Download, Clean, Generate
 
 # 1059-1524 ,Mol. Biol. Cell
 
+ISSN = {'1059-1524': 'Mol. Biol. Cell'}
+
+
 class ASCB(Clean):
 
     def __init__(self, root):

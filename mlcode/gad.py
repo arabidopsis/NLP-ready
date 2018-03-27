@@ -5,6 +5,11 @@ from mlabc import Clean, Download, Generate
 # http://genesdev.cshlp.org
 
 
+ISSN = {
+    '0890-9369': 'Genes Dev.'
+}
+
+
 class GAD(Clean):
 
     def __init__(self, root):

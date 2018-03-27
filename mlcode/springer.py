@@ -1,6 +1,13 @@
 from mlabc import Download, Clean, Generate, dump
 
 
+ISSN = {
+    '1573-5028': 'Plant Mol. Biol.',
+    '0167-4412': 'Plant Mol. Biol.',
+    '1573-5028': 'Plant Mol. Biol.'
+}
+
+
 class Springer(Clean):
 
     def __init__(self, root):

@@ -1,6 +1,10 @@
-
 import requests
 from mlabc import Clean, Download, Generate
+
+
+ISSN = {
+    '1095-9203': 'Science'
+}
 
 
 class Science(Clean):

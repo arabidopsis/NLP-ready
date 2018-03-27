@@ -1,6 +1,11 @@
 from mlabc import Download, Clean, Generate
 
 
+ISSN = {
+    '1932-6203': 'PLoS ONE'
+}
+
+
 class PLOS(Clean):
 
     def __init__(self, root):

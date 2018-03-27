@@ -1,10 +1,12 @@
 from collections import defaultdict
 from mlabc import Download, Clean, Generate
 
-OUP_ISSN = {'1460-2431': 'J. Exp. Bot.',
-            '0022-0957': 'J. Exp. Bot.',
-            '1471-9053': 'Plant Cell Physiol'
-            }
+ISSN = {
+    '1460-2431': 'J. Exp. Bot.',
+    '0022-0957': 'J. Exp. Bot.',
+    '1471-9053': 'Plant Cell Physiol',
+    '0032-0781': 'Plant Cell Physiol.'
+}
 
 
 class OUP(Clean):

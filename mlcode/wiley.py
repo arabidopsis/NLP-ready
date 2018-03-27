@@ -5,25 +5,26 @@ from mlabc import Download, Clean, Generate, dump
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
-WILEY_ISSN = {'1460-2075': 'EMBO J.',
-              '1399-3054': 'Physiol Plant',
-              '1365-313X': 'Plant J.',
-              '1600-0854': 'Traffic',
-              '0960-7412': 'Plant J.',  # added by hand
-              '1467-7652': 'Plant Biotechnol. J.',
-              '1469-8137': 'New Phytol.',
-              # '1469-3178': 'EMBO Rep.',
-              '1873-3468': 'FEBS Lett.',
-              # '1567-1364': 'FEMS Yeast Res.',
-              '1522-2683': 'Electrophoresis',
-              # '1744-7909': 'J Integr Plant Biol',
-              # '1742-4658': 'FEBS J.',
-              # '1744-4292': 'Mol. Syst. Biol.',
-              # '1364-3703': 'Mol. Plant Pathol.',
-              # '1365-2591': 'Int Endod J',
-              # '1615-9861': 'Proteomics',
-              # '1365-3040': 'Plant Cell Environ.'
-              }
+ISSN = {
+    '1460-2075': 'EMBO J.',
+    '1399-3054': 'Physiol Plant',
+    '1365-313X': 'Plant J.',
+    '1600-0854': 'Traffic',
+    '0960-7412': 'Plant J.',  # added by hand
+    '1467-7652': 'Plant Biotechnol. J.',
+    '1469-8137': 'New Phytol.',
+    # '1469-3178': 'EMBO Rep.',
+    '1873-3468': 'FEBS Lett.',
+    # '1567-1364': 'FEMS Yeast Res.',
+    '1522-2683': 'Electrophoresis',
+    # '1744-7909': 'J Integr Plant Biol',
+    # '1742-4658': 'FEBS J.',
+    # '1744-4292': 'Mol. Syst. Biol.',
+    # '1364-3703': 'Mol. Plant Pathol.',
+    # '1365-2591': 'Int Endod J',
+    # '1615-9861': 'Proteomics',
+    # '1365-3040': 'Plant Cell Environ.'
+}
 
 
 class Wiley(Clean):
@@ -152,7 +153,7 @@ def html_wiley(issn):
 
 
 def download_all(sleep=10., mx=5):
-    for issn in WILEY_ISSN:
+    for issn in ISSN:
         download_wiley(issn=issn, sleep=sleep, mx=mx)
 
 

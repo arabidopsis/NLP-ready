@@ -1,6 +1,11 @@
 from mlabc import Clean, Generate, Download
 
 
+ISSN = {
+    '1460-2075': 'EMBO J.'
+}
+
+
 class EMBOJ(Clean):
 
     def __init__(self, root):

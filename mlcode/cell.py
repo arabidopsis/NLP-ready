@@ -9,7 +9,13 @@ from bs4 import BeautifulSoup
 from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCSV
 
 
-class DownloadWiley(Download):
+ISSN = {
+    '1097-4172': 'Cell',
+    '0092-8674': 'Cell'
+}
+
+
+class DownloadCell(Download):
 
     def start(self):
         options = webdriver.ChromeOptions()
@@ -40,7 +46,7 @@ class DownloadWiley(Download):
 
 
 def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
-    download = DownloadWiley(issn, sleep=sleep, mx=mx)
+    download = DownloadCell(issn, sleep=sleep, mx=mx)
     download.close = close
     download.headless = headless
 

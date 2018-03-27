@@ -1,6 +1,11 @@
 from mlabc import Download, Clean, Generate
 
 
+ISSN = {
+    '0950-1991': 'Development'
+}
+
+
 class Dev(Clean):
 
     def __init__(self, root):

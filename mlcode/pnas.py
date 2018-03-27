@@ -1,6 +1,12 @@
 from mlabc import Download, Clean, Generate
 
 
+ISSN = {
+    '0027-8424': 'Proc. Natl. Acad. Sci. U.S.A.',
+    '1091-6490': 'Proc. Natl. Acad. Sci. U.S.A.'
+}
+
+
 class PNAS(Clean):
 
     def __init__(self, root):

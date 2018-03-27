@@ -3,6 +3,14 @@ import click
 from mlabc import Download, Generate, Clean
 
 
+ISSN = {
+    '1040-4651': 'Plant Cell',
+    '0032-0889': 'Plant Physiol.',
+    '1532-298X': 'Plant Cell',  # web issn for the plant cell
+    '1532-2548': 'Plant Physiol.'
+}
+
+
 def download_aspb(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = 'http://www.plantcell.org'
