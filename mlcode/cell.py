@@ -22,11 +22,13 @@ class DownloadWiley(Download):
             self.driver.close()
 
     def get_response(self, paper, header):
-        self.driver.get('http://doi.org/{}'.format(paper.doi))
+        url = 'http://doi.org/{}'.format(paper.doi)
+        self.driver.get(url)
 
         h = self.driver.find_element_by_tag_name('html')
         txt = h.get_attribute('outerHTML')
         resp = FakeResponse()
+        resp.url = url
         resp.content = txt.encode('utf-8')
         return resp
 
@@ -187,6 +189,10 @@ class CELL2(Clean):
         for a in sec.select('p span.bibRef'):
 
             a.replace_with('CITATION')
+        for a in sec.select('div.floatDisplay'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
@@ -203,6 +209,14 @@ class GenerateCell(Generate):
 def gen_cell(issn):
     e = GenerateCell(issn)
     e.run()
+
+
+def html_cell(issn):
+    e = GenerateCell(issn)
+    fname = issn + '.html'
+    print('writing', fname)
+    with open(fname, 'w') as fp:
+        fp.write(e.tohtml())
 
 
 @click.group()
@@ -229,6 +243,13 @@ def download(sleep, mx, issn, head, noclose):
 def clean(issn):
     for i in issn.split(','):
         gen_cell(issn=i)
+
+
+@cli.command()
+@click.option('--issn', default='1097-4172,0092-8674', show_default=True)
+def html(issn):
+    for i in issn.split(','):
+        html_cell(issn=i)
 
 
 if __name__ == '__main__':

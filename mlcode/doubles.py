@@ -3,6 +3,7 @@ import csv
 import glob
 from collections import defaultdict
 from tabulate import tabulate
+import click
 
 from mlabc import DATADIR, JCSV
 
@@ -49,7 +50,7 @@ def get_all_done():
             yield issn, pmid
 
 
-def summary(showall=True):
+def _summary(showall=True):
     issns = read_issn()
     dd = {}
     for xmld in glob.glob(DATADIR + 'xml_*'):
@@ -83,7 +84,7 @@ def summary(showall=True):
     print(tabulate(tbl, headers=header, tablefmt='rst'))
 
 
-def counts():
+def _counts():
     ISSN = read_issn()
     papers = {pmid for pmid, t in read_papers().items() if t[0]}  # papers with doi
     res = defaultdict(list)
@@ -124,6 +125,22 @@ def parsed():
             print(pmid, [ISSN.get(j, j) for j in issns])
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option('--showall', is_flag=True, help='show journals not done yet')
+def summary(showall):
+    _summary(showall)
+
+
+@cli.command()
+def counts():
+    _counts()
+
+
 if __name__ == '__main__':
-    summary()
+    cli()
     # counts()

@@ -46,7 +46,7 @@ class EMBOJ(Clean):
         return txt
 
 
-def download_emboj(journal, sleep=5.0, mx=0):
+def download_emboj(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = 'http://www.pnas.org'
 
@@ -54,19 +54,29 @@ def download_emboj(journal, sleep=5.0, mx=0):
             a = soup.select('div.article.fulltext-view')
             assert a and len(a) == 1, (pmid, resp.url)
 
-    e = D(journal, sleep=sleep, mx=mx)
+    e = D(issn, sleep=sleep, mx=mx)
     e.run()
 
 
-def gen_emboj(journal):
+def gen_emboj(issn):
     class EMBJ(Generate):
         def create_clean(self, soup, pmid):
             return EMBOJ(soup)
 
-    e = EMBJ(journal)
+    e = EMBJ(issn)
     e.run()
+
+
+def html_emboj(issn):
+    class EMBJ(Generate):
+        def create_clean(self, soup, pmid):
+            return EMBOJ(soup)
+
+    e = EMBJ(issn)
+    print(e.tohtml())
 
 
 if __name__ == '__main__':
     # this is also a Wiley thing
-    download_emboj(journal='1460-2075', sleep=60. * 2, mx=0)
+    # download_emboj(issn='1460-2075', sleep=60. * 2, mx=0)
+    html_emboj(issn='1460-2075')

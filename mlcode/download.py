@@ -12,8 +12,7 @@ from io import BytesIO
 
 from bs4 import BeautifulSoup
 
-DATADIR = '../data/'
-JCSV = 'journals.csv'
+from mlabc import JCSV
 
 
 def read_suba_papers_csv():
@@ -180,7 +179,7 @@ HREF = re.compile(r'^/journal/.*/\(ISSN\)(.{4}-.{4})$')
 def fetch_issn(href, session=None):
     session = session or requests
     resp = session.get('http://onlinelibrary.wiley.com' + href)
-    soup = BeautifulSoup(BytesIO(resp.content), 'html.parser')
+    soup = BeautifulSoup(BytesIO(resp.content), 'lxml')
     issn = soup.select('#issn')
     if not issn:
         return None

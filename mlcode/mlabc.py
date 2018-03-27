@@ -137,9 +137,10 @@ class Generate(object):
         return template.render(papers=papers, issn=self.issn, this=self)
 
 
-def FakeResponse(object):
+class FakeResponse(object):
     content = None
     status_code = 200
+    url = None
 
     def raise_for_status(self):
         pass
