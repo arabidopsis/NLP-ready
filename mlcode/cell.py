@@ -40,7 +40,7 @@ class DownloadWiley(Download):
 
 
 def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
-    download = Download(issn, sleep=sleep, mx=mx)
+    download = DownloadWiley(issn, sleep=sleep, mx=mx)
     download.close = close
     download.headless = headless
 
@@ -253,7 +253,8 @@ def html(issn):
 
 
 if __name__ == '__main__':
-    cli()
+    # cli()
 
-    # download_cell(journal='1097-4172', sleep=10., mx=1)
-    # gen_cell(journal='1097-4172')
+    download_cell(issn='1097-4172', sleep=120., mx=0 ,headless=False)
+    download_cell(issn='0092-8674', sleep=120., mx=0 ,headless=False)
+    # gen_cell(issn='1097-4172')

@@ -1,7 +1,7 @@
 import os
 import csv
 import glob
-from collections import defaultdict
+from collections import defaultdict, Counter
 from tabulate import tabulate
 import click
 
@@ -106,6 +106,36 @@ def _counts():
             print(pmid, [d(j) for j in issns])
 
 
+def _todo():
+    issns = read_issn()
+    papers = {pmid: t for pmid, t in read_papers().items() if t[0]}  # papers with doi
+
+    for xmld in glob.glob(DATADIR + 'xml_*'):
+        _, issn = xmld.split('_')
+        cnt, name = issns.get(issn, (0, issn))
+        pmids = get_dir(xmld, ext=getext(xmld))
+        for pmid in pmids:
+            if pmid in papers:
+                del papers[pmid]
+
+    # for xmld in glob.glob(DATADIR + 'failed_*'):
+    #     _, issn = xmld.split('_')
+    #     pmids = get_dir(xmld, ext=getext(xmld))
+    #     for pmid in pmids:
+    #         if pmid in papers:
+    #             del papers[pmid]
+
+    ISSN = Counter()
+    for pmid, (doi, issn, year) in papers.items():
+        ISSN[issn] += 1
+
+    header = ["ISSN", "Journal", "ToDo"]
+    tbl = []
+    for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
+        tbl.append([issn, issns[issn][1], cnt])
+    print(tabulate(tbl, headers=header, tablefmt="rst"))
+
+
 def parsed():
     ISSN = {}
     res = defaultdict(list)
@@ -139,6 +169,11 @@ def summary(showall):
 @cli.command()
 def counts():
     _counts()
+
+
+@cli.command()
+def todo():
+    _todo()
 
 
 if __name__ == '__main__':
