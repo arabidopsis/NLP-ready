@@ -77,15 +77,21 @@ class Wiley2(Clean):
             h2 = sec.find('h2')
             if h2 and h2.string.lower().endswith('results and discussion'):
                 return sec
-
+        for sec in self.article.select('div.article-section__content'):
+            h2 = sec.find('h2')
+            if h2 and h2.string.lower().endswith('results'):
+                return sec
         return None
 
     def methods(self):
         for sec in self.article.select('section.article-body-section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower().endswith('matherials and methods'):
+            if h2 and h2.string.lower().endswith('materials and methods'):
                 return sec
-
+        for sec in self.article.select('div.article-section__content'):
+            h2 = sec.find('h2')
+            if h2 and h2.string.lower().endswith('materials and methods'):
+                return sec
         return None
 
     def abstract(self):
@@ -139,21 +145,29 @@ def download_wiley(issn, sleep=5.0, mx=0):
     download.run()
 
 
+def html_wiley(issn):
+
+    e = GenerateWiley(issn)
+    print(e.tohtml())
+
+
 def download_all(sleep=10., mx=5):
     for issn in WILEY_ISSN:
         download_wiley(issn=issn, sleep=sleep, mx=mx)
 
 
 if __name__ == '__main__':
-    download_wiley(issn='0960-7412', sleep=20., mx=50)
-    download_wiley(issn='1467-7652', sleep=10., mx=5)
-    download_wiley(issn='1365-313X', sleep=10., mx=20)
-    download_wiley(issn='1873-3468', sleep=10., mx=20)
-    download_wiley(issn='1469-8137', sleep=60. * 2, mx=0)
-    download_wiley(issn='1742-4658', sleep=60. * 2, mx=0)
+    # download_wiley(issn='0960-7412', sleep=20., mx=50)
+    # download_wiley(issn='1467-7652', sleep=10., mx=5)
+    # download_wiley(issn='1365-313X', sleep=10., mx=20)
+    # download_wiley(issn='1873-3468', sleep=10., mx=20)
+    # download_wiley(issn='1469-8137', sleep=60. * 2, mx=0)
+    # download_wiley(issn='1742-4658', sleep=60. * 2, mx=0)
+    # download_wiley(issn='1615-9861', sleep=5. * 2, mx=2)
     # download_all(sleep=60. * 2, mx = 0)
 
     # gen_wiley(issn='0960-7412')
     # gen_wiley(issn='1467-7652')
     # gen_wiley(issn='1365-313X')
     # gen_wiley(issn='1873-3468')
+    html_wiley(issn='1615-9861')

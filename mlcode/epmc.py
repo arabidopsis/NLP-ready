@@ -1,6 +1,5 @@
 import csv
 import os
-import re
 import gzip
 import time
 # import sys
@@ -8,7 +7,7 @@ import requests
 import click
 from lxml import etree
 
-from mlabc import DATADIR, readxml
+from mlabc import DATADIR, readxml, Generate, Clean
 
 
 XML = 'https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML'  # noqa: E221
@@ -92,7 +91,7 @@ def download_epmc(sleep=0.5):
 
 def getxmlepmc(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open('xml_epmc/{}.xml'.format(pmid), 'rb') as fp:
+    with open(DATADIR + 'xml_epmc/{}.xml'.format(pmid), 'rb') as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -121,8 +120,7 @@ def para2txt3(e):
             yield str(t)
 
 
-class EPMC(object):
-    SPACE = re.compile(r'\s+', re.I)
+class EPMC(Clean):
 
     def __init__(self, root):
         self.root = root
@@ -205,7 +203,15 @@ def getpmcids(pmids):
     return ret
 
 
-def gen_epmc():
+class GenerateEPMC(Generate):
+    def create_clean(self, soup, pmid):
+        return EPMC(soup)
+
+    def get_soup(self, gdir, pmid):
+        return getxmlepmc(pmid)
+
+
+def gen_epmc(issn='epmc'):
     """Convert EPMC XML files into "cleaned" text files."""
     if not os.path.isdir(DATADIR + 'cleaned_epmc'):
         os.mkdir(DATADIR + 'cleaned_epmc')
@@ -234,7 +240,14 @@ def gen_epmc():
             print('!~MM~! %s' % w, file=fp)
 
 
+def html_epmc(issn='epmc'):
+
+    e = GenerateEPMC(issn)
+    print(e.tohtml())
+
+
 if __name__ == '__main__':
     # download_epmc(sleep=2.0)
     # gen_epmc()
-    pmc_subset()
+    # pmc_subset()
+    html_epmc(issn='epmc')

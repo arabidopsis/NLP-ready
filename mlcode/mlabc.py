@@ -64,7 +64,7 @@ class Clean(object):
         a = self.abstract()
         m = self.methods()
         r = self.results()
-        return a and m and r
+        return a is not None and m is not None and r is not None
 
 
 class Generate(object):
@@ -79,16 +79,24 @@ class Generate(object):
     def pmid2doi(self):
         if self._pmid2doi:
             return self._pmid2doi
+
+        def check(doi, issn):
+            if self.issn in {'epmc', 'elsevier'}:
+                return True
+            return doi and issn == self.issn
+
         with open(JCSV, 'r', encoding='utf8') as fp:
             R = csv.reader(fp)
             next(R)
             pmid2doi = {pmid: Paper(doi=doi, year=year, issn=issn, name=name, pmid=pmid)
-                        for pmid, issn, name, year, doi in R if doi and issn == self.issn}
+                        for pmid, issn, name, year, doi in R if check(doi, issn)}
         self._pmid2doi = pmid2doi
         return pmid2doi
 
     @property
     def journal(self):
+        if self.issn in {'epmc', 'elsevier'}:
+            return self.issns
         if not self._journal:
             d = read_issn()
             self._journal = d[self.issn][1]
@@ -103,6 +111,8 @@ class Generate(object):
 
     def get_soup(self, gdir, pmid):
         fname = DATADIR + gdir + '/{}.html'.format(pmid)
+        if not os.path.isfile(fname):
+            fname = DATADIR + gdir + '/{}.xml'.format(pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, self.parser)
         return soup
@@ -154,12 +164,13 @@ class Generate(object):
         gdir = 'xml_%s' % self.issn
         papers = []
         pmid2doi = self.pmid2doi
+
         for idx, pmid in enumerate(readxml(gdir)):
+
             soup = self.get_soup(gdir, pmid)
             e = self.create_clean(soup, pmid)
-            papers.append((pmid2doi[pmid], e))
-            if idx > 5:
-                break
+            papers.append((pmid2doi.get(pmid, pmid), e))
+
         return template.render(papers=papers, issn=self.issn, this=self)
 
 

@@ -1,4 +1,3 @@
-
 from mlabc import Download, Clean, Generate, dump
 
 
@@ -36,9 +35,17 @@ class Springer(Clean):
 
     def tostr(self, sec):
         for a in sec.select('figure'):
-            a.replace_with('[[FIGURE]]')
+            # figure inside a div.Para so can't really replace
+            # with a "p"
+            new_tag = self.root.new_tag("span")
+            new_tag.string = " [[FIGURE]] "  # % a.attrs['id']
+            a.replace_with(new_tag)
+            # a.replace_with('[[FIGURE]]')
         for a in sec.select('div.Table'):
-            a.replace_with('[[TABLE]]')
+            new_tag = self.root.new_tag("p")
+            new_tag.string = "[[TABLE]]"
+            a.replace_with(new_tag)
+            # a.replace_with('[[TABLE]]')
         for a in sec.select('span.CitationRef'):
             a.replace_with('CITATION')
 

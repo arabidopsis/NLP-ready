@@ -18,19 +18,26 @@
 <body>
     <div class="container">
         <h1>Journal {{issn}} {{this.journal}}</h1>
+        <ul>
+        {% for p, e in papers %}
+            <li><a href="#{{p.pmid}}">{{p.pmid}}</a> {% if e.has_all_sections() %}{% else %}x{% endif %}
+            </li>
+        {% endfor %}
+        </ul>
     {% for p, e in papers %}
-        <div class="panel panel-default">
+        <div id="{{p.pmid}}" class="panel panel-default">
+
             <h2>{{p.pmid}} ({{p.year}})</h2>
             <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a>
             <h3>Abstract</h3>
             {% set abstract = e.abstract() %}
-            {% if abstract %}
+            {% if abstract is not none %}
                 {% for txt in e.tostr(abstract) %}
                     <p>{{txt}}<p>
                 {% endfor %}
             {% endif %}
             {% set results = e.results() %}
-            {% if results %}
+            {% if results is not none %}
                 <h3>Results</h3>
                 {% for txt in e.tostr(results) %}
                     <p>{{txt}}<p>
@@ -39,7 +46,7 @@
                 <h2 class="missing">Results</h2>
             {% endif %}
             {% set methods = e.methods() %}
-            {% if methods %}
+            {% if methods is not none %}
                 <h3>Methods</h3>
                 {% for txt in e.tostr(methods) %}
                     <p>{{txt}}<p>
