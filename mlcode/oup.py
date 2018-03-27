@@ -26,9 +26,11 @@ class OUP(Clean):
                 if target:
                     objs[target].append(d)
         res = {}
+        sections = {'abstract', 'results', 'materials and methods'}
         for k in objs:
-            if k in {'abstract', 'results', 'materials and methods'}:
+            if k in sections:
                 res[k] = objs[k]
+        assert set(res) == sections
         self.resultsd = res
 
     def results(self):
@@ -41,6 +43,10 @@ class OUP(Clean):
         return self.resultsd.get('abstract')
 
     def tostr(self, sec):
+        for a in sec.select('div.fig.fig-section'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
         for p in sec:
             for a in p.select('a.xref-bibr'):
                 a.replace_with('CITATION')
@@ -72,7 +78,8 @@ def gen_oup(issn):
 
 
 if __name__ == '__main__':
-    download_oup(issn='1471-9053', sleep=60. * 2, mx=0)
-    download_oup(issn='0032-0781', sleep=60. * 2, mx=0)
+    download_oup(issn='1460-2431', sleep=60. * 2, mx=0)
+    # download_oup(issn='1471-9053', sleep=60. * 2, mx=0)
+    # download_oup(issn='0032-0781', sleep=60. * 2, mx=0)
     # gen_oup(issn='1471-9053')
     # gen_oup(issn='0032-0781')
