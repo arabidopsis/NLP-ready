@@ -213,10 +213,11 @@ def gen_cell(issn):
 
 def html_cell(issn):
     e = GenerateCell(issn)
-    fname = issn + '.html'
-    print('writing', fname)
-    with open(fname, 'w') as fp:
-        fp.write(e.tohtml())
+    print(e.tohtml())
+    # fname = issn + '.html'
+    # print('writing', fname)
+    # with open(fname, 'w') as fp:
+    #     fp.write(e.tohtml())
 
 
 @click.group()
@@ -255,6 +256,6 @@ def html(issn):
 if __name__ == '__main__':
     # cli()
 
-    download_cell(issn='1097-4172', sleep=120., mx=0 ,headless=False)
-    download_cell(issn='0092-8674', sleep=120., mx=0 ,headless=False)
+    download_cell(issn='1097-4172', sleep=120., mx=0, headless=False)
+    download_cell(issn='0092-8674', sleep=120., mx=0, headless=False)
     # gen_cell(issn='1097-4172')

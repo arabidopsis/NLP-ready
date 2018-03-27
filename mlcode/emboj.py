@@ -58,19 +58,18 @@ def download_emboj(issn, sleep=5.0, mx=0):
     e.run()
 
 
+class EMBJ(Generate):
+    def create_clean(self, soup, pmid):
+        return EMBOJ(soup)
+
+
 def gen_emboj(issn):
-    class EMBJ(Generate):
-        def create_clean(self, soup, pmid):
-            return EMBOJ(soup)
 
     e = EMBJ(issn)
     e.run()
 
 
 def html_emboj(issn):
-    class EMBJ(Generate):
-        def create_clean(self, soup, pmid):
-            return EMBOJ(soup)
 
     e = EMBJ(issn)
     print(e.tohtml())

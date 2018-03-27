@@ -93,6 +93,11 @@ def gen_aspb(issn):
     print(e.cc)
 
 
+def html_aspb(issn):
+    e = GenerateASPB(issn)
+    print(e.tohtml())
+
+
 if __name__ == '__main__':
     download_aspb(sleep=60. * 2, mx=0, issn='1040-4651')
     download_aspb(sleep=60. * 2, mx=0, issn='0032-0889')

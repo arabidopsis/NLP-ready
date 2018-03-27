@@ -77,7 +77,7 @@ def gen_ascb(issn):
 def html_ascb(issn):
 
     e = GenerateASCB(issn)
-    e.run()
+    print(e.tohtml())
 
 
 if __name__ == '__main__':

@@ -55,6 +55,9 @@ class Clean(object):
                     return True
         return False
 
+    def title(self):
+        return self.root.find('title').text.strip()
+
     def tostr(self, sec):
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
@@ -154,7 +157,7 @@ class Generate(object):
             w = ' '.join(e.tostr(m))
             print('!~MM~! %s' % w, file=fp)
 
-    def tohtml(self, template='template.html'):
+    def tohtml(self, template='template.html', save=False):
         from jinja2 import Environment, FileSystemLoader, select_autoescape
         env = Environment(
             loader=FileSystemLoader('templates'),
@@ -170,8 +173,12 @@ class Generate(object):
             soup = self.get_soup(gdir, pmid)
             e = self.create_clean(soup, pmid)
             papers.append((pmid2doi.get(pmid, pmid), e))
+        t = template.render(papers=papers, issn=self.issn, this=self)
+        if save:
+            with open(self.issn + '.html', 'w') as fp:
+                fp.write(t)
 
-        return template.render(papers=papers, issn=self.issn, this=self)
+        return t
 
 
 class FakeResponse(object):

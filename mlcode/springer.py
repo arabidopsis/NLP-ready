@@ -84,7 +84,7 @@ def gen_springer(issn):
 
 def html_springer(issn):
     e = GenerateSpringer(issn)
-    print(e.tohtml('template.html'))
+    print(e.tohtml())
 
 
 if __name__ == '__main__':

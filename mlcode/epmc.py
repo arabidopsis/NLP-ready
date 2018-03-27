@@ -125,6 +125,12 @@ class EPMC(Clean):
     def __init__(self, root):
         self.root = root
 
+    def title(self):
+        res = self.root.xpath('/article/front/article-meta/title-group/article-title')
+        if not res:
+            return None
+        return res[0].text.strip()
+
     def abstract(self):
         res = self.root.xpath('/article/front/article-meta/abstract')
         if not res:

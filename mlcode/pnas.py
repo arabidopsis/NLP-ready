@@ -9,6 +9,9 @@ class PNAS(Clean):
         assert a
         self.article = a
 
+    def title(self):
+        return self.root.select('#page-title')[0].text.strip()
+
     def results(self):
         secs = self.article.select('div.section.results-discussion')
         if secs:

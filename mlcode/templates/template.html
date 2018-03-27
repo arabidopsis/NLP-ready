@@ -9,7 +9,9 @@
 
     <title>{{issn}}</title>
     <link  href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+  {#
     <link  href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.2/toastr.min.css" media="all" rel="stylesheet" />
+  #}
     <link  href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"  media="all" rel="stylesheet" />
     <style type="text/css">
     .missing { color: red; }
@@ -17,17 +19,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>Journal {{issn}} {{this.journal}}</h1>
-        <ul>
+        <h1>Journal {{issn}} &mdash; {{this.journal}}</h1>
+        <ol>
         {% for p, e in papers %}
-            <li><a href="#{{p.pmid}}">{{p.pmid}}</a> {% if e.has_all_sections() %}{% else %}x{% endif %}
+            <li><a href="#{{p.pmid}}">{{p.pmid}}</a> {% if e.has_all_sections() %}{% else %}<span class="label label-danger">x</span>{% endif %}
+              {{e.title()}}
             </li>
         {% endfor %}
-        </ul>
+      </ol>
     {% for p, e in papers %}
         <div id="{{p.pmid}}" class="panel panel-default">
 
             <h2>{{p.pmid}} ({{p.year}})</h2>
+            <h3>{{e.title()}}</h3>
             <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a>
             <h3>Abstract</h3>
             {% set abstract = e.abstract() %}

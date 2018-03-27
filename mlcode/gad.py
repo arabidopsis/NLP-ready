@@ -88,6 +88,12 @@ def download_gad(issn, sleep=5.0, mx=0):
     o.run()
 
 
+def html_gad(issn):
+
+    gad = GenerateGAD(issn)
+    print(gad.tohtml())
+
+
 if __name__ == '__main__':
 
     download_gad(issn='0890-9369', sleep=10., mx=5)

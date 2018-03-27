@@ -8,7 +8,7 @@ from lxml import etree
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-from mlabc import DATADIR, JCSV, Clean
+from mlabc import DATADIR, JCSV, Clean, readxml
 
 
 PMID_ELSEVIER = 'http://api.elsevier.com/content/article/pubmed_id/{}'
@@ -44,14 +44,6 @@ def read_suba_papers_csv():
     for row in R:
         # print(row)
         yield row
-
-
-def readxml(d):
-    """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(DATADIR + d):
-        f, ext = os.path.splitext(f)
-        if ext == '.xml':
-            yield f
 
 
 def download_elsevier(sleep=0.5, use_issn=False):
@@ -143,6 +135,12 @@ class Elsevier(Clean):
         ns = root.nsmap.copy()
         ns['e'] = ns.pop(None)
         self.ns = ns
+
+    def title(self):
+        r = self.root.xpath(E + '/e:coredata/dc:title', namespaces=self.ns)
+        if not r:
+            return None
+        return r[0].text.strip()
 
     def results(self):
 

@@ -17,7 +17,7 @@ class Science(Clean):
             return secs[0]
         for sec in self.article.select('div.section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'results':
+            if h2 and h2.text.lower() == 'results':
                 return sec
 
         return None
@@ -28,7 +28,7 @@ class Science(Clean):
             return secs[0]
         for sec in self.article.select('div.section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'methods':
+            if h2 and h2.text.lower() == 'methods':
                 return sec
 
         return None
