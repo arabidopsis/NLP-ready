@@ -60,6 +60,12 @@ class Clean(object):
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
+    def has_all_sections(self):
+        a = self.abstract()
+        m = self.methods()
+        r = self.results()
+        return a and m and r
+
 
 class Generate(object):
     parser = 'lxml'
