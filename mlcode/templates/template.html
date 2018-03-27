@@ -17,7 +17,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Journal {{issn}}</h1>
+        <h1>Journal {{issn}} {{this.journal}}</h1>
     {% for p, e in papers %}
         <div class="panel panel-default">
             <h2>{{p.pmid}} ({{p.year}})</h2>
@@ -29,14 +29,15 @@
                     <p>{{txt}}<p>
                 {% endfor %}
             {% endif %}
-            <h3>Results</h3>
             {% set results = e.results() %}
             {% if results %}
+                <h3>Results</h3>
                 {% for txt in e.tostr(results) %}
                     <p>{{txt}}<p>
                 {% endfor %}
+            {% else %}
+                <h2 class="missing">Results</h2>
             {% endif %}
-
             {% set methods = e.methods() %}
             {% if methods %}
                 <h3>Methods</h3>

@@ -5,7 +5,7 @@ from collections import defaultdict, Counter
 from tabulate import tabulate
 import click
 
-from mlabc import DATADIR, JCSV
+from mlabc import DATADIR, JCSV, read_issn
 
 
 def read_papers():
@@ -14,17 +14,6 @@ def read_papers():
         next(R)
         todo = {pmid: (doi, issn, int(year)) for pmid, issn, name, year, doi in R}
     return todo
-
-
-def read_issn():
-
-    ISSN = {}
-    with open('jcounts.csv', 'r') as fp:
-        R = csv.reader(fp)
-        next(R)
-        for issn, count, name, _, _ in R:
-            ISSN[issn] = (int(count), name)
-    return ISSN
 
 
 def get_dir(xmld, ext='.xml'):

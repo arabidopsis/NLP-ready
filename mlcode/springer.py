@@ -14,6 +14,10 @@ class Springer(Clean):
         secs = self.article.select('#body section.SectionTypeResults')
         if secs:
             return secs[0]
+        for sec in self.article.select('#body section'):
+            h2 = sec.find('h2')
+            if h2 and h2.text.lower() == 'results':
+                return sec
         return None
 
     def methods(self):
@@ -79,6 +83,8 @@ def html_springer(issn):
 if __name__ == '__main__':
     # download_springer(issn='1573-5028', sleep=10., mx=4)
     # download_springer(issn='0167-4412', sleep=60. * 2, mx=0)
+    # download_springer(issn='0032-0935', sleep=10, mx=2)
     # gen_springer(issn='1573-5028')
     # gen_springer(issn='0167-4412')
-    html_springer(issn='1573-5028')
+    # html_springer(issn='1573-5028')
+    html_springer(issn='0032-0935')

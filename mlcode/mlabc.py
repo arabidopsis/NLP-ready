@@ -7,6 +7,7 @@ from collections import namedtuple
 
 import click
 import requests
+from requests import ConnectionError
 from bs4 import BeautifulSoup
 
 
@@ -16,6 +17,17 @@ JCSV = 'journals.csv'
 Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name'])
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
+
+
+def read_issn():
+
+    ISSN = {}
+    with open('jcounts.csv', 'r') as fp:
+        R = csv.reader(fp)
+        next(R)
+        for issn, count, name, _, _ in R:
+            ISSN[issn] = (int(count), name)
+    return ISSN
 
 
 def readxml(d):
@@ -55,6 +67,7 @@ class Generate(object):
     def __init__(self, issn):
         self.issn = issn
         self._pmid2doi = None
+        self._journal = None
 
     @property
     def pmid2doi(self):
@@ -67,6 +80,13 @@ class Generate(object):
                         for pmid, issn, name, year, doi in R if doi and issn == self.issn}
         self._pmid2doi = pmid2doi
         return pmid2doi
+
+    @property
+    def journal(self):
+        if not self._journal:
+            d = read_issn()
+            self._journal = d[self.issn][1]
+        return self._journal
 
     def create_clean(self, soup, pmid):
         raise RuntimeError('unimplemented')
@@ -191,34 +211,41 @@ class Download(object):
         with open(JCSV, 'r', encoding='utf8') as fp:
             R = csv.reader(fp)
             next(R)
-            todo = {pmid: Paper(doi=doi, year=year, issn=issn, name=name, pmid=pmid)
+            todo = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
                     for pmid, issn, name, year, doi in R
                     if doi and issn in self.issn and pmid not in allpmid}
 
         print('%s: %d failed, %d done, %d todo' % (self.issn, len(failed), len(done), len(todo)))
-        lst = sorted(todo.values(), key=lambda p: p.pmid)
+        lst = sorted(todo.values(), key=lambda p: -p.year)
         if self.mx > 0:
             lst = lst[:self.mx]
         self.start()
         for idx, paper in enumerate(lst):
-            resp = self.get_response(paper, header)
-            if resp.status_code == 404:
-                xml = b'failed404'
-                d = fdir
-                failed.add(paper.pmid)
-            else:
-                resp.raise_for_status()
-                header['Referer'] = resp.url
-                xml = resp.content
-                soup = BeautifulSoup(BytesIO(xml), self.parser)
-                err = self.check_soup(paper, soup, resp)
-                if err:
-                    xml = err
+            try:
+                resp = self.get_response(paper, header)
+                if resp.status_code == 404:
+                    xml = b'failed404'
                     d = fdir
                     failed.add(paper.pmid)
                 else:
-                    d = gdir
-                    done.add(paper.pmid)
+                    resp.raise_for_status()
+                    header['Referer'] = resp.url
+                    xml = resp.content
+                    soup = BeautifulSoup(BytesIO(xml), self.parser)
+                    err = self.check_soup(paper, soup, resp)
+                    if err:
+                        xml = err
+                        d = fdir
+                        failed.add(paper.pmid)
+                    else:
+                        d = gdir
+                        done.add(paper.pmid)
+
+            except ConnectionError as e:
+                d = fdir
+                xml = str(e).encode('utf-8')
+                click.secho('failed %s %s %s' % (paper.pmid, paper.doi, str(e)), fg='red')
+                failed.add(paper.pmid)
 
             with open(DATADIR + '{}/{}.html'.format(d, paper.pmid), 'wb') as fp:
                 fp.write(xml)
