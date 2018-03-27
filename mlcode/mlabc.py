@@ -88,7 +88,7 @@ class Generate(object):
         with open(JCSV, 'r', encoding='utf8') as fp:
             R = csv.reader(fp)
             next(R)
-            pmid2doi = {pmid: Paper(doi=doi, year=year, issn=issn, name=name, pmid=pmid)
+            pmid2doi = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
                         for pmid, issn, name, year, doi in R if check(doi, issn)}
         self._pmid2doi = pmid2doi
         return pmid2doi
@@ -164,12 +164,12 @@ class Generate(object):
         gdir = 'xml_%s' % self.issn
         papers = []
         pmid2doi = self.pmid2doi
+        todo = [pmid2doi[pmid] for pmid in readxml(gdir)]
 
-        for idx, pmid in enumerate(readxml(gdir)):
-
-            soup = self.get_soup(gdir, pmid)
-            e = self.create_clean(soup, pmid)
-            papers.append((pmid2doi.get(pmid, pmid), e))
+        for paper in sorted(todo, key=lambda p: -p.year):
+            soup = self.get_soup(gdir, paper.pmid)
+            e = self.create_clean(soup, paper.pmid)
+            papers.append((paper, e))
 
         return template.render(papers=papers, issn=self.issn, this=self)
 
