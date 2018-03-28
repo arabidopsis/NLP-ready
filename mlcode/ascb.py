@@ -4,7 +4,10 @@ from mlabc import Download, Clean, Generate
 
 # 1059-1524 ,Mol. Biol. Cell
 
-ISSN = {'1059-1524': 'Mol. Biol. Cell'}
+ISSN = {
+    '1059-1524': 'Mol. Biol. Cell',
+    '1939-4586': 'Mol. Biol. Cell'
+}
 
 
 class ASCB(Clean):
@@ -40,6 +43,12 @@ class ASCB(Clean):
     def abstract(self):
         secs = self.article.select('div.abstractSection.abstractInFull')
         return secs[0] if secs else None
+
+    def title(self):
+        s = self.root.select('h1.citation__title')
+        if s:
+            return s[0].text.strip()
+        return super().title()
 
     def tostr(self, sec):
         # import sys
@@ -85,4 +94,5 @@ def html_ascb(issn):
 
 if __name__ == '__main__':
     download_ascb(issn='1059-1524', sleep=120., mx=0)
+    download_ascb(issn='1939-4586', sleep=120., mx=0)
     # html_ascb(issn='1059-1524')
