@@ -15,6 +15,7 @@
   <link  href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"  media="all" rel="stylesheet" />
   <style type="text/css">
     .missing { color: red; }
+    b.primer { color: blue; }
   </style>
 </head>
 <body id="top">
@@ -35,7 +36,7 @@
       <h2>{{p.pmid}} ({{p.year}})</h2>
       <h3>{{e.title()}}</h3>
       <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a> <a href="#top"> top<i class="fa fa-angle-up"></i></a>
-      {% set abstract = e.abstract() %}
+      {% set abstract = e.s_abstract() %}
       {% if abstract is not none %}
           <h3>Abstract</h3>
           {% for txt in e.tostr(abstract) %}
@@ -44,20 +45,20 @@
       {% else -%}
           <h2 class="missing">Abstract</h2>
       {%- endif %}
-      {% set results = e.results() %}
+      {% set results = e.s_results() %}
       {% if results is not none %}
           <h3>Results</h3>
           {% for txt in e.tostr(results) %}
-              <p>{{txt}}<p>
+              <p>{{txt|prime}}<p>
           {% endfor %}
       {% else -%}
           <h2 class="missing">Results</h2>
       {%- endif %}
-      {% set methods = e.methods() %}
+      {% set methods = e.s_methods() %}
       {% if methods is not none %}
           <h3>Methods</h3>
           {% for txt in e.tostr(methods) %}
-              <p>{{txt}}<p>
+              <p>{{txt|prime}}<p>
           {% endfor %}
       {% else -%}
           <h2 class="missing">Methods</h2>

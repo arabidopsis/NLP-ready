@@ -124,7 +124,7 @@ def getmeta(sleep=.2, pubmeds=JCSV):
     with open(pubmeds, 'a', encoding='utf8') as fp:
         W = csv.writer(fp)
         if not e:
-            W.writerow(['pmid', 'issn', 'name', 'year', 'doi'])
+            W.writerow(['pmid', 'issn', 'name', 'year', 'doi', 'title'])
         for p in read_suba_papers_csv():
             pmid = p.pmid
             if pmid not in done:
@@ -133,7 +133,8 @@ def getmeta(sleep=.2, pubmeds=JCSV):
                     click.secho('missing: %s' % pmid, fg='red')
                     continue
                 assert pmid == m['pmid'], m
-                W.writerow([pmid, m['issn'] or '', m['journal'], str(m['year']), m['doi'] or ''])
+                W.writerow([pmid, m['issn'] or '', m['journal'],
+                            str(m['year']), m['doi'] or '', m['title']])
                 done.add(pmid)
                 print('%s: %d done' % (pmid, len(done)))
                 if sleep:

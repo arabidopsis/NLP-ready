@@ -91,7 +91,10 @@ class Clean(object):
         return False
 
     def title(self):
-        return self.root.find('title').text.strip()
+        t = self.root.find('title')
+        if t:
+            return t.text.strip()
+        return None
 
     def abstract(self):
         return None
@@ -247,6 +250,8 @@ class Generate(object):
             loader=FileSystemLoader('templates'),
             autoescape=select_autoescape(['html', 'xml'])
         )
+        env.filters['prime'] = find_primers
+
         template = env.get_template(template)
         gdir = 'xml_%s' % self.issn
         papers = []
@@ -272,7 +277,7 @@ class Generate(object):
 
         t = template.render(papers=papers, issn=self.issn, this=self)
         if save:
-            if todo:
+            if todo and self.issn not in {'epmc', 'elsevier'}:
                 name = todo[0].name
             else:
                 name = ''
@@ -282,6 +287,16 @@ class Generate(object):
                 fp.write(t)
 
         return t
+
+
+PRIMER = re.compile(r'''\b((?:5[′']-)?[CTAG\s-]{7,}[CTAG](?:-3[′'])?)(\b|$|[\s;:)\.])''', re.I)
+
+
+from jinja2 import Markup
+
+
+def find_primers(txt):
+    return Markup(PRIMER.sub(r'<b class="primer">\1</b>\2', txt))
 
 
 class FakeResponse(object):

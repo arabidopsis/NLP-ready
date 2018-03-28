@@ -14,10 +14,10 @@ MODS = [
     #"jbc",
     #"oup",
     #"plos",
-    #"pnas",
+    "pnas",
     #"science",
     #"springer",
-    "wiley"
+    #"wiley"
 ]
 
 

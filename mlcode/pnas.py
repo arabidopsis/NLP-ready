@@ -57,6 +57,8 @@ class PNAS(Clean):
             # a.replace_with('[[FIGURE]]')
         for a in sec.select('p a.xref-bibr'):
             a.replace_with('CITATION')
+        for a in sec.select('p a.xref-fig'):
+            a.replace_with('FIG-REF')
 
         def p(tag):
             return tag.name == 'p' or (tag.name == 'div' and ['fig'] == tag['class'])

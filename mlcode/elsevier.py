@@ -27,13 +27,21 @@ def elsevier(pmid, url=PMID_ELSEVIER):
     # for row in Events().parse(BytesIO(resp.content),'elsevier'):
     #    print(row)#,end=' ')
 
-    soup = BeautifulSoup(BytesIO(resp.content), "xml")
+    soup = BeautifulSoup(BytesIO(resp.content), "lxml")
     if soup.find('service-error'):
         # print('no such document:', pmid, resp.text, file=sys.stderr)
         return None
+    # seems like elsevier gives back incorrect articles see e.g. 24381066 argh!
+    p = soup.find('pubmed-id')
+    if p:
+        p = p.text.strip()
+        assert p == pmid, (p, pmid)
     else:
-        return resp.text
-        # return soup.prettify()
+        assert p, ('no pubmed-id', pmid)
+        pass
+
+    return resp.text
+    # return soup.prettify()
 
 
 def download_elsevier(sleep=0.5, use_issn=False):
@@ -72,15 +80,20 @@ def download_elsevier(sleep=0.5, use_issn=False):
     print('%d failed, %d done %s todo' % (len(failed), len(done), len(todo)))
     todox = todo.copy()
     for pmid in todo:
-
-        xml = elsevier(pmid)
-        if xml is None:
+        try:
+            xml = elsevier(pmid)
+            if xml is None:
+                d = 'failed_elsevier'
+                xml = 'failed'
+                failed.add(pmid)
+            else:
+                d = 'xml_elsevier'
+                done.add(pmid)
+        except AssertionError as e:
+            print('failed pubmed test', pmid, e)
             d = 'failed_elsevier'
-            xml = 'failed'
+            xml = 'incorrect_pmid'
             failed.add(pmid)
-        else:
-            d = 'xml_elsevier'
-            done.add(pmid)
         with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
         todox.remove(pmid)
@@ -129,6 +142,13 @@ class Elsevier(Clean):
         ns['e'] = ns.pop(None)
         self.ns = ns
 
+    @property
+    def pubmed(self):
+        r = self.root.xpath(E + '/e:pubmed-id', namespaces=self.ns)
+        if not r:
+            return None
+        return r[0].text.strip()
+
     def title(self):
         r = self.root.xpath(E + '/e:coredata/dc:title', namespaces=self.ns)
         if not r:
@@ -154,7 +174,10 @@ class Elsevier(Clean):
         for sec in secs:
             for s in sec.xpath('./ce:section', namespaces=self.ns):
                 for t in s.xpath('.//ce:section-title/text()', namespaces=self.ns):
-                    if t.lower().find('methods') >= 0:
+                    txt = t.lower()
+                    if txt.find('methods') >= 0:
+                        return s
+                    if txt.find('experimental procedures') >= 0:
                         return s
 
         return None
@@ -180,7 +203,10 @@ class Elsevier(Clean):
 
 class GenerateElsevier(Generate):
     def create_clean(self, soup, pmid):
-        return Elsevier(soup)
+        ret = Elsevier(soup)
+        print('HERE', ret.pubmed, pmid)
+        assert ret.pubmed == pmid, (ret.pubmed, pmid)
+        return ret
 
     def get_soup(self, gdir, pmid):
         return getxmlelsevier(pmid)
@@ -221,6 +247,17 @@ def gen_elsevier_old(issn='elsevier'):
             print('!~MM~! %s' % w, file=fp)
 
 
+def check_elsevier(remove=False):
+    for pmid in readxml('xml_elsevier'):
+        root = getxmlelsevier(pmid)
+        e = Elsevier(root)
+        if pmid != e.pubmed:
+            print('incorrect pubmed!', pmid, e.pubmed)
+            if remove:
+                os.remove(DATADIR + 'xml_elsevier/%s.xml' % pmid)
+
+
 if __name__ == '__main__':
+    check_elsevier(remove=True)
     download_elsevier(sleep=5.0, use_issn=False)
-    gen_elsevier()
+    # gen_elsevier()

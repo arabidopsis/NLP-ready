@@ -123,10 +123,8 @@ class CELL(Clean):
     def __init__(self, root):
         self.root = root
         a = root.select('article')
-
-        a = a[0]
-        assert a
-        self.article = a
+        assert a, a
+        self.article = a[0]
 
     def results(self):
 
@@ -190,6 +188,13 @@ class CELL2(Clean):
         for sec in secs:
             return sec
         return None
+
+    def title(self):
+        for t in self.root.select('h1.articleTitle'):
+            txt = t.text.strip()
+            if txt:
+                return txt
+        return super().title()
 
     def tostr(self, sec):
         for a in sec.select('p span.bibRef'):
