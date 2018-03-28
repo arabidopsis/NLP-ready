@@ -7,7 +7,7 @@ import requests
 import click
 from lxml import etree
 
-from mlabc import DATADIR, readxml, Generate, Clean
+from mlabc import DATADIR, readxml, Generate, Clean, read_suba_papers_csv
 
 
 XML = 'https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML'  # noqa: E221
@@ -28,26 +28,15 @@ def epmc(pmcid, session=None):
     return txt
 
 
-def read_suba_papers_csv():
-    """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
-    # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
-    R = csv.reader(open('suba_papers.csv', encoding='latin1'))
-    next(R)
-    # print(header)
-    for row in R:
-        # print(row)
-        yield row
-
-
-def download_epmc(sleep=0.5):
+def download_epmc(issn='epmc', sleep=0.5, mx=0):
     """Download any EuroPMC XML files using SUBA4 pubmed ids."""
     failed = set(readxml('failed_epmc'))
     done = set(readxml('xml_epmc'))
     session = requests.Session()
 
     pmids = set()
-    for row in read_suba_papers_csv():
-        pmid = row[0].upper()
+    for p in read_suba_papers_csv():
+        pmid = p.pmid
         if not pmid:
             continue
         if pmid in failed or pmid in done:
@@ -168,7 +157,7 @@ class EPMC(Clean):
 # PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/
 
 def pmc_subset():
-    pmids = set(row[0].upper() for row in read_suba_papers_csv())
+    pmids = set(p.pmid for p in read_suba_papers_csv())
     with open('PMC-ids-partial.csv', 'w') as out:
         W = csv.writer(out)
         W.writerow(['pmid', 'pmcid'])
@@ -218,6 +207,11 @@ class GenerateEPMC(Generate):
 
 
 def gen_epmc(issn='epmc'):
+    o = GenerateEPMC(issn)
+    o.run()
+
+
+def gen_epmc_old(issn='epmc'):
     """Convert EPMC XML files into "cleaned" text files."""
     if not os.path.isdir(DATADIR + 'cleaned_epmc'):
         os.mkdir(DATADIR + 'cleaned_epmc')

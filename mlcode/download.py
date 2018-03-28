@@ -12,18 +12,7 @@ from io import BytesIO
 
 from bs4 import BeautifulSoup
 
-from mlabc import JCSV
-
-
-def read_suba_papers_csv():
-    """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
-    # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
-    R = csv.reader(open('suba_papers.csv', encoding='latin1'))
-    next(R)  # skip header
-    # print(header)
-    for row in R:
-        # print(row)
-        yield row
+from mlabc import JCSV, read_suba_papers_csv
 
 
 def getpmcids(pmids):
@@ -136,8 +125,8 @@ def getmeta(sleep=.2, pubmeds=JCSV):
         W = csv.writer(fp)
         if not e:
             W.writerow(['pmid', 'issn', 'name', 'year', 'doi'])
-        for row in read_suba_papers_csv():
-            pmid = row[0].upper()
+        for p in read_suba_papers_csv():
+            pmid = p.pmid
             if pmid not in done:
                 m = pubmed_meta(session, pmid)
                 if m is None:

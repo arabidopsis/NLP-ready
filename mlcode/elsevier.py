@@ -8,7 +8,7 @@ from lxml import etree
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-from mlabc import DATADIR, JCSV, Clean, readxml
+from mlabc import DATADIR, Clean, readxml, Generate, read_journals_csv, read_suba_papers_csv
 
 
 PMID_ELSEVIER = 'http://api.elsevier.com/content/article/pubmed_id/{}'
@@ -35,17 +35,6 @@ def elsevier(pmid, url=PMID_ELSEVIER):
         # return soup.prettify()
 
 
-def read_suba_papers_csv():
-    """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
-    # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
-    R = csv.reader(open('suba_papers.csv', encoding='latin1'))
-    next(R)
-    # print(header)
-    for row in R:
-        # print(row)
-        yield row
-
-
 def download_elsevier(sleep=0.5, use_issn=False):
     """Download any Elsevier XML files using SUBA4 pubmed ids."""
     failed = set(readxml('failed_elsevier'))
@@ -66,16 +55,19 @@ def download_elsevier(sleep=0.5, use_issn=False):
                     issn = issn[:4] + '-' + issn[4:]  # sigh!
                 ISSN.add(issn)
 
-        todo = []
-        with open(JCSV) as fp:
-            R = csv.reader(fp)
-            next(R)
-            for pmid, issn, name, year, doi in R:
-                if issn in ISSN and pmid not in done and pmid not in failed:
-                    todo.append(pmid)
+        pmid2doi = read_journals_csv()
+        todo = [pmid for pmid in pmid2doi if pmid2doi[pmid].issn in ISSN and pmid not in (
+            done | failed)]
+        # with open(JCSV) as fp:
+        #     R = csv.reader(fp)
+        #     next(R)
+        #     for pmid, issn, name, year, doi in R:
+        #         if issn in ISSN and pmid not in done and pmid not in failed:
+        #             todo.append(pmid)
+
     else:
-        todo = [row[0].upper() for row in read_suba_papers_csv()
-                if row[0].upper() not in (failed | done)]
+        todo = [p.pmid for p in read_suba_papers_csv()
+                if p.pmid not in (failed | done)]
     print('%d failed, %d done %s todo' % (len(failed), len(done), len(todo)))
     todox = todo.copy()
     for pmid in todo:
@@ -185,7 +177,20 @@ class Elsevier(Clean):
             yield txt.strip()
 
 
-def gen_elsevier():
+class GenerateElsevier(Generate):
+    def create_clean(self, soup, pmid):
+        return Elsevier(soup)
+
+    def get_soup(self, gdir, pmid):
+        return getxmlelsevier(pmid)
+
+
+def gen_elsevier(issn='elsevier'):
+    o = GenerateElsevier(issn)
+    o.run()
+
+
+def gen_elsevier_old(issn='elsevier'):
     """Convert Elsevier XML files into "cleaned" text files."""
     if not os.path.isdir(DATADIR + 'cleaned_elsevier'):
         os.mkdir(DATADIR + 'cleaned_elsevier')

@@ -19,6 +19,26 @@ Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name'])
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
 
 
+def read_journals_csv():
+    with open(JCSV, 'r', encoding='utf8') as fp:
+        R = csv.reader(fp)
+        next(R)
+        pmid2doi = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
+                    for pmid, issn, name, year, doi in R}
+    return pmid2doi
+
+
+def read_suba_papers_csv():
+    """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
+    # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
+    with open(JCSV, 'r', encoding='utf8') as fp:
+        R = csv.reader(fp)
+        next(R)  # skip header
+        # print(header)
+        for pmid, issn, name, year, doi in R:
+            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
+
+
 def read_issn():
 
     ISSN = {}
