@@ -84,5 +84,5 @@ def html_ascb(issn):
 
 
 if __name__ == '__main__':
-    # download_ascb(issn='1059-1524', sleep=10., mx=2)
-    html_ascb(issn='1059-1524')
+    download_ascb(issn='1059-1524', sleep=120., mx=0)
+    # html_ascb(issn='1059-1524')

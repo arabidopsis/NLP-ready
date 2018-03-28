@@ -2,7 +2,8 @@ from mlabc import Clean, Generate, Download
 
 
 ISSN = {
-    '1460-2075': 'EMBO J.'
+    '1460-2075': 'EMBO J.',
+    '0261-4189': 'EMBO J.'
 }
 
 
@@ -89,5 +90,6 @@ def html_emboj(issn):
 
 if __name__ == '__main__':
     # this is also a Wiley thing
-    download_emboj(issn='1460-2075', sleep=5. * 2, mx=3)
+    download_emboj(issn='1460-2075', sleep=60. * 2, mx=0)
+    download_emboj(issn='0261-4189', sleep=60. * 2, mx=0)
     # html_emboj(issn='1460-2075')

@@ -94,6 +94,6 @@ def html_dev(issn):
 
 
 if __name__ == '__main__':
-    # download_dev(issn='0950-1991', sleep=10.0, mx=2)
+    download_dev(issn='0950-1991', sleep=120., mx=0)
     # gen_dev(issn='0950-1991')
-    html_dev(issn='0950-1991')
+    # html_dev(issn='0950-1991')

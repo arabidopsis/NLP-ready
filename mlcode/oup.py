@@ -1,4 +1,5 @@
 from collections import defaultdict
+import click
 from mlabc import Download, Clean, Generate
 
 ISSN = {
@@ -63,6 +64,12 @@ def download_oup(issn, sleep=5.0, mx=0):
             a = soup.select('div.article-body div.widget-items')
             assert a and len(
                 a) == 1 and a[0].attrs['data-widgetname'] == "ArticleFulltext", (paper.pmid, resp.url)
+            o = OUP(soup)
+            a = o.abstract()
+            m = o.methods()
+            r = o.results()
+            if not (a and m and r):
+                click.secho('%s %s:missing abstract=%s methods=%s results=%s' % (paper.pmid, paper.issn, a is None, m is None, r is None), fg='magenta')
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

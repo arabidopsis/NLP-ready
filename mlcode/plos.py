@@ -78,5 +78,5 @@ def html_plos(issn):
 
 
 if __name__ == '__main__':
-    # download_plos(issn='1932-6203', sleep=10, mx=5)
-    html_plos(issn='1932-6203')
+    download_plos(issn='1932-6203', sleep=60 * 2., mx=0)
+    # html_plos(issn='1932-6203')

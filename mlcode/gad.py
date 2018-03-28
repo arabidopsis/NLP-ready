@@ -106,5 +106,5 @@ def html_gad(issn):
 
 if __name__ == '__main__':
 
-    download_gad(issn='0890-9369', sleep=10., mx=5)
+    download_gad(issn='0890-9369', sleep=120., mx=0)
     # gen_gad(issn='0890-9369')

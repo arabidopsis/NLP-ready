@@ -90,6 +90,6 @@ def html_science(issn):
 
 
 if __name__ == '__main__':
-    # download_science(issn='1095-9203', sleep=10., mx=6)
+    download_science(issn='1095-9203', sleep=60. * 2, mx=0)
     # gen_science(issn='1095-9203')
-    html_science(issn='1095-9203')
+    # html_science(issn='1095-9203')
