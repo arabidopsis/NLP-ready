@@ -86,7 +86,7 @@ def _counts():
             print(pmid, [d(j) for j in issns])
 
 
-def _todo():
+def _todo(byname=False):
     issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
@@ -109,11 +109,27 @@ def _todo():
     for pmid, p in papers.items():
         ISSN[p.issn] += 1
 
-    header = ["ISSN", "Journal", "ToDo"]
-    tbl = []
-    for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
-        tbl.append([issn, issns[issn][1], cnt])
-    print(tabulate(tbl, headers=header, tablefmt="rst"))
+    if byname:
+        d1 = Counter()
+        d2 = defaultdict(list)
+        header = ["Journal", "ISSNs", "ToDo"]
+        for issn, cnt in ISSN.items():
+            j = issns[issn][1]
+            d1[j] += cnt
+            d2[j].append(issn)
+        tbl = []
+        for j in d1:
+            issn = ','.join(d2[j])
+            cnt = d1[j]
+            tbl.append((j, issn, cnt))
+        tbl = sorted(tbl, key=lambda t: -t[2])
+        print(tabulate(tbl, headers=header, tablefmt='rst'))
+    else:
+        header = ["ISSN", "Journal", "ToDo"]
+        tbl = []
+        for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
+            tbl.append([issn, issns[issn][1], cnt])
+        print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
 def parsed():
@@ -152,8 +168,9 @@ def counts():
 
 
 @cli.command()
-def todo():
-    _todo()
+@click.option('--byname', is_flag=True, help='order by journal name')
+def todo(byname):
+    _todo(byname)
 
 
 if __name__ == '__main__':
