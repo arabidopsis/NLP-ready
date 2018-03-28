@@ -25,7 +25,8 @@ class PLOS(Clean):
     def methods(self):
         secs = self.article.select('div.section.toc-section')
         for sec in secs:
-            if self.find_title(sec, txt=['materials & methods', 'materials and methods', 'methods']):
+            if self.find_title(sec, txt=['materials & methods', 'materials and methods',
+                                         'material and methods', 'methods']):  # spelling!
                 return sec
 
         return None

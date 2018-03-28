@@ -23,7 +23,8 @@
   <h1>Journal {{issn}} &mdash; {{this.journal}}</h1>
   <ol>
     {% for p, e in papers %}
-      <li><a href="#{{p.pmid}}">{{p.pmid}}</a> {% if e.has_all_sections() %}{% else %}<span class="label label-danger">x</span>{% endif %}
+      <li><a href="#{{p.pmid}}">{{p.pmid}}</a> {% if e.has_all_sections() %}{% else %}
+        <span class="label label-danger">{{e.missing()}}</span>{% endif %}
         {{e.title()}}
       </li>
     {% endfor %}
@@ -33,7 +34,7 @@
 
       <h2>{{p.pmid}} ({{p.year}})</h2>
       <h3>{{e.title()}}</h3>
-      <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a> <a href="#top">top</a>
+      <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a> <a href="#top"> top<i class="fa fa-angle-up"></i></a>
       {% set abstract = e.abstract() %}
       {% if abstract is not none %}
           <h3>Abstract</h3>

@@ -8,7 +8,7 @@ MODS = [
     #"cell",
     #"dev",
     #"elsevier",
-    "emboj",
+    #"emboj",
     #"epmc",
     #"gad",
     #"jbc",
@@ -17,7 +17,7 @@ MODS = [
     #"pnas",
     #"science",
     #"springer",
-    #"wiley"
+    "wiley"
 ]
 
 

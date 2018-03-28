@@ -38,8 +38,11 @@ class PNAS(Clean):
         if secs:
             return secs[0]
         for sec in self.article.select('div.section'):
-            if sec.find('h2').text.lower() == 'materials and methods':
-                return sec
+            h2 = sec.find('h2')
+            if h2:
+                txt = h2.text.lower()
+                if txt in {'materials and methods', 'experimental procedures'}:
+                    return sec
         return None
 
     def abstract(self):

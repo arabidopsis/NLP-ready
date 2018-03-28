@@ -68,8 +68,15 @@ def dump(paper, xml):
         fp.write(xml)
 
 
+_Plug = object()
+
+
 class Clean(object):
     SPACE = re.compile(r'\s+', re.I)
+    a = _Plug
+    m = _Plug
+    r = _Plug
+    t = _Plug
 
     def __init__(self, root):
         self.root = root
@@ -100,11 +107,48 @@ class Clean(object):
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
+    def s_abstract(self):
+        if self.a is not _Plug:
+            return self.a
+        self.a = self.abstract()
+        return self.a
+
+    def s_methods(self):
+        if self.m is not _Plug:
+            return self.m
+        self.m = self.methods()
+        return self.m
+
+    def s_results(self):
+        if self.r is not _Plug:
+            return self.r
+        self.r = self.results()
+        return self.r
+
+    def s_title(self):
+        if self.t is not _Plug:
+            return self.t
+        self.t = self.title()
+        return self.t
+
     def has_all_sections(self):
-        a = self.abstract()
-        m = self.methods()
-        r = self.results()
+        a = self.s_abstract()
+        m = self.s_methods()
+        r = self.s_results()
         return a is not None and m is not None and r is not None
+
+    def missing(self):
+        a = self.s_abstract()
+        m = self.s_methods()
+        r = self.s_results()
+        ret = []
+        if a is None:
+            ret.append('a')
+        if m is None:
+            ret.append('m')
+        if r is None:
+            ret.append('r')
+        return ' '.join(ret) if ret else ''
 
 
 class Generate(object):
@@ -209,7 +253,9 @@ class Generate(object):
         pmid2doi = self.pmid2doi
         todo = [pmid2doi[pmid] for pmid in readxml(gdir)]
 
-        for paper in sorted(todo, key=lambda p: -p.year):
+        todo = sorted(todo, key=lambda p: -p.year)
+        nart = len(todo)
+        for paper in todo:
             print(paper.pmid, paper.issn, paper.doi)
             soup = self.get_soup(gdir, paper.pmid)
             try:
@@ -226,7 +272,13 @@ class Generate(object):
 
         t = template.render(papers=papers, issn=self.issn, this=self)
         if save:
-            with open(prefix + self.issn + '.html', 'w') as fp:
+            if todo:
+                name = todo[0].name
+            else:
+                name = ''
+            name = name.replace('.', '').lower()
+            name = '-'.join(name.split())
+            with open(prefix + '%s-%s-n%d.html' % (self.issn, name, nart), 'w') as fp:
                 fp.write(t)
 
         return t

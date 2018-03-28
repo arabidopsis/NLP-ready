@@ -30,7 +30,8 @@ class OUP(Clean):
                 if target:
                     objs[target].append(d)
         res = {}
-        sections = {'abstract', 'results', 'materials and methods'}
+        sections = {'abstract', 'results', 'materials and methods', 'results and discussion',
+                    'material and methods'}  # spelling!
         for k in objs:
             if k in sections:
                 res[k] = objs[k]
@@ -38,13 +39,22 @@ class OUP(Clean):
         self.resultsd = res
 
     def results(self):
-        return self.resultsd.get('results')
+        return self.resultsd.get('results') or self.resultsd.get('results and discussion')
 
     def methods(self):
-        return self.resultsd.get('materials and methods')
+        return self.resultsd.get('materials and methods') or self.resultsd.get('material and methods')
 
     def abstract(self):
+        s = self.article.select('section.abstract')
+        if s:
+            return s[0].select('p') or s
         return self.resultsd.get('abstract')
+
+    def title(self):
+        s = self.root.select('h1.wi-article-title')
+        if s:
+            return s[0].text.strip()
+        return super().title()
 
     def tostr(self, sec):
 
@@ -69,7 +79,8 @@ def download_oup(issn, sleep=5.0, mx=0):
             m = o.methods()
             r = o.results()
             if not (a and m and r):
-                click.secho('%s %s:missing abstract=%s methods=%s results=%s' % (paper.pmid, paper.issn, a is None, m is None, r is None), fg='magenta')
+                click.secho('%s %s:missing abstract=%s methods=%s results=%s' %
+                            (paper.pmid, paper.issn, a is None, m is None, r is None), fg='magenta')
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

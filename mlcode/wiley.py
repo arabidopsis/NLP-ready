@@ -6,7 +6,7 @@ from mlabc import Download, Clean, Generate, dump
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
 ISSN = {
-    '1460-2075': 'EMBO J.',
+    # '1460-2075': 'EMBO J.',  # see emboj!
     '1399-3054': 'Physiol Plant',
     '1365-313X': 'Plant J.',
     '1600-0854': 'Traffic',
@@ -55,7 +55,8 @@ class Wiley(Clean):
             h2 = sec.find('h2')
             if h2:
                 txt = h2.text.lower().strip()
-                if txt.endswith(('experimental procedures', 'materials and methods', 'methods')):
+                if txt.endswith(('experimental procedures', 'materials and methods',
+                                 'methods', 'material and methods')):  # spelling!
                     return sec
 
         return None
@@ -96,18 +97,32 @@ class Wiley2(Clean):
     def methods(self):
         for sec in self.article.select('section.article-body-section'):
             h2 = sec.find('h2')
-            if h2 and h2.text.lower().strip().endswith('materials and methods'):
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt.endswith(('experimental procedures', 'materials and methods',
+                                 'methods', 'material and methods')):  # spelling!
+                    return sec
+
         for sec in self.article.select('div.article-section__content'):
             h2 = sec.find('h2')
-            if h2 and h2.text.lower().strip().endswith('materials and methods'):
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt.endswith(('experimental procedures', 'materials and methods',
+                                 'methods', 'material and methods')):  # spelling!
+                    return sec
+
         return None
 
     def abstract(self):
         for s in self.article.select('section.article-section__abstract'):
             return s
         return None
+
+    def title(self):
+        s = self.root.select('.article-citation .citation__title')
+        if s:
+            return s[0].text.strip()
+        return super().title()
 
     def tostr(self, sec):
         for a in sec.select('p a[title="Link to bibliographic citation"]'):

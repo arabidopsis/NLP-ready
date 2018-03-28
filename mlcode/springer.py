@@ -24,14 +24,22 @@ class Springer(Clean):
             return secs[0]
         for sec in self.article.select('#body section'):
             h2 = sec.find('h2')
-            if h2 and h2.text.lower() == 'results':
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'results', 'results and discussion'}:
+                    return sec
         return None
 
     def methods(self):
         secs = self.article.select('#body section.SectionTypeMaterialsAndMethods')
         if secs:
             return secs[0]
+        for sec in self.article.select('#body section'):
+            h2 = sec.find('h2')
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'materials and methods', 'experimental procedures'}:
+                    return sec
         return None
 
     def abstract(self):
@@ -41,6 +49,12 @@ class Springer(Clean):
             return secs[0]
         secs = self.article.select('div.section.abstract')
         return secs[0] if secs else None
+
+    def title(self):
+        s = self.root.select('h1.ArticleTitle')
+        if s:
+            return s[0].text.strip()
+        return super().title()
 
     def tostr(self, sec):
         for a in sec.select('figure'):

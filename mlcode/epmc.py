@@ -122,7 +122,7 @@ class EPMC(Clean):
         if not res:
             return None
         t = res[0]
-        txt = t.text or ' '.join(t.xpath('.//text()'))
+        txt = ' '.join(t.xpath('.//text()'))
         return txt.strip()
 
     def abstract(self):
