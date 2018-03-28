@@ -1,19 +1,10 @@
 import os
-import csv
 import glob
 from collections import defaultdict, Counter
 from tabulate import tabulate
 import click
 
-from mlabc import DATADIR, JCSV, read_issn
-
-
-def read_papers():
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        todo = {pmid: (doi, issn, int(year)) for pmid, issn, name, year, doi in R}
-    return todo
+from mlabc import DATADIR, read_issn, read_suba_papers_csv
 
 
 def get_dir(xmld, ext='.xml'):
@@ -75,7 +66,7 @@ def _summary(showall=True):
 
 def _counts():
     ISSN = read_issn()
-    papers = {pmid for pmid, t in read_papers().items() if t[0]}  # papers with doi
+    papers = {p.pmid for p in read_suba_papers_csv() if p.doi}  # papers with doi
     res = defaultdict(list)
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
@@ -97,7 +88,7 @@ def _counts():
 
 def _todo():
     issns = read_issn()
-    papers = {pmid: t for pmid, t in read_papers().items() if t[0]}  # papers with doi
+    papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
@@ -115,8 +106,8 @@ def _todo():
     #             del papers[pmid]
 
     ISSN = Counter()
-    for pmid, (doi, issn, year) in papers.items():
-        ISSN[issn] += 1
+    for pmid, p in papers.items():
+        ISSN[p.issn] += 1
 
     header = ["ISSN", "Journal", "ToDo"]
     tbl = []

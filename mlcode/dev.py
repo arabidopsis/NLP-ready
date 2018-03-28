@@ -14,6 +14,12 @@ class Dev(Clean):
         assert a
         self.article = a
 
+    def title(self):
+        t = self.root.select('#page-title')
+        if t:
+            return t[0].text.strip()
+        return super().title()
+
     def results(self):
         # secs = self.article.select('div.section.results-discussion')
         # if secs:

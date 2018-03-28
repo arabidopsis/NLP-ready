@@ -10,6 +10,9 @@ from lxml import etree
 from mlabc import DATADIR, readxml, Generate, Clean, read_suba_papers_csv
 
 
+ISSN = {'epmc': 'epmc'}
+
+
 XML = 'https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML'  # noqa: E221
 
 
@@ -118,7 +121,9 @@ class EPMC(Clean):
         res = self.root.xpath('/article/front/article-meta/title-group/article-title')
         if not res:
             return None
-        return res[0].text.strip()
+        t = res[0]
+        txt = t.text or ' '.join(t.xpath('.//text()'))
+        return txt.strip()
 
     def abstract(self):
         res = self.root.xpath('/article/front/article-meta/abstract')

@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 from mlabc import DATADIR, Clean, readxml, Generate, read_journals_csv, read_suba_papers_csv
 
+ISSN = {'elsevier': 'elsevier'}
 
 PMID_ELSEVIER = 'http://api.elsevier.com/content/article/pubmed_id/{}'
 EKEY = '305ac4275ea475891668f6a71234efbc'

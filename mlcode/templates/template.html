@@ -17,8 +17,9 @@
     .missing { color: red; }
   </style>
 </head>
-<body>
+<body id="top">
   <div class="container">
+
   <h1>Journal {{issn}} &mdash; {{this.journal}}</h1>
   <ol>
     {% for p, e in papers %}
@@ -32,7 +33,7 @@
 
       <h2>{{p.pmid}} ({{p.year}})</h2>
       <h3>{{e.title()}}</h3>
-      <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a>
+      <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a> <a href="#top">top</a>
       {% set abstract = e.abstract() %}
       {% if abstract is not none %}
           <h3>Abstract</h3>

@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import csv
 import time
@@ -52,7 +53,11 @@ def read_issn():
 
 def readxml(d):
     """Scan directory d and return the pubmed ids."""
-    for f in os.listdir(DATADIR + d):
+    dd = DATADIR + d
+    if not os.path.isdir(dd):
+        click.secho('no directory %s' % d, fg='red', file=sys.stderr)
+        return
+    for f in os.listdir(dd):
         f, ext = os.path.splitext(f)
         if ext in {'.html', '.xml'}:
             yield f
@@ -66,6 +71,9 @@ def dump(paper, xml):
 class Clean(object):
     SPACE = re.compile(r'\s+', re.I)
 
+    def __init__(self, root):
+        self.root = root
+
     def find_title(self, sec, h='h2', op=lambda a, b: a == b, txt=[]):
         h = sec.find(h)
         if h:
@@ -77,6 +85,15 @@ class Clean(object):
 
     def title(self):
         return self.root.find('title').text.strip()
+
+    def abstract(self):
+        return None
+
+    def results(self):
+        return None
+
+    def methods(self):
+        return None
 
     def tostr(self, sec):
 
@@ -122,7 +139,10 @@ class Generate(object):
             return self.issns
         if not self._journal:
             d = read_issn()
-            self._journal = d[self.issn][1]
+            if self.issn in d:
+                self._journal = d[self.issn][1]
+            else:
+                self._journal = self.issn
         return self._journal
 
     def create_clean(self, soup, pmid):
@@ -177,7 +197,7 @@ class Generate(object):
             w = ' '.join(e.tostr(m))
             print('!~MM~! %s' % w, file=fp)
 
-    def tohtml(self, template='template.html', save=False):
+    def tohtml(self, template='template.html', save=False, prefix=''):
         from jinja2 import Environment, FileSystemLoader, select_autoescape
         env = Environment(
             loader=FileSystemLoader('templates'),
@@ -190,12 +210,23 @@ class Generate(object):
         todo = [pmid2doi[pmid] for pmid in readxml(gdir)]
 
         for paper in sorted(todo, key=lambda p: -p.year):
+            print(paper.pmid, paper.issn, paper.doi)
             soup = self.get_soup(gdir, paper.pmid)
-            e = self.create_clean(soup, paper.pmid)
-            papers.append((paper, e))
+            try:
+                e = self.create_clean(soup, paper.pmid)
+                if not e.has_all_sections():
+                    click.secho('not all sections for %s http://doi.org/%s' %
+                                (paper.pmid, paper.doi), fg='magenta', file=sys.stderr)
+                papers.append((paper, e))
+            except Exception as err:
+                click.secho('failed for %s http://doi.org/%s %s' %
+                            (paper.pmid, paper.doi, str(err)), fg='red', file=sys.stderr)
+                # raise err
+                papers.append((paper, Clean(soup)))
+
         t = template.render(papers=papers, issn=self.issn, this=self)
         if save:
-            with open(self.issn + '.html', 'w') as fp:
+            with open(prefix + self.issn + '.html', 'w') as fp:
                 fp.write(t)
 
         return t

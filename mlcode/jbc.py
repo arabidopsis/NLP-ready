@@ -22,9 +22,10 @@ class JBC(Clean):
             return secs[0]
         for sec in self.article.select('div.section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'results':
-                return sec
-
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'results', 'results and discussion'}:
+                    return sec
         return None
 
     def methods(self):
@@ -33,8 +34,10 @@ class JBC(Clean):
             return secs[0]
         for sec in self.article.select('div.section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'methods':
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'methods', 'experimental procedures', 'materials and methods'}:
+                    return sec
 
         return None
 

@@ -10,9 +10,15 @@ class EMBOJ(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('div.article.fulltext-view')[0]
-        assert a
-        self.article = a
+        a = root.select('div.article.fulltext-view')
+        assert a, a
+        self.article = a[0]
+
+    def title(self):
+        s = self.root.select('#embo-page-title')
+        if s:
+            return s[0].text.strip()
+        return super().title()
 
     def results(self):
         secs = self.article.select('div.section.results-discussion')
@@ -40,6 +46,7 @@ class EMBOJ(Clean):
 
     def abstract(self):
         secs = self.article.select('div.section.abstract')
+        print(secs)
         return secs[0] if secs else None
 
     def tostr(self, sec):
@@ -53,7 +60,7 @@ class EMBOJ(Clean):
 
 def download_emboj(issn, sleep=5.0, mx=0):
     class D(Download):
-        Referer = 'http://www.pnas.org'
+        Referer = 'http://emboj.embopress.org'
 
         def check_soup(self, pmid, soup, resp):
             a = soup.select('div.article.fulltext-view')
@@ -63,24 +70,24 @@ def download_emboj(issn, sleep=5.0, mx=0):
     e.run()
 
 
-class EMBJ(Generate):
+class GenerateEMBJ(Generate):
     def create_clean(self, soup, pmid):
         return EMBOJ(soup)
 
 
 def gen_emboj(issn):
 
-    e = EMBJ(issn)
+    e = GenerateEMBJ(issn)
     e.run()
 
 
 def html_emboj(issn):
 
-    e = EMBJ(issn)
+    e = GenerateEMBJ(issn)
     print(e.tohtml())
 
 
 if __name__ == '__main__':
     # this is also a Wiley thing
-    # download_emboj(issn='1460-2075', sleep=60. * 2, mx=0)
-    html_emboj(issn='1460-2075')
+    download_emboj(issn='1460-2075', sleep=5. * 2, mx=3)
+    # html_emboj(issn='1460-2075')

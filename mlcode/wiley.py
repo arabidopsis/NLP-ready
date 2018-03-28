@@ -35,19 +35,28 @@ class Wiley(Clean):
         assert a
         self.article = a
 
+    def title(self):
+        for s in self.article.select('h1.article-header__title'):
+            return s.text.strip()
+        return super().title()
+
     def results(self):
         for sec in self.article.select('section.article-body-section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'results':
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt.endswith(('results', 'results and discussion')):
+                    return sec
 
         return None
 
     def methods(self):
         for sec in self.article.select('section.article-body-section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'experimental procedures':
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt.endswith(('experimental procedures', 'materials and methods', 'methods')):
+                    return sec
 
         return None
 
@@ -69,29 +78,29 @@ class Wiley2(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('article div.article__body article')[0]
-        assert a
-        self.article = a
+        a = root.select('article div.article__body article')
+        assert a, a
+        self.article = a[0]
 
     def results(self):
         for sec in self.article.select('.article-section.article-section__full div.article-section__content'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower().endswith('results and discussion'):
+            if h2 and h2.text.lower().strip().endswith('results and discussion'):
                 return sec
         for sec in self.article.select('div.article-section__content'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower().endswith('results'):
+            if h2 and h2.text.lower().strip().endswith('results'):
                 return sec
         return None
 
     def methods(self):
         for sec in self.article.select('section.article-body-section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower().endswith('materials and methods'):
+            if h2 and h2.text.lower().strip().endswith('materials and methods'):
                 return sec
         for sec in self.article.select('div.article-section__content'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower().endswith('materials and methods'):
+            if h2 and h2.text.lower().strip().endswith('materials and methods'):
                 return sec
         return None
 
@@ -110,6 +119,9 @@ class Wiley2(Clean):
 
 class GenerateWiley(Generate):
     def create_clean(self, soup, pmid):
+        p = self.pmid2doi[pmid]
+        if p.issn in {'1873-3468'}:
+            return Wiley(soup)
         try:
             e = Wiley(soup)
         except Exception:
