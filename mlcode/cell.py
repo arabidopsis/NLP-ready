@@ -12,7 +12,11 @@ from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCS
 ISSN = {
     '1097-4172': 'Cell',
     '0092-8674': 'Cell',
-    '1090-2104': 'Biochem. Biophys. Res. Commun.'
+    '1090-2104': 'Biochem. Biophys. Res. Commun.',
+    '1873-2690': 'Plant Physiol. Biochem.',
+    '0981-9428': 'Plant Physiol. Biochem.',
+    '0960-9822': 'Curr. Biol.',
+    '1879-0445': 'Curr. Biol.'
 }
 
 
@@ -169,7 +173,7 @@ class CELL2(Clean):
         a = root.select('div.fullText')
 
         a = a[0]
-        assert a
+        assert a, a
         self.article = a
 
     def results(self):
@@ -243,12 +247,15 @@ def cli():
     pass
 
 
+DEFAULT = ','.join(ISSN)
+
+
 @cli.command()
-@click.option('--sleep', default=10.)
-@click.option('--mx', default=1)
-@click.option('--head', default=False, is_flag=True)
-@click.option('--noclose', default=False, is_flag=True)
-@click.option('--issn', default='1097-4172,0092-8674', show_default=True)
+@click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
+@click.option('--mx', default=1, help='max documents to download 0=all')
+@click.option('--head', default=False, is_flag=True, help='don\'t run browser headless')
+@click.option('--noclose', default=False, is_flag=True, help='don\'t close browser at end')
+@click.option('--issn', default=DEFAULT, show_default=True)
 def download(sleep, mx, issn, head, noclose):
     for i in issn.split(','):
         driver = download_cell(issn=i, sleep=sleep, mx=mx, headless=not head, close=not noclose)
@@ -258,23 +265,29 @@ def download(sleep, mx, issn, head, noclose):
 
 
 @cli.command()
-@click.option('--issn', default='1097-4172,0092-8674', show_default=True)
+@click.option('--issn', default=DEFAULT, show_default=True)
 def clean(issn):
     for i in issn.split(','):
         gen_cell(issn=i)
 
 
 @cli.command()
-@click.option('--issn', default='1097-4172,0092-8674', show_default=True)
+@click.option('--issn', default=DEFAULT, show_default=True)
 def html(issn):
     for i in issn.split(','):
         html_cell(issn=i)
 
 
+@cli.command()
+def issn():
+    print(' '.join(ISSN))
+
+
 if __name__ == '__main__':
-    # cli()
+    cli()
 
     # download_cell(issn='1097-4172', sleep=120., mx=0, headless=False)
     # download_cell(issn='0092-8674', sleep=120., mx=0, headless=False)
-    download_cell(issn='1090-2104', sleep=120., mx=0, headless=False)
+    # download_cell(issn='1873-2690', sleep=120., mx=0, headless=False)
+    # download_cell(issn='0981-9428', sleep=120., mx=0, headless=False)
     # gen_cell(issn='1097-4172')
