@@ -114,5 +114,5 @@ def html_bbb(issn):
 
 
 if __name__ == '__main__':
-    download_bbb(issn='0916-8451', sleep=10., mx=2)
-    download_bbb(issn='1347-6947', sleep=10., mx=2)
+    download_bbb(issn='0916-8451', sleep=120., mx=0)
+    download_bbb(issn='1347-6947', sleep=120., mx=0)

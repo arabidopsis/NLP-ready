@@ -109,6 +109,8 @@ def _todo(byname=False, exclude=None, failed=False):
             _, issn = xmld.split('_')
             if exclude and issn in exclude:
                 continue
+            if issn in {'epmc', 'elsevier'}:
+                continue
             pmids = get_dir(xmld, ext=getext(xmld))
             for pmid in pmids:
                 if pmid in papers:
