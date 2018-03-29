@@ -1,4 +1,3 @@
-import requests
 from mlabc import Clean, Download, Generate
 
 ISSN = {
@@ -76,19 +75,8 @@ def download_jcs(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = 'http://jcs.biologists.org'
 
-        def get_response(self, paper, header):
-            resp = requests.get('http://doi.org/{}'.format(paper.doi), headers=header)
-            if not resp.url.endswith('.full'):
-                resp = requests.get(resp.url + '.full', headers=header)
-            return resp
-
         def check_soup(self, paper, soup, resp):
             a = soup.select('div.article.fulltext-view')
-            # if not a and year <= 2001:  # probably only a (scanned?) PDF version
-            #    xml = b'failed-only-pdf'
-            #     d = fdir
-            #    failed.add(pmid)
-            # else:
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)

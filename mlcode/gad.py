@@ -14,9 +14,9 @@ class GAD(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('div.article.fulltext-view')[0]
-        assert a
-        self.article = a
+        a = root.select('div.article.fulltext-view')
+        assert a, a
+        self.article = a[0]
 
     def results(self):
         secs = self.article.select('div.section.results')

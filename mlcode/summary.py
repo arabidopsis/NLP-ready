@@ -30,6 +30,13 @@ def get_all_done():
             yield issn, pmid
 
 
+def get_done():
+    res = defaultdict(list)
+    for issn, pmid in get_all_done():
+        res[pmid].append(issn)
+    return res
+
+
 def _summary(showall=True):
     issns = read_issn()
     dd = {}
@@ -67,13 +74,10 @@ def _summary(showall=True):
 def _counts():
     ISSN = read_issn()
     papers = {p.pmid for p in read_suba_papers_csv() if p.doi}  # papers with doi
-    res = defaultdict(list)
-    for xmld in glob.glob(DATADIR + 'xml_*'):
-        _, issn = xmld.split('_')
-        for pmid in get_dir(xmld, ext=getext(xmld)):
-            res[pmid].append(issn)
+    res = get_done()
 
-    print('done:', len(res), 'possible', len(papers))
+    total = sum(len(res[pmid]) for pmid in res)
+    print('pubmeds done:', len(res), 'possible', len(papers), 'total', total)
 
     def d(issn):
         if issn in ISSN:
@@ -83,7 +87,7 @@ def _counts():
     for pmid in res:
         issns = res[pmid]
         if len(issns) > 1:
-            print(pmid, [d(j) for j in issns])
+            print(pmid, ','.join(sorted([d(j) for j in issns])))
 
 
 def _todo(byname=False):
@@ -157,7 +161,7 @@ def cli():
 
 
 @cli.command()
-@click.option('--showall', is_flag=True, help='show journals not done yet')
+@click.option('--showall', is_flag=True, help='also show journals not done yet')
 def summary(showall):
     _summary(showall)
 
@@ -168,7 +172,7 @@ def counts():
 
 
 @cli.command()
-@click.option('--byname', is_flag=True, help='order by journal name')
+@click.option('--byname', is_flag=True, help='group table by journal name')
 def todo(byname):
     _todo(byname)
 

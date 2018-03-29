@@ -11,7 +11,8 @@ from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCS
 
 ISSN = {
     '1097-4172': 'Cell',
-    '0092-8674': 'Cell'
+    '0092-8674': 'Cell',
+    '1090-2104': 'Biochem. Biophys. Res. Commun.'
 }
 
 
@@ -42,6 +43,12 @@ class DownloadCell(Download):
         secs = soup.select('article div.Body section')
         if not secs:
             secs = soup.select('div.fullText section')
+        if not secs:
+            s = soup.select('h1.Head .title-text')
+            if s:
+                txt = s[0].text
+                if 'WITHDRAWN' in txt:
+                    return b'withdrawn'
         assert len(secs) > 3, (paper.doi, secs)
 
 
@@ -267,6 +274,7 @@ def html(issn):
 if __name__ == '__main__':
     # cli()
 
-    download_cell(issn='1097-4172', sleep=120., mx=0, headless=False)
-    download_cell(issn='0092-8674', sleep=120., mx=0, headless=False)
+    # download_cell(issn='1097-4172', sleep=120., mx=0, headless=False)
+    # download_cell(issn='0092-8674', sleep=120., mx=0, headless=False)
+    download_cell(issn='1090-2104', sleep=120., mx=0, headless=False)
     # gen_cell(issn='1097-4172')

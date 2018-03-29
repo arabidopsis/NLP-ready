@@ -78,6 +78,13 @@ class ASPB(Clean):
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
+    def title(self):
+        s = self.root.select('#page-title')
+        if s:
+            return s[0].text.strip()
+
+        return super().title()
+
 
 class GenerateASPB(Generate):
     cc = set()

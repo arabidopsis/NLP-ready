@@ -44,7 +44,7 @@ class Nature(Clean):
 
     def title(self):
         txt = ''.join(self.root.xpath('/html/head/title/text()'))
-        return txt.split(' | ')[0].strip()
+        return txt.rsplit(' | ', 1)[0].strip()
 
     def tostr(self, sec):
         for fig in sec.xpath('.//div[@data-container-section="figure"]'):
@@ -71,8 +71,6 @@ class GenerateNature(Generate):
 
     def get_soup(self, gdir, pmid):
         fname = DATADIR + gdir + '/{}.html'.format(pmid)
-        # if not os.path.isfile(fname):
-        #    fname = DATADIR + gdir + '/{}.xml'.format(pmid)
         with open(fname, 'r', encoding='utf-8') as fp:
             # tree = parse(fp)
             # soup = tree.getroot()
