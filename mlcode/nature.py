@@ -115,6 +115,6 @@ def html_nature(issn):
 
 
 if __name__ == '__main__':
-    download_nature(issn='1476-4687', sleep=10., mx=2)
-    # download_nature(issn='0028-0836', sleep=120., mx=0)
+    download_nature(issn='1476-4687', sleep=120., mx=0)
+    download_nature(issn='0028-0836', sleep=120., mx=0)
     # gen_gad(issn='0890-9369')

@@ -77,7 +77,8 @@ def _counts():
     res = get_done()
 
     total = sum(len(res[pmid]) for pmid in res)
-    print('pubmeds done:', len(res), 'possible', len(papers), 'total', total)
+    doubles = sum(1 if len(res[pmid])>1 else 0 for pmid in res)
+    print('pubmeds done:', len(res), 'possible', len(papers), 'total', total, 'doubles', doubles)
 
     def d(issn):
         if issn in ISSN:
@@ -90,12 +91,14 @@ def _counts():
             print(pmid, ','.join(sorted([d(j) for j in issns])))
 
 
-def _todo(byname=False):
+def _todo(byname=False,exclude=None):
     issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
+        if exclude and issn in exclude:
+            continue
         cnt, name = issns.get(issn, (0, issn))
         pmids = get_dir(xmld, ext=getext(xmld))
         for pmid in pmids:
@@ -122,17 +125,23 @@ def _todo(byname=False):
             d1[j] += cnt
             d2[j].append(issn)
         tbl = []
+        total = 0
         for j in d1:
             issn = ','.join(d2[j])
             cnt = d1[j]
             tbl.append((j, issn, cnt))
+            total += cnt
         tbl = sorted(tbl, key=lambda t: -t[2])
+        tbl.append(('total', '' , total))
         print(tabulate(tbl, headers=header, tablefmt='rst'))
     else:
         header = ["ISSN", "Journal", "ToDo"]
         tbl = []
+        total = 0
         for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
             tbl.append([issn, issns[issn][1], cnt])
+            total += cnt
+        tbl.append(('total', '' , total))
         print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
@@ -173,8 +182,11 @@ def counts():
 
 @cli.command()
 @click.option('--byname', is_flag=True, help='group table by journal name')
-def todo(byname):
-    _todo(byname)
+@click.option('--exclude')
+def todo(byname, exclude=None):
+    if exclude:
+        exclude=set(exclude.split(','))
+    _todo(byname, exclude)
 
 
 if __name__ == '__main__':

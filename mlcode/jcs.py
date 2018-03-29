@@ -90,6 +90,6 @@ def html_jcs(issn):
 
 
 if __name__ == '__main__':
-    download_jcs(issn='0021-9533', sleep=10., mx=2)
-    # download_jcs(issn='1477-9137', sleep=120., mx=0)
+    download_jcs(issn='0021-9533', sleep=120., mx=0)
+    download_jcs(issn='1477-9137', sleep=120., mx=0)
     # gen_gad(issn='0890-9369')

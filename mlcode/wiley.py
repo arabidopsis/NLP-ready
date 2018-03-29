@@ -22,7 +22,7 @@ ISSN = {
     # '1744-4292': 'Mol. Syst. Biol.',
     # '1364-3703': 'Mol. Plant Pathol.',
     # '1365-2591': 'Int Endod J',
-    # '1615-9861': 'Proteomics',
+    '1615-9861': 'Proteomics',
     # '1365-3040': 'Plant Cell Environ.'
 }
 
@@ -191,11 +191,11 @@ if __name__ == '__main__':
     # download_wiley(issn='1873-3468', sleep=10., mx=20)
     # download_wiley(issn='1469-8137', sleep=60. * 2, mx=0)
     # download_wiley(issn='1742-4658', sleep=60. * 2, mx=0)
-    # download_wiley(issn='1615-9861', sleep=5. * 2, mx=2)
+    download_wiley(issn='1615-9861', sleep=60. * 2, mx=0)
     # download_all(sleep=60. * 2, mx = 0)
 
     # gen_wiley(issn='0960-7412')
     # gen_wiley(issn='1467-7652')
     # gen_wiley(issn='1365-313X')
     # gen_wiley(issn='1873-3468')
-    html_wiley(issn='1615-9861')
+    # html_wiley(issn='1615-9861')

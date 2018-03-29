@@ -5,8 +5,8 @@ from mlabc import Download, Generate, Clean
 
 ISSN = {
     '1040-4651': 'Plant Cell',
-    '0032-0889': 'Plant Physiol.',
     '1532-298X': 'Plant Cell',  # web issn for the plant cell
+    '0032-0889': 'Plant Physiol.',
     '1532-2548': 'Plant Physiol.'
 }
 
@@ -115,10 +115,10 @@ def html_aspb(issn):
 
 if __name__ == '__main__':
     download_aspb(sleep=60. * 2, mx=0, issn='1040-4651')
-    download_aspb(sleep=60. * 2, mx=0, issn='0032-0889')
     download_aspb(sleep=60. * 2, mx=0, issn='1532-298X')  # web issn for the plant cell
+    download_aspb(sleep=60. * 2, mx=0, issn='0032-0889')
     download_aspb(sleep=60. * 2, mx=0, issn='1532-2548')  # web issn for plant physiology
-    gen_aspb(issn='1040-4651')
-    gen_aspb(issn='0032-0889')
-    gen_aspb(issn='1532-298X')  # web issn for the plant cell
-    gen_aspb(issn='1532-2548')
+    # gen_aspb(issn='1040-4651')
+    # gen_aspb(issn='0032-0889')
+    # gen_aspb(issn='1532-298X')  # web issn for the plant cell
+    # gen_aspb(issn='1532-2548')

@@ -97,6 +97,5 @@ def html_jproteome(issn):
 
 
 if __name__ == '__main__':
-    download_jproteome(issn='1535-3907', sleep=10., mx=2)
-    # download_jproteome(issn='1535-3893', sleep=10., mx=2)
-    # gen_gad(issn='0890-9369')
+    download_jproteome(issn='1535-3907', sleep=120., mx=0)
+    download_jproteome(issn='1535-3893', sleep=120., mx=0)

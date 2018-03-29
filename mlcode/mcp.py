@@ -96,6 +96,6 @@ def html_mcp(issn):
 
 if __name__ == '__main__':
 
-    download_mcp(issn='1535-9484', sleep=10., mx=3)
-    # download_mcp(issn='1535-9476', sleep=10., mx=3)
+    download_mcp(issn='1535-9484', sleep=120., mx=0)
+    download_mcp(issn='1535-9476', sleep=120., mx=0)
     # gen_mcp(issn='0890-9369')

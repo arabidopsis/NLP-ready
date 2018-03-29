@@ -2,7 +2,8 @@ from mlabc import Download, Clean, Generate
 
 
 ISSN = {
-    '0950-1991': 'Development'
+    '0950-1991': 'Development',
+    '1477-9129': 'Development'
 }
 
 
@@ -95,5 +96,6 @@ def html_dev(issn):
 
 if __name__ == '__main__':
     download_dev(issn='0950-1991', sleep=120., mx=0)
+    download_dev(issn='1477-9129', sleep=120., mx=0)
     # gen_dev(issn='0950-1991')
     # html_dev(issn='0950-1991')

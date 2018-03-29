@@ -1,4 +1,5 @@
 import requests
+import click
 from mlabc import Clean, Download, Generate
 
 
@@ -90,6 +91,9 @@ def download_bioj(issn, sleep=5.0, mx=0):
             #     d = fdir
             #    failed.add(pmid)
             # else:
+            if not a:
+                click.secho('no full text %s http://doi.org/%s' % (paper.pmid, paper.doi), fg='red')
+                return b'no full-text'
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)
@@ -103,6 +107,6 @@ def html_bioj(issn):
 
 
 if __name__ == '__main__':
-    download_bioj(issn='1470-8728', sleep=10., mx=2)
-    # download_bioj(issn='0264-6021', sleep=10., mx=2)
+    download_bioj(issn='1470-8728', sleep=120., mx=0)
+    download_bioj(issn='0264-6021', sleep=120., mx=0)
     # gen_bioj(issn='0264-6021')
