@@ -14,6 +14,7 @@ MODS = [
     "gad",
     "jbc",
     "jcs",
+    "jproteome",
     "mcp",
     "nature",
     "oup",
