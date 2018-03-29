@@ -272,7 +272,7 @@ class Generate(object):
             except Exception as err:
                 click.secho('failed for %s http://doi.org/%s %s' %
                             (paper.pmid, paper.doi, str(err)), fg='red', file=sys.stderr)
-                # raise err
+                raise err
                 papers.append((paper, Clean(soup)))
 
         t = template.render(papers=papers, issn=self.issn, this=self)
@@ -289,7 +289,7 @@ class Generate(object):
         return t
 
 
-PRIMER = re.compile(r'''\b((?:5[′']-)?[CTAG\s-]{7,}[CTAG](?:-3[′'])?)(\b|$|[\s;:)\.])''', re.I)
+PRIMER = re.compile(r'''\b((?:5[′']-)?[CTAG\s-]{7,}[CTAG](?:-3[′'])?)(\b|$|[\s;:)/,\.])''', re.I)
 
 
 from jinja2 import Markup
@@ -302,6 +302,7 @@ def find_primers(txt):
 class FakeResponse(object):
     content = None
     status_code = 200
+    encoding = 'UTF-8'
     url = None
 
     def raise_for_status(self):
@@ -338,6 +339,11 @@ class Download(object):
     def end(self):
         pass
 
+    def create_soup(self, paper, resp):
+        xml = resp.content
+        soup = BeautifulSoup(BytesIO(xml), self.parser)
+        return soup
+
     def run(self):
         header = {'User-Agent': USER_AGENT,
                   'Referer': self.Referer
@@ -373,7 +379,7 @@ class Download(object):
                     resp.raise_for_status()
                     header['Referer'] = resp.url
                     xml = resp.content
-                    soup = BeautifulSoup(BytesIO(xml), self.parser)
+                    soup = self.create_soup(paper, resp)
                     err = self.check_soup(paper, soup, resp)
                     if err:
                         xml = err
