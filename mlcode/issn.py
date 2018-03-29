@@ -5,6 +5,7 @@ from mlabc import Generate
 MODS = [
     "ascb",
     "aspb",
+    "bbb",
     "bioj",
     "cell",
     "dev",
