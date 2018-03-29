@@ -5,7 +5,9 @@ ISSN = {
     '1573-5028': 'Plant Mol. Biol.',
     '0167-4412': 'Plant Mol. Biol.',
     '1432-2048': 'Planta',
-    '0032-0935': 'Planta'
+    '0032-0935': 'Planta',
+    '1615-6102': 'Protoplasma',
+    '0033-183X': 'Protoplasma'
 }
 
 
@@ -114,6 +116,8 @@ if __name__ == '__main__':
     download_springer(issn='0167-4412', sleep=60. * 2, mx=0)
     download_springer(issn='0032-0935', sleep=60. * 2, mx=0)
     download_springer(issn='1432-2048', sleep=60. * 2, mx=0)
+    download_springer(issn='1615-6102', sleep=60. * 2, mx=0)
+    download_springer(issn='0033-183X', sleep=60. * 2, mx=0)
     # gen_springer(issn='1573-5028')
     # gen_springer(issn='0167-4412')
     # html_springer(issn='1573-5028')
