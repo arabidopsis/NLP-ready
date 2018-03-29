@@ -77,7 +77,7 @@ def _counts():
     res = get_done()
 
     total = sum(len(res[pmid]) for pmid in res)
-    doubles = sum(1 if len(res[pmid])>1 else 0 for pmid in res)
+    doubles = sum(1 if len(res[pmid]) > 1 else 0 for pmid in res)
     print('pubmeds done:', len(res), 'possible', len(papers), 'total', total, 'doubles', doubles)
 
     def d(issn):
@@ -91,7 +91,7 @@ def _counts():
             print(pmid, ','.join(sorted([d(j) for j in issns])))
 
 
-def _todo(byname=False,exclude=None):
+def _todo(byname=False, exclude=None, failed=False):
     issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
@@ -104,7 +104,15 @@ def _todo(byname=False,exclude=None):
         for pmid in pmids:
             if pmid in papers:
                 del papers[pmid]
-
+    if failed:
+        for xmld in glob.glob(DATADIR + 'failed_*'):
+            _, issn = xmld.split('_')
+            if exclude and issn in exclude:
+                continue
+            pmids = get_dir(xmld, ext=getext(xmld))
+            for pmid in pmids:
+                if pmid in papers:
+                    del papers[pmid]
     # for xmld in glob.glob(DATADIR + 'failed_*'):
     #     _, issn = xmld.split('_')
     #     pmids = get_dir(xmld, ext=getext(xmld))
@@ -132,7 +140,7 @@ def _todo(byname=False,exclude=None):
             tbl.append((j, issn, cnt))
             total += cnt
         tbl = sorted(tbl, key=lambda t: -t[2])
-        tbl.append(('total', '' , total))
+        tbl.append(('total', '', total))
         print(tabulate(tbl, headers=header, tablefmt='rst'))
     else:
         header = ["ISSN", "Journal", "ToDo"]
@@ -141,7 +149,7 @@ def _todo(byname=False,exclude=None):
         for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
             tbl.append([issn, issns[issn][1], cnt])
             total += cnt
-        tbl.append(('total', '' , total))
+        tbl.append(('total', '', total))
         print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
@@ -182,11 +190,12 @@ def counts():
 
 @cli.command()
 @click.option('--byname', is_flag=True, help='group table by journal name')
+@click.option('--failed', is_flag=True, help='include failed documents')
 @click.option('--exclude')
-def todo(byname, exclude=None):
+def todo(byname, exclude=None, failed=False):
     if exclude:
-        exclude=set(exclude.split(','))
-    _todo(byname, exclude)
+        exclude = set(exclude.split(','))
+    _todo(byname, exclude, failed=failed)
 
 
 if __name__ == '__main__':
