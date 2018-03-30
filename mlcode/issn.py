@@ -7,6 +7,7 @@ MODS = [
     "aspb",
     "bbb",
     "bioj",
+    "bmcpb",
     "cell",
     "dev",
     "elsevier",
@@ -108,7 +109,7 @@ def clean(mod='', nowrite=False):
 @cli.command()
 @click.option('--mod', help='modules to run')
 @click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
-@click.option('--mx', default=1, help='max documents to download 0=all')
+@click.option('--mx', default=3, help='max documents to download 0=all')
 def download(mod='', sleep=10., mx=1):
     """Download html/xml from websites."""
     if mod:

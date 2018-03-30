@@ -1,22 +1,24 @@
 from mlabc import Clean, Download, Generate
 
+# BMC Plant Biology
 
 ISSN = {
-    '1535-3907': 'J. Proteome Res.',
-    '1535-3893': 'J. Proteome Res.'
+    '1471-2229': 'BMC Plant Biol.'
 }
 
 
-class JProteome(Clean):
+class PMCPB(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('article.article')
+        a = root.select('.FulltextWrapper section.Abstract')
+
         assert a, a
-        self.article = a[0]
+        abs = a[0]
+        self.article = abs.parent
 
     def results(self):
-        secs = self.article.select('#articleBody .hlFld-Fulltext .NLM_sec_level_1')
+        secs = self.article.select('section.Section1')
         for sec in secs:
             h2 = sec.find('h2')
             if h2:
@@ -27,7 +29,7 @@ class JProteome(Clean):
         return None
 
     def methods(self):
-        secs = self.article.select('#articleBody .hlFld-Fulltext .NLM_sec_level_1')
+        secs = self.article.select('section.Section1')
         for sec in secs:
             h2 = sec.find('h2')
             if h2:
@@ -39,46 +41,48 @@ class JProteome(Clean):
         return None
 
     def abstract(self):
-        secs = self.article.select('#articleBody .hlFld-Abstract #abstractBox')
+        secs = self.article.select('section.Abstract')
         return secs[0] if secs else None
 
     def title(self):
-        return self.article.select('h1.articleTitle')[0].text.strip()
+        t = self.root.select('.FulltextWrapper .MainTitleSection h1')
+        return t[0].text.strip()
 
     def tostr(self, sec):
-        for a in sec.select('div.figure'):
-            p = self.root.new_tag('div', **{'class': 'NLM_p'})
+        for a in sec.select('p figure,div.Para figure'):
+            p = self.root.new_tag('span')
 
-            p.string = '[[FIGURE]]'
+            p.string = '[[TABLE]]' if 'FigureTable' in a['class'] else '[[FIGURE]]'
             a.replace_with(p)
-        for a in sec.select('div.NLM_p a.ref'):
+
+        for a in sec.select('span.CitationRef'):
             a.replace_with('CITATION')
 
         def paraordiv(tag):
-            return tag.name == 'p' or (tag.name == 'div' and 'NLM_p' in tag['class'])
+            return tag.name == 'p' or (tag.name == 'div' and 'Para' in tag['class'])
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.find_all(paraordiv)]
         return txt
 
 
-class GenerateJProteome(Generate):
+class GeneratePMCPB(Generate):
     def create_clean(self, soup, pmid):
-        return JProteome(soup)
+        return PMCPB(soup)
 
 
-def gen_jproteome(issn):
+def gen_bmcpb(issn):
 
-    g = GenerateJProteome(issn)
+    g = GeneratePMCPB(issn)
     g.run()
 
 
-def download_jproteome(issn, sleep=5.0, mx=0):
+def download_bmcpb(issn, sleep=5.0, mx=0):
 
     class D(Download):
-        Referer = 'https://pubs.acs.org'
+        Referer = 'https://bmcplantbiol.biomedcentral.com'
 
         def check_soup(self, paper, soup, resp):
-            a = soup.select('article.article #articleBody')
+            a = soup.select('.FulltextWrapper section.Abstract')
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)
@@ -87,10 +91,9 @@ def download_jproteome(issn, sleep=5.0, mx=0):
 
 def html_jproteome(issn):
 
-    g = GenerateJProteome(issn)
+    g = GeneratePMCPB(issn)
     print(g.tohtml())
 
 
 if __name__ == '__main__':
-    download_jproteome(issn='1535-3907', sleep=120., mx=0)
-    download_jproteome(issn='1535-3893', sleep=120., mx=0)
+    download_bmcpb(issn='1471-2229', sleep=120., mx=0)
