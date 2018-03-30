@@ -109,7 +109,7 @@ def _todo(byname=False, exclude=None, failed=False):
             _, issn = xmld.split('_')
             if exclude and issn in exclude:
                 continue
-            if issn in {'epmc', 'elsevier'}:
+            if issn in {'epmc', 'elsevier'}:  # elseiver failed has all pubmeds!
                 continue
             pmids = get_dir(xmld, ext=getext(xmld))
             for pmid in pmids:
@@ -164,14 +164,15 @@ def parsed():
             _, fname = os.path.split(f)
             pmid, _ = os.path.splitext(fname)
             pmid, _ = pmid.split('_')
-            res[issn] = [pmid for fname in get_dir(xmld, ext='.txt')
-                         for pmid in [fname.split('_')[0]]]
+            res[pmid].append(issn)
+            # res[issn] = [pmid for fname in get_dir(xmld, ext='.txt')
+            #              for pmid in [fname.split('_')[0]]]
 
     print('done:', len(res))
     for pmid in res:
         issns = res[pmid]
         if len(issns) > 1:
-            print(pmid, [ISSN.get(j, j) for j in issns])
+            print(pmid, ','.join(sorted(ISSN.get(j, j) for j in issns)))
 
 
 @click.group()
@@ -188,6 +189,11 @@ def summary(showall):
 @cli.command()
 def counts():
     _counts()
+
+
+@cli.command()
+def cleaned():
+    parsed()
 
 
 @cli.command()

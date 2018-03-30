@@ -55,7 +55,7 @@ def readxml(d):
     """Scan directory d and return the pubmed ids."""
     dd = DATADIR + d
     if not os.path.isdir(dd):
-        click.secho('no directory %s' % d, fg='red', file=sys.stderr)
+        click.secho('readxml: no directory to scan for %s' % d, fg='red', file=sys.stderr)
         return
     for f in os.listdir(dd):
         f, ext = os.path.splitext(f)
@@ -157,7 +157,7 @@ class Clean(object):
 class Generate(object):
     parser = 'lxml'
 
-    def __init__(self, issn):
+    def __init__(self, issn, **kwargs):
         self.issn = issn
         self._pmid2doi = None
         self._journal = None
@@ -207,20 +207,22 @@ class Generate(object):
             soup = BeautifulSoup(fp, self.parser)
         return soup
 
-    def run(self):
-        print(self.issn)
+    def run(self, overwrite=True):
         self.ensure_dir()
 
         gdir = 'xml_%s' % self.issn
         for pmid in readxml(gdir):
-            self.generate_pmid(gdir, pmid)
+            self.generate_pmid(gdir, pmid, overwrite=overwrite)
 
     def clean_name(self, pmid):
         fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(self.issn, pmid)
         return fname
 
-    def generate_pmid(self, gdir, pmid):
-
+    def generate_pmid(self, gdir, pmid, overwrite=True):
+        fname = self.clean_name(pmid)
+        exists = os.path.exists(fname)
+        if exists and not overwrite:
+            return
         soup = self.get_soup(gdir, pmid)
         e = self.create_clean(soup, pmid)
         a = e.abstract()
@@ -230,8 +232,8 @@ class Generate(object):
             click.secho('{}: missing: abs {}, methods {}, results {} doi={}'.format(
                 pmid, a is None, m is None, r is None, self.pmid2doi[pmid].doi), fg='red')
             return
-        fname = self.clean_name(pmid)
-        if os.path.exists(fname):
+
+        if exists:
             click.secho('overwriting %s' % fname, fg='yellow')
         else:
             click.secho('generating %s' % fname, fg='magenta')
@@ -262,6 +264,7 @@ class Generate(object):
         nart = len(todo)
         for paper in todo:
             print(paper.pmid, paper.issn, paper.doi)
+
             soup = self.get_soup(gdir, paper.pmid)
             try:
                 e = self.create_clean(soup, paper.pmid)
