@@ -47,7 +47,7 @@ class EMBOJ(Clean):
 
     def abstract(self):
         secs = self.article.select('div.section.abstract')
-        print(secs)
+        # print(secs)
         return secs[0] if secs else None
 
     def tostr(self, sec):

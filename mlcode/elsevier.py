@@ -204,7 +204,7 @@ class Elsevier(Clean):
 class GenerateElsevier(Generate):
     def create_clean(self, soup, pmid):
         ret = Elsevier(soup)
-        print('HERE', ret.pubmed, pmid)
+        # print('HERE', ret.pubmed, pmid)
         assert ret.pubmed == pmid, (ret.pubmed, pmid)
         return ret
 
