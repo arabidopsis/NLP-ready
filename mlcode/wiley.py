@@ -15,6 +15,7 @@ ISSN = {
     '1469-8137': 'New Phytol.',
     # '1469-3178': 'EMBO Rep.',
     '1873-3468': 'FEBS Lett.',
+    '0014-5793': 'FEBS Lett.',
     # '1567-1364': 'FEMS Yeast Res.',
     '1522-2683': 'Electrophoresis',
     '1744-7909': 'J Integr Plant Biol',
