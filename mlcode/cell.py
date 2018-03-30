@@ -16,7 +16,8 @@ ISSN = {
     '1873-2690': 'Plant Physiol. Biochem.',
     '0981-9428': 'Plant Physiol. Biochem.',
     '0960-9822': 'Curr. Biol.',
-    '1879-0445': 'Curr. Biol.'
+    '1879-0445': 'Curr. Biol.',
+    '1752-9867': 'Mol Plant'
 }
 
 

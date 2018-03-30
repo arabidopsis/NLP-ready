@@ -89,7 +89,7 @@ def download_bmcpb(issn, sleep=5.0, mx=0):
     o.run()
 
 
-def html_jproteome(issn):
+def html_bmcpb(issn):
 
     g = GeneratePMCPB(issn)
     print(g.tohtml())
