@@ -94,13 +94,6 @@ def download_bbb(issn, sleep=5.0, mx=0):
             if resp.url.find('/doi/full/') < 0:
                 click.secho('no full text %s %s' % (paper.pmid, resp.url), fg='red')
                 return b'no full text'
-            # if not a:
-            #    print(soup)
-            # if not a and year <= 2001:  # probably only a (scanned?) PDF version
-            #    xml = b'failed-only-pdf'
-            #     d = fdir
-            #    failed.add(pmid)
-            # else:
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)

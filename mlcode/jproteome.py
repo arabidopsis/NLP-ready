@@ -79,11 +79,6 @@ def download_jproteome(issn, sleep=5.0, mx=0):
 
         def check_soup(self, paper, soup, resp):
             a = soup.select('article.article #articleBody')
-            # if not a and year <= 2001:  # probably only a (scanned?) PDF version
-            #    xml = b'failed-only-pdf'
-            #     d = fdir
-            #    failed.add(pmid)
-            # else:
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)

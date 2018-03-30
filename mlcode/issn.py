@@ -12,6 +12,7 @@ MODS = [
     "elsevier",
     "emboj",
     "epmc",
+    "fpls",
     "gad",
     "jbc",
     "jcs",
@@ -109,6 +110,7 @@ def clean(mod='', nowrite=False):
 @click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
 @click.option('--mx', default=1, help='max documents to download 0=all')
 def download(mod='', sleep=10., mx=1):
+    """Download html/xml from websites."""
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:
