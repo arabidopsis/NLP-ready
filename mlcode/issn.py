@@ -63,7 +63,12 @@ def doubles():
             papers.append((paper, e))
 
 
-@click.command()
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
 @click.option('--mod', help='modules to run')
 def tohtml(mod=''):
     if mod:
@@ -82,5 +87,38 @@ def tohtml(mod=''):
             #     raise e
 
 
+@cli.command()
+@click.option('--mod', help='modules to run')
+@click.option('--nowrite', is_flag=True, help='don\'t overwrite')
+def clean(mod='', nowrite=False):
+    if mod:
+        mods = [s.strip() for s in mod.split(',')]
+    else:
+        mods = MODS
+    for m in mods:
+        d = getmod(m)
+        for i in d['issn']:
+            print('writing ', m, i)
+            g = d['Generate'](i)
+            # print('overwrite', not nowrite)
+            g.run(overwrite=not nowrite)
+
+
+@cli.command()
+@click.option('--mod', help='modules to run')
+@click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
+@click.option('--mx', default=1, help='max documents to download 0=all')
+def download(mod='', sleep=10., mx=1):
+    if mod:
+        mods = [s.strip() for s in mod.split(',')]
+    else:
+        mods = MODS
+    for m in mods:
+        d = getmod(m)
+        for issn in d['issn']:
+            print('downloading:', m, issn)
+            d['download'](issn, sleep=sleep, mx=mx)
+
+
 if __name__ == '__main__':
-    tohtml()
+    cli()
