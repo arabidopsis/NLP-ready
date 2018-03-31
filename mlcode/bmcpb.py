@@ -3,7 +3,12 @@ from mlabc import Clean, Download, Generate
 # BMC Plant Biology
 
 ISSN = {
-    '1471-2229': 'BMC Plant Biol.'
+    '1471-2229': 'BMC Plant Biol.',
+    # added
+    "1472-6750": "BMC Biotechnol.",
+    "1471-2164": "BMC Genomics",
+    "1756-0500": "BMC Res Notes",
+
 }
 
 
