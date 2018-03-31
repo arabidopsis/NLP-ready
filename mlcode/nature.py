@@ -9,7 +9,9 @@ ISSN = {
     '1476-4687': 'Nature',
     '0028-0836': 'Nature',
     '1748-7838': 'Cell Res.',
-    '1001-0602': 'Cell Res.'
+    '1001-0602': 'Cell Res.',
+    '1465-7392': 'Nat. Cell Biol.',
+    '1476-4679': 'Nat. Cell Biol.'
 }
 
 
