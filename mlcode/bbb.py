@@ -58,11 +58,17 @@ class BBB(Clean):
     def abstract(self):
         secs = self.article.select('.hlFld-Abstract .abstractInFull')
         if not secs:
-            secs = self.article.select('.hlFld-Abstract .abstractBox')
+            secs = self.article.select('.hlFld-Abstract #abstractBox')
         return secs[0] if secs else None
 
     def title(self):
-        return self.root.select('.NLM_article-title.hlFld-title')[0].text.strip()
+        t = self.root.select('.NLM_article-title.hlFld-title')
+        if not t:
+            t = self.article.select('.hlFld-title')
+        if t:
+            return t[0].text.strip()
+        print('no title')
+        return super().title()
 
     def tostr(self, sec):
         for a in sec.select('div.figure'):
@@ -122,4 +128,5 @@ def html_bbb(issn):
 if __name__ == '__main__':
     # download_bbb(issn='0916-8451', sleep=120., mx=0)
     # download_bbb(issn='1347-6947', sleep=120., mx=0)
-    download_bbb(issn='1559-2324', sleep=10., mx=2)
+    # download_bbb(issn='1559-2324', sleep=10., mx=2)
+    download_bbb(issn='0006-2960', sleep=10., mx=2)

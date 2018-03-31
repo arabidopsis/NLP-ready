@@ -1,9 +1,12 @@
+import requests
 from mlabc import Clean, Download, Generate
 
 
 ISSN = {
     '1535-3907': 'J. Proteome Res.',
-    '1535-3893': 'J. Proteome Res.'
+    '1535-3893': 'J. Proteome Res.',
+    '0006-2960': 'Biochemistry',
+    '0006-2960': 'Biochemistry',
 }
 
 
@@ -55,7 +58,11 @@ class JProteome(Clean):
             a.replace_with('CITATION')
 
         def paraordiv(tag):
-            return tag.name == 'p' or (tag.name == 'div' and 'NLM_p' in tag['class'])
+
+            ret = tag.name == 'p' or (
+                tag.name == 'div' and tag.has_attr('class') and 'NLM_p' in tag['class'])
+
+            return ret
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.find_all(paraordiv)]
         return txt
@@ -77,6 +84,15 @@ def download_jproteome(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = 'https://pubs.acs.org'
 
+        def get_response(self, paper, header):
+            resp = requests.get('http://doi.org/{}'.format(paper.doi), headers=header)
+            if paper.issn == '0006-2960' and resp.url.find('/doi/full/') < 0:
+                url = resp.url.replace('/doi/abs/', '/doi/full/')
+                print('redirect', url)
+                header['Referer'] = resp.url
+                resp = requests.get(url, headers=header)
+            return resp
+
         def check_soup(self, paper, soup, resp):
             a = soup.select('article.article #articleBody')
             assert a and len(a) == 1, (paper.pmid, resp.url)
@@ -92,5 +108,6 @@ def html_jproteome(issn):
 
 
 if __name__ == '__main__':
-    download_jproteome(issn='1535-3907', sleep=120., mx=0)
-    download_jproteome(issn='1535-3893', sleep=120., mx=0)
+    # download_jproteome(issn='1535-3907', sleep=120., mx=0)
+    # download_jproteome(issn='1535-3893', sleep=120., mx=0)
+    download_jproteome(issn='0006-2960', sleep=10., mx=2)

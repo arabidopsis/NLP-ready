@@ -1,5 +1,3 @@
-import requests
-import click
 from mlabc import Clean, Download, Generate
 
 
