@@ -19,6 +19,7 @@ MODS = [
     "jcs",
     "jproteome",
     "mcp",
+    "molp",
     "nature",
     "oup",
     "plos",
