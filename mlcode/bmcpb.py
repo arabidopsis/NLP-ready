@@ -8,6 +8,8 @@ ISSN = {
     "1472-6750": "BMC Biotechnol.",
     "1471-2164": "BMC Genomics",
     "1756-0500": "BMC Res Notes",
+    "1474-760X": "Genome Biol.",
+    "1746-4811": "Plant Methods",
 
 }
 
