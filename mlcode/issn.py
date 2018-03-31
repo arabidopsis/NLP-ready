@@ -9,7 +9,7 @@ MODS = [
     "bbb",
     "bioj",
     "bmcpb",
-    "cell",
+    # "cell", # cell needs chromedriver... run python3 cell.py download
     "dev",
     "elsevier",
     "emboj",
@@ -21,7 +21,6 @@ MODS = [
     "jcs",
     "jproteome",
     "mcp",
-    "molp",
     "mpmi",
     "nature",
     "oup",

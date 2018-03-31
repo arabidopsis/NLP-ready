@@ -4,7 +4,7 @@ from collections import defaultdict, Counter
 from tabulate import tabulate
 import click
 
-from mlabc import DATADIR, read_issn, read_suba_papers_csv
+from mlabc import DATADIR, read_issn, read_suba_papers_csv, USER_AGENT
 
 
 def get_dir(xmld, ext='.xml'):
@@ -158,6 +158,9 @@ def _urls(exclude=None, failed=False):
     import requests
     import csv
     issns, papers = get_papers_todo(exclude=exclude, failed=failed)
+    header = {'User-Agent': USER_AGENT,
+                  'Referer': 'http://www.google.com'
+                  }
 
     print('todo', len(papers))
     fname = 'paper_urls.csv'
@@ -184,7 +187,7 @@ def _urls(exclude=None, failed=False):
             W.writerow(row)
         for idx, p in enumerate(papers):
             try:
-                resp = requests.get('https://doi.org/{}'.format(p.doi))
+                resp = requests.get('https://doi.org/{}'.format(p.doi), headers=header)
                 url = resp.url
             except Exception as e:
                 click.secho('failed %s err=%s' % (p, str(e)), fg='red')
