@@ -183,6 +183,7 @@ def download_wiley(issn, sleep=5.0, mx=0):
             # print(soup.select('article'))
             if not a:
                 dump(paper, resp.content)
+                return b'failed! no article body'
 
             assert a and len(a) == 1, (paper.pmid, resp.url, paper.doi, len(a))
 

@@ -11,7 +11,10 @@ ISSN = {
     '1748-7838': 'Cell Res.',
     '1001-0602': 'Cell Res.',
     '1465-7392': 'Nat. Cell Biol.',
-    '1476-4679': 'Nat. Cell Biol.'
+    '1476-4679': 'Nat. Cell Biol.',
+    '1087-0156': 'Nat. Biotechnol.',
+    '1350-9047': 'Cell Death Differ.',
+    '2041-1723': 'Nat Commun',
 }
 
 
@@ -107,6 +110,7 @@ def download_nature(issn, sleep=5.0, mx=0):
             a = soup.xpath('.//section[@aria-labelledby="methods"]')
             a = a or soup.xpath('.//section[@aria-labelledby="methods-summary"]')
             a = a or soup.xpath('.//section[@aria-labelledby="materials-and-methods"]')
+            a = a or soup.xpath('.//section[@aria-labelledby="material-and-methods"]')  # spelling?
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)

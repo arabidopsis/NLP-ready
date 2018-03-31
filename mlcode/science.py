@@ -3,7 +3,8 @@ from mlabc import Clean, Download, Generate
 
 
 ISSN = {
-    '1095-9203': 'Science'
+    '1095-9203': 'Science',
+    '0036-8075': 'Science'
 }
 
 
