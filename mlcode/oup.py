@@ -6,7 +6,16 @@ ISSN = {
     '1460-2431': 'J. Exp. Bot.',
     '0022-0957': 'J. Exp. Bot.',
     '1471-9053': 'Plant Cell Physiol',
-    '0032-0781': 'Plant Cell Physiol.'
+    '0032-0781': 'Plant Cell Physiol.',
+
+    # added
+    '0305-7364': 'Ann. Bot.',
+    '1095-8290': 'Ann. Bot.',
+    '1567-1364': 'FEMS Yeast Res.',
+    '1460-2423': 'Glycobiology',
+    '1756-2651': 'J. Biochem.',
+    '1537-1719': 'Mol. Biol. Evol.',
+
 }
 
 
@@ -103,10 +112,5 @@ def html_oup(issn):
 
 
 if __name__ == '__main__':
-    # download_oup(issn='0022-0957', sleep=60. * 2, mx=0)
-    # download_oup(issn='1460-2431', sleep=60. * 2, mx=0)
-    # download_oup(issn='1471-9053', sleep=60. * 2, mx=0)
-    # download_oup(issn='0032-0781', sleep=60. * 2, mx=0)
-    # gen_oup(issn='1471-9053')
-    # gen_oup(issn='0032-0781')
-    html_oup(issn='0032-0781')
+    for issn in ISSN:
+        download_oup(issn, sleep=10., mx=1)
