@@ -5,8 +5,8 @@ from mlabc import Clean, Download, Generate
 
 ISSN = {
     '0916-8451': 'Biosci. Biotechnol. Biochem.',
-    '1347-6947': 'Biosci. Biotechnol. Biochem.'
-
+    '1347-6947': 'Biosci. Biotechnol. Biochem.',
+    '1559-2324': 'Plant Signal Behav'
 }
 
 
@@ -19,6 +19,9 @@ class BBB(Clean):
         self.article = a[0]
 
     def results(self):
+        secs = self.article.select('.hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1')
+        if secs:
+            return secs[0]
         secs = self.article.select('.hlFld-Fulltext .NLM_sec_level_1')
         for sec in secs:
             h2 = sec.find('h2')
@@ -30,6 +33,10 @@ class BBB(Clean):
         return None
 
     def methods(self):
+        secs = self.article.select(
+            '.hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1')
+        if secs:
+            return secs[0]
         secs = self.article.select('.hlFld-Fulltext .MaterialsAndMethods.NLM_sec_level_1')
         if secs:
             return secs[0]
@@ -107,5 +114,6 @@ def html_bbb(issn):
 
 
 if __name__ == '__main__':
-    download_bbb(issn='0916-8451', sleep=120., mx=0)
-    download_bbb(issn='1347-6947', sleep=120., mx=0)
+    # download_bbb(issn='0916-8451', sleep=120., mx=0)
+    # download_bbb(issn='1347-6947', sleep=120., mx=0)
+    download_bbb(issn='1559-2324', sleep=10., mx=2)
