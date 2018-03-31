@@ -2,7 +2,10 @@ from mlabc import Clean, Download, Generate
 
 ISSN = {
     '0021-9533': 'J. Cell. Sci.',
-    '1477-9137': 'J. Cell. Sci.'
+    '1477-9137': 'J. Cell. Sci.',
+    # added
+    "0021-9525": "J. Cell Biol.",
+    "1540-8140": "J. Cell Biol.",
 }
 
 
