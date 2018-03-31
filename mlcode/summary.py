@@ -163,23 +163,35 @@ def _urls(exclude=None, failed=False):
     fname = 'paper_urls.csv'
 
     e = os.path.exists(fname)
+    redo = []
     if e:
         with open(fname, 'r', encoding='utf8') as fp:
             R = csv.reader(fp)
             next(R)  # skip header
-            done = {row[0] for row in R}
-            for pmid in done:
-                del papers[pmid]
+            done = [row for row in R]
+            for row in done:
+                pmid = row[0]
+                if pmid in papers:
+                    del papers[pmid]
+                    redo.append(row)
 
     papers = sorted(papers.values(), key=lambda p: (p.issn, -p.year))
     print('%d to scrape' % len(papers))
-    with open(fname, 'a', encoding='utf8') as fp:
+    with open(fname, 'w', encoding='utf8') as fp:
         W = csv.writer(fp)
-        if not e:
-            W.writerow(['PubMed', 'ISSN', 'Journal', 'url'])
-        for p in papers:
-            resp = requests.get('https://doi.org/{}'.format(p.doi))
-            W.writerow([p.pmid, p.issn, issns[p.issn][1], resp.url])
+        W.writerow(['PubMed', 'ISSN', 'Journal', 'url'])
+        for row in redo:
+            W.writerow(row)
+        for idx, p in enumerate(papers):
+            try:
+                resp = requests.get('https://doi.org/{}'.format(p.doi))
+                url = resp.url
+            except Exception as e:
+                click.secho('failed %s err=%s' % (p, str(e)), fg='red')
+                url = 'Failed! %s' % p.doi
+            W.writerow([p.pmid, p.issn, issns[p.issn][1], url])
+            if (idx + 1) % 10 == 0:
+                print('done ', idx + 1)
 
 
 def parsed():
@@ -224,8 +236,10 @@ def cleaned():
 
 
 @cli.command()
-def urls():
-    _urls()
+@click.option('--failed', is_flag=True, help='include failed documents')
+@click.option('--exclude')
+def urls(exclude=None, failed=False):
+    _urls(exclude=exclude, failed=failed)
 
 
 @cli.command()
