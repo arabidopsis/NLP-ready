@@ -7,12 +7,15 @@ ISSN = {
     '1535-9484': 'Mol. Cell Proteomics',
     '1535-9476': 'Mol. Cell Proteomics',
 
-    # these seem to have the same layout
+    # these seem to have the same HTML layout
     '0021-9193': 'J. Bacteriol.',
     '0022-538X': 'J. Virol.',
     '1098-5514': 'J. Virol.',
     '0270-7306': 'Mol. Cell. Biol.',
     '1098-5549': 'Mol. Cell. Biol.',
+    '1355-8382': 'RNA',
+    '1469-9001': 'RNA',
+
 }
 
 

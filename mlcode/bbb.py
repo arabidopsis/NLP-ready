@@ -6,7 +6,8 @@ from mlabc import Clean, Download, Generate
 ISSN = {
     '0916-8451': 'Biosci. Biotechnol. Biochem.',
     '1347-6947': 'Biosci. Biotechnol. Biochem.',
-    '1559-2324': 'Plant Signal Behav'
+    '1559-2324': 'Plant Signal Behav',
+    '1555-8584': 'RNA Biol',
 }
 
 
