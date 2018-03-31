@@ -7,7 +7,9 @@ from mlabc import Clean, Download, Generate, DATADIR
 
 ISSN = {
     '1476-4687': 'Nature',
-    '0028-0836': 'Nature'
+    '0028-0836': 'Nature',
+    '1748-7838': 'Cell Res.',
+    '1001-0602': 'Cell Res.'
 }
 
 
