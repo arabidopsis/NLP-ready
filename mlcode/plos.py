@@ -2,7 +2,8 @@ from mlabc import Download, Clean, Generate
 
 
 ISSN = {
-    '1932-6203': 'PLoS ONE'
+    '1932-6203': 'PLoS ONE',
+    '1553-7404': 'PLoS Genet.'
 }
 
 
@@ -10,9 +11,9 @@ class PLOS(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('div.article-text')[0]
-        assert a
-        self.article = a
+        a = root.select('div.article-text')
+        assert a, a
+        self.article = a[0]
 
     def results(self):
         secs = self.article.select('div.section.toc-section')
