@@ -8,8 +8,7 @@ ISSN = {
     '1347-6947': 'Biosci. Biotechnol. Biochem.',
     '1559-2324': 'Plant Signal Behav',
     '1555-8584': 'RNA Biol',
-    '0006-2960': 'Biochemistry',
-    '0006-2960': 'Biochemistry',
+    '0968-7688': 'Mol. Membr. Biol.',
 
 }
 
@@ -129,4 +128,3 @@ if __name__ == '__main__':
     # download_bbb(issn='0916-8451', sleep=120., mx=0)
     # download_bbb(issn='1347-6947', sleep=120., mx=0)
     # download_bbb(issn='1559-2324', sleep=10., mx=2)
-    download_bbb(issn='0006-2960', sleep=10., mx=2)
