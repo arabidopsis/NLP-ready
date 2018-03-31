@@ -8,6 +8,9 @@ ISSN = {
     '1347-6947': 'Biosci. Biotechnol. Biochem.',
     '1559-2324': 'Plant Signal Behav',
     '1555-8584': 'RNA Biol',
+    '0006-2960': 'Biochemistry',
+    '0006-2960': 'Biochemistry',
+
 }
 
 
@@ -54,6 +57,8 @@ class BBB(Clean):
 
     def abstract(self):
         secs = self.article.select('.hlFld-Abstract .abstractInFull')
+        if not secs:
+            secs = self.article.select('.hlFld-Abstract .abstractBox')
         return secs[0] if secs else None
 
     def title(self):
