@@ -15,6 +15,8 @@ ISSN = {
     '1087-0156': 'Nat. Biotechnol.',
     '1350-9047': 'Cell Death Differ.',
     '2041-1723': 'Nat Commun',
+    "2045-2322": "Sci Rep",
+
 }
 
 
