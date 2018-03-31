@@ -25,8 +25,22 @@ ISSN = {
     # '1364-3703': 'Mol. Plant Pathol.',
     # '1365-2591': 'Int Endod J',
     '1615-9861': 'Proteomics',
+    '1615-9853': 'Proteomics',
     '1365-3040': 'Plant Cell Environ.',
-    '0140-7791': 'Plant Cell Environ.'
+    '0140-7791': 'Plant Cell Environ.',
+
+    # added
+
+    '0028-646X': 'New Phytol.',
+    '0173-0835': 'Electrophoresis',
+    '0730-2312': 'J. Cell. Biochem.',
+    '0886-1544': 'Cell Motil. Cytoskeleton',
+    '1065-6995': 'Cell Biol. Int.',
+    '1356-9597': 'Genes Cells',
+    '1364-3703': 'Mol. Plant Pathol.',
+    '1365-2591': 'Int Endod J',
+    '1526-954X': 'Genesis',
+
 }
 
 
