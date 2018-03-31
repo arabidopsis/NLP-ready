@@ -7,7 +7,9 @@ ISSN = {
     '1432-2048': 'Planta',
     '0032-0935': 'Planta',
     '1615-6102': 'Protoplasma',
-    '0033-183X': 'Protoplasma'
+    '0033-183X': 'Protoplasma',
+    '1617-4623': 'Mol. Genet. Genomics',
+    '1617-4615': 'Mol. Genet. Genomics'
 }
 
 
