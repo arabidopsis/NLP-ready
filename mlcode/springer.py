@@ -16,7 +16,22 @@ ISSN = {
     '0721-7714': 'Plant Cell Rep',
     '0009-5915': 'Chromosoma',
     '1432-0886': 'Chromosoma',
-    '1573-4978': 'Mol. Biol. Rep.'
+    '1573-4978': 'Mol. Biol. Rep.',
+
+    # added
+    '0040-5752': 'Theor. Appl. Genet.',
+    '0172-8083': 'Curr. Genet.',
+    '0175-7598': 'Appl. Microbiol. Biotechnol.',
+    '0219-1032': 'Mol. Cells',
+    '0949-944X': 'Dev. Genes Evol.',
+    '1420-682X': 'Cell. Mol. Life Sci.',
+    '1438-793X': 'Funct. Integr. Genomics',
+    '1438-7948': 'Funct. Integr. Genomics',
+    '1466-1268': 'Cell Stress Chaperones',
+    '1573-5079': 'Photosyn. Res.',
+    '2194-7961': 'Plant Reprod',
+
+
 }
 
 
