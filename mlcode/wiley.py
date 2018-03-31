@@ -24,7 +24,8 @@ ISSN = {
     # '1364-3703': 'Mol. Plant Pathol.',
     # '1365-2591': 'Int Endod J',
     '1615-9861': 'Proteomics',
-    # '1365-3040': 'Plant Cell Environ.'
+    '1365-3040': 'Plant Cell Environ.',
+    '0140-7791': 'Plant Cell Environ.'
 }
 
 
