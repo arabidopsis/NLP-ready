@@ -11,7 +11,12 @@ ISSN = {
     '1617-4623': 'Mol. Genet. Genomics',
     '1617-4615': 'Mol. Genet. Genomics',
     '0918-9440': 'J. Plant Res.',
-    '1618-0860': 'J. Plant Res.'
+    '1618-0860': 'J. Plant Res.',
+    '1432-203X': 'Plant Cell Rep.',
+    '0721-7714': 'Plant Cell Rep',
+    '0009-5915': 'Chromosoma',
+    '1432-0886': 'Chromosoma',
+    '1573-4978': 'Mol. Biol. Rep.'
 }
 
 
