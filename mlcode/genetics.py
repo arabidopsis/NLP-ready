@@ -1,14 +1,13 @@
-import requests
 from mlabc import Clean, Download, Generate
 
 
 ISSN = {
-    '0021-9258': 'J. Biol. Chem.',
-    '1083-351X': 'J. Biol. Chem.'
+    '0016-6731': 'Genetics',
+    '1943-2631': 'Genetics',
 }
 
 
-class JBC(Clean):
+class Genetics(Clean):
 
     def __init__(self, root):
         self.root = root
@@ -58,15 +57,9 @@ class JBC(Clean):
         return txt
 
 
-def download_jbc(issn, sleep=5.0, mx=0):
+def download_genetics(issn, sleep=5.0, mx=0):
     class D(Download):
-        Referer = 'http://www.jbc.org'
-
-        def get_response(self, paper, header):
-            resp = requests.get('http://doi.org/{}'.format(paper.doi), headers=header)
-            if not resp.url.endswith('.full'):
-                resp = requests.get(resp.url + '.full', headers=header)
-            return resp
+        Referer = 'http://www.genetics.org'
 
         def check_soup(self, paper, soup, resp):
             a = soup.select('div.article.fulltext-view')
@@ -80,26 +73,23 @@ def download_jbc(issn, sleep=5.0, mx=0):
     download.run()
 
 
-class GenerateJBC(Generate):
+class GenerateGenetics(Generate):
     def create_clean(self, soup, pmid):
-        return JBC(soup)
+        return Genetics(soup)
 
 
-def gen_jbc(issn):
+def gen_genetics(issn):
 
-    e = GenerateJBC(issn)
+    e = GenerateGenetics(issn)
     e.run()
 
 
-def html_jbc(issn):
+def html_genetics(issn):
 
-    e = GenerateJBC(issn)
+    e = GenerateGenetics(issn)
     print(e.tohtml())
 
 
 if __name__ == '__main__':
-    # download_jbc(issn='0021-9258', sleep=60. * 2, mx=0)
-    # download_jbc(issn='1083-351X', sleep=60. * 2, mx=0)
-    # gen_jbc(issn='0021-9258')
-    # gen_jbc(issn='1083-351X')
-    html_jbc(issn='0021-9258')
+    for issn in ISSN:
+        download_genetics(issn, sleep=10., mx=1)

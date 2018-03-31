@@ -16,6 +16,7 @@ MODS = [
     "epmc",
     "fpls",
     "gad",
+    "genetics",
     "jbc",
     "jcs",
     "jproteome",
