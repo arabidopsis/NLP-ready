@@ -42,6 +42,20 @@ ISSN = {
     '1872-8278': 'Mitochondrion',
     '1873-3778': 'J Chromatogr A',
 
+    # added
+    "1096-0309": "Anal. Biochem.",
+    "0003-9861": "Arch. Biochem. Biophys.",
+    "0006-3495": "Biophys. J.",
+    "1934-6069": "Cell Host Microbe",
+    "1095-564X": "Dev. Biol.",
+    "1534-5807": "Dev. Cell",
+    "1090-2422": "Exp. Cell Res.",
+    "1097-2765": "Mol. Cell",
+    "1046-5928": "Protein Expr. Purif.",
+    "0042-6822": "Virology",
+    "1096-0341": "Virology",
+
+
 }
 
 

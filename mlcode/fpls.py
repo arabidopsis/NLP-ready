@@ -3,7 +3,8 @@ from mlabc import Clean, Download, Generate
 
 
 ISSN = {
-    '1664-462X': 'Front Plant Sci'
+    '1664-462X': 'Front Plant Sci',
+    "2296-634X": "Front Cell Dev Biol",
 }
 
 
