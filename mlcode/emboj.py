@@ -3,7 +3,9 @@ from mlabc import Clean, Generate, Download
 
 ISSN = {
     '1460-2075': 'EMBO J.',
-    '0261-4189': 'EMBO J.'
+    '0261-4189': 'EMBO J.',
+    '1469-221X': 'EMBO Rep.',
+    '1469-3178': 'EMBO Rep.'
 }
 
 
@@ -27,10 +29,10 @@ class EMBOJ(Clean):
             return secs[0]
         for sec in self.article.select('div.section'):
             h2 = sec.find('h2')
-            if h2 and h2.string.lower() == 'results':
-                return sec
-            if h2 and h2.string.lower() == 'results and discussion':
-                return sec
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'results and discussion', 'results'}:
+                    return sec
 
         return None
 
@@ -41,8 +43,11 @@ class EMBOJ(Clean):
         if secs:
             return secs[0]
         for sec in self.article.select('div.section'):
-            if sec.find('h2').text.lower() == 'materials and methods':
-                return sec
+            h2 = sec.find('h2')
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'materials and methods', 'methods'}:
+                    return sec
         return None
 
     def abstract(self):
@@ -51,10 +56,15 @@ class EMBOJ(Clean):
         return secs[0] if secs else None
 
     def tostr(self, sec):
+        for a in sec.select('div.fig.pos-float'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
         for a in sec.select('p a.xref-ref'):
             a.replace_with('CITATION')
         for a in sec.select('p a.xref-fig'):
-            a.replace_with('FIGURE')
+            a.replace_with('FIG-REF')
+
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
