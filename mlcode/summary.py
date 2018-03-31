@@ -158,18 +158,28 @@ def _urls(exclude=None, failed=False):
     import requests
     import csv
     issns, papers = get_papers_todo(exclude=exclude, failed=failed)
-    papers = sorted(papers.values(), key=lambda p: (p.issn, -p.year))
-    n = 0
+
     print('todo', len(papers))
-    with open('paper_urls.csv', 'w') as fp:
+    fname = 'paper_urls.csv'
+
+    e = os.path.exists(fname)
+    if e:
+        with open(fname, 'r', encoding='utf8') as fp:
+            R = csv.reader(fp)
+            next(R)  # skip header
+            done = {row[0] for row in R}
+            for pmid in done:
+                del papers[pmid]
+
+    papers = sorted(papers.values(), key=lambda p: (p.issn, -p.year))
+    print('%d to scrape' % len(papers))
+    with open(fname, 'a', encoding='utf8') as fp:
         W = csv.writer(fp)
-        W.writerow(['PubMed', 'ISSN', 'Journal', 'url'])
+        if not e:
+            W.writerow(['PubMed', 'ISSN', 'Journal', 'url'])
         for p in papers:
             resp = requests.get('https://doi.org/{}'.format(p.doi))
-            n += 1
             W.writerow([p.pmid, p.issn, issns[p.issn][1], resp.url])
-            if n > 5:
-                break
 
 
 def parsed():
