@@ -59,9 +59,10 @@ def download_elsevier(sleep=0.5, use_issn=False):
             R = csv.reader(fp)
             next(R)
             for name, issn, product, history in R:
-                assert len(issn) == 8, issn
                 if '-' not in issn:
+                    assert len(issn) == 8, issn
                     issn = issn[:4] + '-' + issn[4:]  # sigh!
+                assert len(issn) == 9, issn
                 ISSN.add(issn)
 
         pmid2doi = read_journals_csv()

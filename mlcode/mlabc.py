@@ -370,6 +370,8 @@ class Download(object):
         lst = sorted(todo.values(), key=lambda p: -p.year)
         if self.mx > 0:
             lst = lst[:self.mx]
+        if not lst:
+            return
         self.start()
         for idx, paper in enumerate(lst):
             try:
@@ -392,7 +394,7 @@ class Download(object):
                         d = gdir
                         done.add(paper.pmid)
 
-            except ConnectionError as e:
+            except (ConnectionError, AssertionError) as e:
                 d = fdir
                 xml = str(e).encode('utf-8')
                 click.secho('failed %s %s %s' % (paper.pmid, paper.doi, str(e)), fg='red')

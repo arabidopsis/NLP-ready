@@ -1,6 +1,7 @@
 import click
 from mlabc import Generate
 
+# add module name to this list...
 
 MODS = [
     "ascb",
@@ -26,27 +27,30 @@ MODS = [
     "pnas",
     "science",
     "springer",
-    "wiley"
+    "wiley",
 ]
 
 
 def getmod(mod):
     m = __import__(mod)
+    if '.' in mod:
+        _, mname = mod.rsplit('.', 1)
+        m = getattr(m, mname)
     issn = m.ISSN
-    d = dict(issn=issn)
-    for x in dir(m):
-        a = getattr(m, x)
-        if x.startswith(('download_', 'html_', 'gen_')):
-            if x[0] == 'd':
-                d['download'] = a
-            if x[0] == 'h':
-                d['html'] = a
-            if x[0] == 'g':
-                d['gen'] = a
+    ret = dict(issn=issn)
+    for name in dir(m):
+        a = getattr(m, name)
+        if name.startswith(('download_', 'html_', 'gen_')):
+            if name[0] == 'd':
+                ret['download'] = a
+            if name[0] == 'h':
+                ret['html'] = a
+            if name[0] == 'g':
+                ret['gen'] = a
         elif isinstance(a, type) and Generate in a.__bases__:
-            a = getattr(m, x)
-            d['Generate'] = a
-    return d
+            a = getattr(m, name)
+            ret['Generate'] = a
+    return ret
 
 
 def doubles():

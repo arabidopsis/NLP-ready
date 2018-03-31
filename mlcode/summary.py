@@ -175,7 +175,7 @@ def _urls(exclude=None, failed=False):
                     del papers[pmid]
                     redo.append(row)
 
-    papers = sorted(papers.values(), key=lambda p: (p.issn, -p.year))
+    papers = sorted(papers.values(), key=lambda p: (p.name, p.issn, -p.year))
     print('%d to scrape' % len(papers))
     with open(fname, 'w', encoding='utf8') as fp:
         W = csv.writer(fp)
