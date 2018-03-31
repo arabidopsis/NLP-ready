@@ -194,7 +194,8 @@ if __name__ == '__main__':
     # download_wiley(issn='1873-3468', sleep=10., mx=20)
     # download_wiley(issn='1469-8137', sleep=60. * 2, mx=0)
     # download_wiley(issn='1742-4658', sleep=60. * 2, mx=0)
-    download_wiley(issn='1615-9861', sleep=60. * 2, mx=0)
+    # download_wiley(issn='1615-9861', sleep=60. * 2, mx=0)
+    download_wiley(issn='1744-7909', sleep=60. * 2, mx=0)
     # download_all(sleep=60. * 2, mx = 0)
 
     # gen_wiley(issn='0960-7412')

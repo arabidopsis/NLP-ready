@@ -106,6 +106,7 @@ def download_nature(issn, sleep=5.0, mx=0):
             assert a and len(a) == 1, (paper.pmid, resp.url)
             a = soup.xpath('.//section[@aria-labelledby="methods"]')
             a = a or soup.xpath('.//section[@aria-labelledby="methods-summary"]')
+            a = a or soup.xpath('.//section[@aria-labelledby="materials-and-methods"]')
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)
