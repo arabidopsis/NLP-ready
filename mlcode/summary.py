@@ -91,7 +91,7 @@ def _counts():
             print(pmid, ','.join(sorted([d(j) for j in issns])))
 
 
-def _todo(byname=False, exclude=None, failed=False):
+def get_papers_todo(exclude=None, failed=False):
     issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
@@ -115,12 +115,11 @@ def _todo(byname=False, exclude=None, failed=False):
             for pmid in pmids:
                 if pmid in papers:
                     del papers[pmid]
-    # for xmld in glob.glob(DATADIR + 'failed_*'):
-    #     _, issn = xmld.split('_')
-    #     pmids = get_dir(xmld, ext=getext(xmld))
-    #     for pmid in pmids:
-    #         if pmid in papers:
-    #             del papers[pmid]
+    return issns, papers
+
+
+def _todo(byname=False, exclude=None, failed=False):
+    issns, papers = get_papers_todo(exclude=exclude, failed=failed)
 
     ISSN = Counter()
     for pmid, p in papers.items():
@@ -153,6 +152,24 @@ def _todo(byname=False, exclude=None, failed=False):
             total += cnt
         tbl.append(('total', '', total))
         print(tabulate(tbl, headers=header, tablefmt="rst"))
+
+
+def _urls(exclude=None, failed=False):
+    import requests
+    import csv
+    issns, papers = get_papers_todo(exclude=exclude, failed=failed)
+    papers = sorted(papers.values(), key=lambda p: (p.issn, -p.year))
+    n = 0
+    print('todo', len(papers))
+    with open('paper_urls.csv', 'w') as fp:
+        W = csv.writer(fp)
+        W.writerow(['PubMed', 'ISSN', 'Journal', 'url'])
+        for p in papers:
+            resp = requests.get('https://doi.org/{}'.format(p.doi))
+            n += 1
+            W.writerow([p.pmid, p.issn, issns[p.issn][1], resp.url])
+            if n > 5:
+                break
 
 
 def parsed():
@@ -194,6 +211,11 @@ def counts():
 @cli.command()
 def cleaned():
     parsed()
+
+
+@cli.command()
+def urls():
+    _urls()
 
 
 @cli.command()
