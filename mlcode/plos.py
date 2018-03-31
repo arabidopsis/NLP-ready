@@ -3,7 +3,10 @@ from mlabc import Download, Clean, Generate
 
 ISSN = {
     '1932-6203': 'PLoS ONE',
-    '1553-7404': 'PLoS Genet.'
+    '1553-7404': 'PLoS Genet.',
+    "1545-7885": "PLoS Biol.",
+    "1553-7374": "PLoS Pathog.",
+
 }
 
 
