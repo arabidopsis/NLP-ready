@@ -6,18 +6,28 @@ from selenium import webdriver
 from io import StringIO
 from bs4 import BeautifulSoup
 
-from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCSV
+from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCSV, dump
 
 
 ISSN = {
     '1097-4172': 'Cell',
     '0092-8674': 'Cell',
     '1090-2104': 'Biochem. Biophys. Res. Commun.',
+    '0006-291X': 'Biochem. Biophys. Res. Commun.',
     '1873-2690': 'Plant Physiol. Biochem.',
     '0981-9428': 'Plant Physiol. Biochem.',
     '0960-9822': 'Curr. Biol.',
     '1879-0445': 'Curr. Biol.',
-    '1752-9867': 'Mol Plant'
+    '1752-9867': 'Mol Plant',
+    '1674-2052': 'Mol Plant',
+    '0378-1119': 'Gene',
+    '1879-0038': 'Gene',
+    '1873-3700': 'Phytochemistry',
+    '0031-9422': 'Phytochemistry',
+    '1876-7737': 'J Proteomics',
+    '1873-2259': 'Plant Sci.',
+    '1089-8638': 'J. Mol. Biol.',
+    '0022-2836': 'J. Mol. Biol.'
 }
 
 
@@ -54,7 +64,9 @@ class DownloadCell(Download):
                 txt = s[0].text
                 if 'WITHDRAWN' in txt:
                     return b'withdrawn'
-        assert len(secs) > 3, (paper.doi, secs)
+        if len(secs) <= 3:
+            dump(paper, resp.content)
+        assert len(secs) > 3, (paper.pmid, paper.doi, secs)
 
 
 def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
