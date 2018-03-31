@@ -7,6 +7,7 @@ ISSN = {
     '1535-3893': 'J. Proteome Res.',
     '0006-2960': 'Biochemistry',
     '1520-4995': 'Biochemistry'
+    '1520-4995': 'Biochemistry',
 }
 
 

@@ -2,7 +2,7 @@ from lxml import etree
 from io import BytesIO
 from lxml.html import parse, document_fromstring
 
-from mlabc import Clean, Download, Generate, DATADIR
+from mlabc import Clean, Download, Generate, DATADIR, dump
 
 
 ISSN = {
@@ -111,6 +111,9 @@ def download_nature(issn, sleep=5.0, mx=0):
             a = a or soup.xpath('.//section[@aria-labelledby="methods-summary"]')
             a = a or soup.xpath('.//section[@aria-labelledby="materials-and-methods"]')
             a = a or soup.xpath('.//section[@aria-labelledby="material-and-methods"]')  # spelling?
+            if not a:
+                dump(paper, resp.content)
+                return b'failed! no mm'
             assert a and len(a) == 1, (paper.pmid, resp.url)
 
     o = D(issn, sleep=sleep, mx=mx)
