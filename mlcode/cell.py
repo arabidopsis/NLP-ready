@@ -27,7 +27,21 @@ ISSN = {
     '1876-7737': 'J Proteomics',
     '1873-2259': 'Plant Sci.',
     '1089-8638': 'J. Mol. Biol.',
-    '0022-2836': 'J. Mol. Biol.'
+    '0022-2836': 'J. Mol. Biol.',
+
+    # added
+    '0006-3002': 'Biochim. Biophys. Acta',
+    '0171-9335': 'Eur. J. Cell Biol.',
+    '1047-8477': 'J. Struct. Biol.',
+    '1095-8657': 'J. Struct. Biol.',
+    '1095-9998': 'Food Microbiol.',
+    '1097-4164': 'Mol. Cell',
+    '1360-1385': 'Trends Plant Sci.',
+    '1522-4724': 'Mol. Cell Biol. Res. Commun.',
+    '1618-1328': 'J. Plant Physiol.',
+    '1872-8278': 'Mitochondrion',
+    '1873-3778': 'J Chromatogr A',
+
 }
 
 
