@@ -1,5 +1,5 @@
 import click
-from mlabc import Generate, GenerateSelenium
+from mlabc import Generate
 
 # add module name to this list...
 
@@ -48,7 +48,7 @@ def getmod(mod):
                 ret['html'] = a
             if name[0] == 'g':
                 ret['gen'] = a
-        elif isinstance(a, type) and (Generate in a.__bases__ or GenerateSelenium in a.__bases__):
+        elif isinstance(a, type) and Generate in a.__bases__:
             a = getattr(m, name)
             ret['Generate'] = a
     return ret
