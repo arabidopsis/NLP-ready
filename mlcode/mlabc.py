@@ -419,6 +419,7 @@ class FakeResponse(object):
 class DownloadSelenium(Download):
     driver = None
     headless = True
+    WAIT = 10
 
     def __init__(self, issn, mx=0, sleep=10., headless=True, close=True, **kwargs):
         super().__init__(issn, mx=mx, sleep=sleep, **kwargs)
@@ -431,18 +432,24 @@ class DownloadSelenium(Download):
         if self.headless:
             options.add_argument('headless')
         self.driver = webdriver.Chrome(chrome_options=options)
+        # self.driver.implicitly_wait(10)  # seconds
 
     def end(self):
         if self.close and self.driver:
             self.driver.close()
 
+    def wait(self):
+        from selenium.webdriver.support.ui import WebDriverWait
+        return WebDriverWait(self.driver, self.WAIT)
+
     def get_response(self, paper, header):
         url = 'http://doi.org/{}'.format(paper.doi)
         self.driver.get(url)
+        self.wait()
 
         h = self.driver.find_element_by_tag_name('html')
         txt = h.get_attribute('outerHTML')
         resp = FakeResponse()
-        resp.url = url
+        resp.url = self.driver.current_url
         resp.content = txt.encode('utf-8')
         return resp

@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 
 from mlabc import Clean, Generate, readxml, DownloadSelenium, DATADIR, JCSV, dump
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+
 
 ISSN = {
     '1097-4172': 'Cell',
@@ -58,7 +61,25 @@ ISSN = {
 }
 
 
+class CSS(object):
+    def __init__(self, selector):
+        self.selector = selector
+
+    def __call__(self, driver):
+        elements = driver.find_elements_by_css_selector(self.selector)
+        if len(elements) > 0:
+            return True
+        return False
+
+
 class DownloadCell(DownloadSelenium):
+
+    def wait(self):
+
+        w = super().wait()
+        w.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, 'article div.Body section,div.fullText section')))
+        return w
 
     def check_soup(self, paper, soup, resp):
         secs = soup.select('article div.Body section')
@@ -76,9 +97,7 @@ class DownloadCell(DownloadSelenium):
 
 
 def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
-    download = DownloadCell(issn, sleep=sleep, mx=mx)
-    download.close = close
-    download.headless = headless
+    download = DownloadCell(issn, sleep=sleep, mx=mx, headless=headless, close=close)
 
     download.run()
 
