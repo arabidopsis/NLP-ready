@@ -196,8 +196,12 @@ class Generate(object):
         raise RuntimeError('unimplemented')
 
     def ensure_dir(self):
-        if not os.path.isdir(DATADIR + 'cleaned_%s' % self.issn):
-            os.mkdir(DATADIR + 'cleaned_%s' % self.issn)
+        name = self.journal.replace('.', '').lower()
+        name = '-'.join(name.split())
+        dname = DATADIR + 'cleaned_{}_{}'.format(self.issn, name)
+        if not os.path.isdir(dname):
+            os.mkdir(dname)
+        return dname
 
     def get_soup(self, gdir, pmid):
         fname = DATADIR + gdir + '/{}.html'.format(pmid)
@@ -207,18 +211,19 @@ class Generate(object):
             soup = BeautifulSoup(fp, self.parser)
         return soup
 
-    def run(self, overwrite=True):
+    def run(self, overwrite=True, prefix=None):
         self.ensure_dir()
 
         gdir = 'xml_%s' % self.issn
         for pmid in readxml(gdir):
-            self.generate_pmid(gdir, pmid, overwrite=overwrite)
+            self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix)
 
     def clean_name(self, pmid):
-        fname = DATADIR + 'cleaned_{}/{}_cleaned.txt'.format(self.issn, pmid)
+        dname = self.ensure_dir()
+        fname = DATADIR + '{}/{}_cleaned.txt'.format(dname, pmid)
         return fname
 
-    def generate_pmid(self, gdir, pmid, overwrite=True):
+    def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None):
         fname = self.clean_name(pmid)
         exists = os.path.exists(fname)
         if exists and not overwrite:
@@ -281,7 +286,7 @@ class Generate(object):
         t = template.render(papers=papers, issn=self.issn, this=self)
         if save:
             if todo and self.issn not in {'epmc', 'elsevier'}:
-                name = todo[0].name
+                name = self.journal
             else:
                 name = ''
             name = name.replace('.', '').lower()
@@ -302,21 +307,11 @@ def find_primers(txt):
     return Markup(PRIMER.sub(r'<b class="primer">\1</b>\2', txt))
 
 
-class FakeResponse(object):
-    content = None
-    status_code = 200
-    encoding = 'UTF-8'
-    url = None
-
-    def raise_for_status(self):
-        pass
-
-
 class Download(object):
     parser = 'lxml'
     Referer = 'http://google.com'
 
-    def __init__(self, issn, mx=0, sleep=10.):
+    def __init__(self, issn, mx=0, sleep=10., **kwargs):
         self.issn = issn
         self.sleep = sleep
         self.mx = mx
@@ -409,3 +404,45 @@ class Download(object):
             if self.sleep > 0 and idx < len(lst) - 1:
                 time.sleep(self.sleep)
         self.end()
+
+
+class FakeResponse(object):
+    content = None
+    status_code = 200
+    encoding = 'UTF-8'
+    url = None
+
+    def raise_for_status(self):
+        pass
+
+
+class DownloadSelenium(Download):
+    driver = None
+    headless = True
+
+    def __init__(self, issn, mx=0, sleep=10., headless=True, close=True, **kwargs):
+        super().__init__(issn, mx=mx, sleep=sleep, **kwargs)
+        self.headless = headless
+        self.close = close
+
+    def start(self):
+        from selenium import webdriver
+        options = webdriver.ChromeOptions()
+        if self.headless:
+            options.add_argument('headless')
+        self.driver = webdriver.Chrome(chrome_options=options)
+
+    def end(self):
+        if self.close and self.driver:
+            self.driver.close()
+
+    def get_response(self, paper, header):
+        url = 'http://doi.org/{}'.format(paper.doi)
+        self.driver.get(url)
+
+        h = self.driver.find_element_by_tag_name('html')
+        txt = h.get_attribute('outerHTML')
+        resp = FakeResponse()
+        resp.url = url
+        resp.content = txt.encode('utf-8')
+        return resp

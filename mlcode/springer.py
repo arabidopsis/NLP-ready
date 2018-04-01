@@ -31,6 +31,8 @@ ISSN = {
     '1573-5079': 'Photosyn. Res.',
     '2194-7961': 'Plant Reprod',
 
+    '2193-1801': 'Springerplus',
+
 
 }
 

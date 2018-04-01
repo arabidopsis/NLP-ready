@@ -2,11 +2,10 @@ import csv
 import os
 import time
 import click
-from selenium import webdriver
 from io import StringIO
 from bs4 import BeautifulSoup
 
-from mlabc import Clean, Generate, readxml, Download, FakeResponse, DATADIR, JCSV, dump
+from mlabc import Clean, Generate, readxml, DownloadSelenium, DATADIR, JCSV, dump
 
 
 ISSN = {
@@ -59,28 +58,7 @@ ISSN = {
 }
 
 
-class DownloadCell(Download):
-
-    def start(self):
-        options = webdriver.ChromeOptions()
-        if self.headless:
-            options.add_argument('headless')
-        self.driver = webdriver.Chrome(chrome_options=options)
-
-    def end(self):
-        if self.close:
-            self.driver.close()
-
-    def get_response(self, paper, header):
-        url = 'http://doi.org/{}'.format(paper.doi)
-        self.driver.get(url)
-
-        h = self.driver.find_element_by_tag_name('html')
-        txt = h.get_attribute('outerHTML')
-        resp = FakeResponse()
-        resp.url = url
-        resp.content = txt.encode('utf-8')
-        return resp
+class DownloadCell(DownloadSelenium):
 
     def check_soup(self, paper, soup, resp):
         secs = soup.select('article div.Body section')
@@ -121,6 +99,7 @@ def getpage(doi, driver):
 
 
 def download_cell_old(issn, sleep=5.0, mx=0, headless=True, close=True):
+    from selenium import webdriver
     # header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
     #           ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
     #           'Referer': 'http://www.sciencedirect.com'
