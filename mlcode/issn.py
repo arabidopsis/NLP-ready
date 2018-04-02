@@ -11,6 +11,7 @@ MODS = [
     "bmcpb",
     # "cell", # cell needs chromedriver... run python3 cell.py download
     "dev",
+    "elife",
     "elsevier",
     "emboj",
     "epmc",
