@@ -37,23 +37,29 @@ def get_done():
     return res
 
 
-def _summary(showall=True):
+def _summary(showall=True, exclude=None):
     issns = read_issn()
     dd = {}
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
+        if exclude and issn in exclude:
+            continue
         cnt, name = issns.get(issn, (0, issn))
         pmids = get_dir(xmld, ext=getext(xmld))
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
     for xmld in glob.glob(DATADIR + 'failed_*'):
         _, issn = xmld.split('_')
+        if exclude and issn in exclude:
+            continue
         pmids = get_dir(xmld, ext=getext(xmld))
         name, issn, cnt, n, _ = dd[issn]
         dd[issn] = (name, issn, cnt, n, len(pmids))
 
     if showall:
         for issn in issns:
+            if exclude and issn in exclude:
+                continue
             if issn not in dd:
                 cnt, name = issns[issn]
                 dd[issn] = (name, issn, cnt, 0, 0)
@@ -224,8 +230,11 @@ def cli():
 
 @cli.command()
 @click.option('--showall', is_flag=True, help='also show journals not done yet')
-def summary(showall):
-    _summary(showall)
+@click.option('--exclude')
+def summary(showall, exclude=None):
+    if exclude:
+        exclude = set(exclude.split(','))
+    _summary(showall, exclude=exclude)
 
 
 @cli.command()
@@ -242,6 +251,8 @@ def cleaned():
 @click.option('--failed', is_flag=True, help='include failed documents')
 @click.option('--exclude')
 def urls(exclude=None, failed=False):
+    if exclude:
+        exclude = set(exclude.split(','))
     _urls(exclude=exclude, failed=failed)
 
 
