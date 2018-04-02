@@ -41,8 +41,10 @@ class ASCB(Clean):
         return self.resultsd.get('materials and methods')
 
     def abstract(self):
-        secs = self.article.select('div.abstractSection.abstractInFull')
-        return secs[0] if secs else None
+        s= self.article.select('div.abstractSection.abstractInFull')
+        if s:
+            return s[0].select('p') or s
+        return None
 
     def title(self):
         s = self.root.select('h1.citation__title')
@@ -50,15 +52,16 @@ class ASCB(Clean):
             return s[0].text.strip()
         return super().title()
 
-    def tostr(self, sec):
+    def tostr(self, secs):
         # import sys
-        if sec.name == 'figure':
-            new_tag = self.root.new_tag("p")
-            new_tag.string = "[[FIGURE]]"
-            sec.replace_with(new_tag)
-        for a in sec.select('p a.tab-link'):
-            a.replace_with('CITATION')
-        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        for sec in secs:
+            if sec.name == 'figure':
+                new_tag = self.root.new_tag("p")
+                new_tag.string = "[[FIGURE]]"
+                sec.replace_with(new_tag)
+            for a in sec.select('p a.tab-link'):
+                a.replace_with('CITATION')
+        txt = [self.SPACE.sub(' ', p.text) for p in secs]
         return txt
 
 

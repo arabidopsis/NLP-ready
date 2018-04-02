@@ -183,7 +183,7 @@ class Generate(object):
     @property
     def journal(self):
         if self.issn in {'epmc', 'elsevier'}:
-            return self.issns
+            return self.issn
         if not self._journal:
             d = read_issn()
             if self.issn in d:
@@ -196,9 +196,12 @@ class Generate(object):
         raise RuntimeError('unimplemented')
 
     def ensure_dir(self):
+        dname = DATADIR + 'cleaned'
+        if not os.path.isdir(dname):
+            os.mkdir(dname)
         name = self.journal.replace('.', '').lower()
         name = '-'.join(name.split())
-        dname = DATADIR + 'cleaned_{}_{}'.format(self.issn, name)
+        dname = dname + '/cleaned_{}_{}'.format(self.issn, name)
         if not os.path.isdir(dname):
             os.mkdir(dname)
         return dname
@@ -220,7 +223,7 @@ class Generate(object):
 
     def clean_name(self, pmid):
         dname = self.ensure_dir()
-        fname = DATADIR + '{}/{}_cleaned.txt'.format(dname, pmid)
+        fname = '{}/{}_cleaned.txt'.format(dname, pmid)
         return fname
 
     def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None):
