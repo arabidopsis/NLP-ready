@@ -21,6 +21,7 @@ MODS = [
     "jcs",
     "jproteome",
     "mcp",
+    "mdpi",
     "mpmi",
     "nature",
     "oup",
