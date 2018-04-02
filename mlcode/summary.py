@@ -164,9 +164,10 @@ def _urls(exclude=None, failed=False):
     import requests
     import csv
     issns, papers = get_papers_todo(exclude=exclude, failed=failed)
-    header = {'User-Agent': USER_AGENT,
-                  'Referer': 'http://www.google.com'
-                  }
+    header = {
+        'User-Agent': USER_AGENT,
+        'Referer': 'http://www.google.com'
+    }
 
     print('todo', len(papers))
     fname = 'paper_urls.csv'
