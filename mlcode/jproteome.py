@@ -31,6 +31,7 @@ class JProteome(Clean):
 
     def methods(self):
         secs = self.article.select('#articleBody .hlFld-Fulltext .NLM_sec_level_1')
+        print(secs)
         for sec in secs:
             h2 = sec.find('h2')
             if h2:
@@ -50,9 +51,14 @@ class JProteome(Clean):
 
     def tostr(self, sec):
         for a in sec.select('div.figure'):
-            p = self.root.new_tag('div', **{'class': 'NLM_p'})
+            p = self.root.new_tag('span')  # , **{'class': 'NLM_p'})
 
             p.string = '[[FIGURE]]'
+            a.replace_with(p)
+        for a in sec.select('div.NLM_table-wrap'):
+            p = self.root.new_tag('span')
+
+            p.string = '[[TABLE]]'
             a.replace_with(p)
         for a in sec.select('div.NLM_p a.ref'):
             a.replace_with('CITATION')
@@ -86,7 +92,7 @@ def download_jproteome(issn, sleep=5.0, mx=0):
 
         def get_response(self, paper, header):
             resp = requests.get('http://doi.org/{}'.format(paper.doi), headers=header)
-            if paper.issn == '0006-2960' and resp.url.find('/doi/full/') < 0:
+            if resp.url.find('/doi/abs/') > 0 and resp.url.find('/doi/full/') < 0:
                 url = resp.url.replace('/doi/abs/', '/doi/full/')
                 print('redirect', url)
                 header['Referer'] = resp.url
