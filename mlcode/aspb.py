@@ -31,27 +31,29 @@ class ASPB(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('div.article.fulltext-view')[0]
-        assert a
-        self.article = a
+        a = root.select('div.article.fulltext-view')
+        assert a, a
+        self.article = a[0]
 
     def results(self):
         for s in self.article.select('div.section'):
-            if 'results' in s.attrs['class']:
+            cls = s.attrs.get('class', [])
+            if 'results' in cls:
                 return s
         for s in self.article.select('div.section'):
             n = s.find('h2')
             if n:
                 txt = n.text.lower()
-                if txt.find('methods') >= 0:
+                if txt.find('results') >= 0:
                     return s
         return None
 
     def methods(self):
         for s in self.article.select('div.section'):
-            if 'materials-methods' in s.attrs['class']:
+            cls = s.attrs.get('class', [])
+            if 'materials-methods' in cls:
                 return s
-            if 'methods' in s.attrs['class']:
+            if 'methods' in cls:
                 return s
         for s in self.article.select('div.section'):
             n = s.find('h2')
@@ -75,6 +77,10 @@ class ASPB(Clean):
     def tostr(self, sec):
         for a in sec.select('a.xref-bibr'):
             a.replace_with('CITATION')
+        for a in sec.select('div.fig.pos-float'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 

@@ -1,7 +1,7 @@
 import csv
 import os
 import re
-import gzip
+# import gzip
 import time
 from collections import defaultdict
 # import sys
@@ -15,23 +15,23 @@ from bs4 import BeautifulSoup
 from mlabc import JCSV, read_suba_papers_csv
 
 
-def getpmcids(pmids):
-    """Map pubmed ids to the "open access" fulltext PMC ids."""
-    ret = {}
-    pmids = set(pmids)
-    if not os.path.exists('PMC-ids.csv.gz'):
-        raise RuntimeError(
-            'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"')
-    with gzip.open('PMC-ids.csv.gz', 'rt') as fp:
-        R = csv.reader(fp)
-        next(R)  # skip header
-        for row in R:
-            pmcid, pmid = row[8:10]
-            if pmcid and pmid in pmids:
-                assert pmid not in ret, pmid
-                ret[pmid] = pmcid
-
-    return ret
+# def getpmcids(pmids):
+#     """Map pubmed ids to the "open access" fulltext PMC ids."""
+#     ret = {}
+#     pmids = set(pmids)
+#     if not os.path.exists('PMC-ids.csv.gz'):
+#         raise RuntimeError(
+#             'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"')
+#     with gzip.open('PMC-ids.csv.gz', 'rt') as fp:
+#         R = csv.reader(fp)
+#         next(R)  # skip header
+#         for row in R:
+#             pmcid, pmid = row[8:10]
+#             if pmcid and pmid in pmids:
+#                 assert pmid not in ret, pmid
+#                 ret[pmid] = pmcid
+#
+#     return ret
 
 
 EFETCH = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id='
@@ -106,20 +106,21 @@ def parse_xml(xml):
 
 
 def getmeta(sleep=.2, pubmeds=JCSV):
-    """Create a CSV of (pmid, issn, name, year, doi) from list of SUBA4 pubmed ids."""
+    """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
     # return data from xml file at NIH in a pythonic dictionary
     def pubmed_meta(session, id):
         xml = fetchpubmed(session, id)
         return parse_xml(xml)
 
     session = requests  # .Session()
-    done = set()
     e = os.path.exists(pubmeds)
     if e:
         with open(pubmeds, 'r', encoding='utf8') as fp:
             R = csv.reader(fp)
             next(R)  # skip header
             done = {row[0] for row in R}
+    else:
+        done = set()
     print('%d done' % len(done))
     with open(pubmeds, 'a', encoding='utf8') as fp:
         W = csv.writer(fp)

@@ -62,6 +62,10 @@ class EMBOJ(Clean):
             p = self.root.new_tag('p')
             p.string = '[[FIGURE]]'
             a.replace_with(p)
+        for a in sec.select('div.table.pos-float'):
+            p = self.root.new_tag('p')
+            p.string = '[[TABLE]]'
+            a.replace_with(p)
         for a in sec.select('p a.xref-ref'):
             a.replace_with('CITATION')
         for a in sec.select('p a.xref-fig'):

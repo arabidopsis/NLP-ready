@@ -41,7 +41,7 @@ class ASCB(Clean):
         return self.resultsd.get('materials and methods')
 
     def abstract(self):
-        s= self.article.select('div.abstractSection.abstractInFull')
+        s = self.article.select('div.abstractSection.abstractInFull')
         if s:
             return s[0].select('p') or s
         return None
@@ -54,14 +54,23 @@ class ASCB(Clean):
 
     def tostr(self, secs):
         # import sys
+        ss = []
         for sec in secs:
+            for a in sec.select('a.tab-link'):
+                a.replace_with('CITATION')
             if sec.name == 'figure':
                 new_tag = self.root.new_tag("p")
                 new_tag.string = "[[FIGURE]]"
-                sec.replace_with(new_tag)
-            for a in sec.select('p a.tab-link'):
-                a.replace_with('CITATION')
-        txt = [self.SPACE.sub(' ', p.text) for p in secs]
+                # sec.replace_with(new_tag)  # doesn't seem to work
+                ss.append(new_tag)
+            else:
+                for s in sec.select('figure'):
+                    new_tag = self.root.new_tag("p")
+                    new_tag.string = "[[FIGURE]]"
+                    s.replace_with(new_tag)
+                ss.append(sec)
+
+        txt = [self.SPACE.sub(' ', p.text) for p in ss]
         return txt
 
 

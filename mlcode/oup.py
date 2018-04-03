@@ -37,7 +37,7 @@ class OUP(Clean):
                 target = 'abstract'
                 for p in d.select('p'):
                     objs[target].append(p)
-            elif d.name == 'p':
+            elif d.name == 'p' or (d.name == 'div' and d.has_attr('class') and 'fig' in d['class']):
                 if target:
                     objs[target].append(d)
         res = {}
@@ -68,11 +68,20 @@ class OUP(Clean):
         return super().title()
 
     def tostr(self, sec):
-
         for p in sec:
             for a in p.select('a.xref-bibr'):
                 a.replace_with('CITATION')
-        txt = [self.SPACE.sub(' ', p.text) for p in sec]
+        ss = []
+        for p in sec:
+            if p.name == 'div':
+                a = self.root.new_tag('div')  # , **{'class': 'NLM_p'})
+
+                a.string = '[[FIGURE]]'
+                ss.append(a)
+            else:
+                ss.append(p)
+
+        txt = [self.SPACE.sub(' ', p.text) for p in ss]
         return txt
 
 

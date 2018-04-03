@@ -51,6 +51,11 @@ class Genetics(Clean):
             new_tag = self.root.new_tag("p")
             new_tag.string = "[[TABLE]]"
             a.replace_with(new_tag)
+        for a in sec.select('div.fig.pos-float'):
+            # print(a, file=sys.stderr)
+            new_tag = self.root.new_tag("p")
+            new_tag.string = "[[FIGURE]]"
+            a.replace_with(new_tag)
         for a in sec.select('p a.xref-bibr'):
             a.replace_with('CITATION')
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]

@@ -61,17 +61,6 @@ ISSN = {
 }
 
 
-class CSS(object):
-    def __init__(self, selector):
-        self.selector = selector
-
-    def __call__(self, driver):
-        elements = driver.find_elements_by_css_selector(self.selector)
-        if len(elements) > 0:
-            return True
-        return False
-
-
 class DownloadCell(DownloadSelenium):
 
     def wait(self):

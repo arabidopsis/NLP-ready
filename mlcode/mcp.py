@@ -57,6 +57,10 @@ class MCP(Clean):
             p = self.root.new_tag('p')
             p.string = '[[FIGURE]]'
             a.replace_with(p)
+        for a in sec.select('div.table.pos-float'):
+            p = self.root.new_tag('p')
+            p.string = '[[TABLE]]'
+            a.replace_with(p)
         for a in sec.select('p a.xref-bibr'):
             a.replace_with('CITATION')
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]

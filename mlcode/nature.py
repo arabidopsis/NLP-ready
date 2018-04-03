@@ -21,6 +21,10 @@ ISSN = {
 
 
 class Nature(Clean):
+    MM = ['.//section[@aria-labelledby="methods"]',
+          # './/section[@aria-labelledby="methods-summary"]',
+          './/section[@aria-labelledby="materials-and-methods"]',
+          './/section[@aria-labelledby="material-and-methods"]']
 
     def __init__(self, root):
         self.root = root
@@ -34,13 +38,17 @@ class Nature(Clean):
         return secs[0] if secs else None
 
     def methods(self):
-        secs1 = self.article.xpath('.//section[@aria-labelledby="methods"]')
+        secs1 = None
+        for t in self.MM:
+            secs1 = self.article.xpath('.//section[@aria-labelledby="methods"]')
+            if secs1:
+                break
 
         secs2 = self.article.xpath('.//section[@aria-labelledby="methods-summary"]')
         secs3 = self.article.xpath('.//section[@aria-labelledby="online-methods"]')
         secs = secs1 + secs2 + secs3
         if len(secs) == 1:
-            return secs[0] if secs else None
+            return secs[0]
         div = etree.Element('div')
         for sec in secs:
             for s in sec:
@@ -59,7 +67,7 @@ class Nature(Clean):
         for fig in sec.xpath('.//div[@data-container-section="figure"]'):
             s = etree.Element('p')
             s.text = '[[FIGURE]]'
-            s.tail = fig.tail
+            s.tail = fig.tail  # important!
             fig.getparent().replace(fig, s)
         for sup in sec.xpath('.//sup'):
             n = sup.xpath('./a[starts-with(@aria-label,"Reference")]')
@@ -67,8 +75,9 @@ class Nature(Clean):
                 # for a in n:
                 #     a.text = ' CITATION '
                 s = etree.Element('span')
-                s.text = ' (CITATION x %d) ' % len(n)
-                s.tail = sup.tail
+                # s.text = ' (CITATION x %d) ' % len(n)
+                s.text = ' (CITATION) '
+                s.tail = sup.tail  # important!
                 sup.getparent().replace(sup, s)
         txt = [self.SPACE.sub(' ', ''.join(p.xpath('.//text()'))) for p in sec.xpath('.//p')]
         return txt
@@ -129,6 +138,5 @@ def html_nature(issn):
 
 
 if __name__ == '__main__':
-    download_nature(issn='1476-4687', sleep=120., mx=0)
-    download_nature(issn='0028-0836', sleep=120., mx=0)
-    # gen_gad(issn='0890-9369')
+    download_nature(issn='1476-4687', sleep=10., mx=1)
+    download_nature(issn='0028-0836', sleep=10., mx=1)

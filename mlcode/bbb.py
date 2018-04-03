@@ -72,11 +72,16 @@ class BBB(Clean):
     def tostr(self, sec):
         for a in sec.select('div.figure'):
             p = self.root.new_tag('p')  # , **{'class': 'NLM_p'})
-
             p.string = '[[FIGURE]]'
             a.replace_with(p)
+        for a in sec.select('div.tableView'):
+            p = self.root.new_tag('p')  # , **{'class': 'NLM_p'})
+            p.string = '[[TABLE]]'
+            a.replace_with(p)
+        for a in sec.select('div.hidden'):
+            a.decompose()
         for a in sec.select('p span.ref-lnk a'):
-            a.replace_with('CITATION')
+            a.replace_with(' (CITATION)')
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt

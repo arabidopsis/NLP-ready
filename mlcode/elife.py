@@ -1,5 +1,3 @@
-import requests
-
 from mlabc import Clean, Download, Generate
 
 # http://genesdev.cshlp.org

@@ -44,7 +44,7 @@ def elsevier(pmid, url=PMID_ELSEVIER):
     # return soup.prettify()
 
 
-def download_elsevier(issn='elsevier', sleep=0.5, mx=0,use_issn=False):
+def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
     """Download any Elsevier XML files using SUBA4 pubmed ids."""
     failed = set(readxml('failed_elsevier'))
     done = set(readxml('xml_elsevier'))  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC

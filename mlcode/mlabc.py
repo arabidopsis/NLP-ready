@@ -157,10 +157,11 @@ class Clean(object):
 class Generate(object):
     parser = 'lxml'
 
-    def __init__(self, issn, **kwargs):
+    def __init__(self, issn, onlynewer=False, **kwargs):
         self.issn = issn
         self._pmid2doi = None
         self._journal = None
+        self._onlynower = onlynewer
 
     @property
     def pmid2doi(self):
@@ -206,10 +207,14 @@ class Generate(object):
             os.mkdir(dname)
         return dname
 
-    def get_soup(self, gdir, pmid):
+    def get_xml_name(self, gdir, pmid):
         fname = DATADIR + gdir + '/{}.html'.format(pmid)
         if not os.path.isfile(fname):
             fname = DATADIR + gdir + '/{}.xml'.format(pmid)
+        return fname
+
+    def get_soup(self, gdir, pmid):
+        fname = self.get_xml_name(gdir, pmid)
         with open(fname, 'rb') as fp:
             soup = BeautifulSoup(fp, self.parser)
         return soup
@@ -231,6 +236,14 @@ class Generate(object):
         exists = os.path.exists(fname)
         if exists and not overwrite:
             return
+        if exists and self._onlynewer:
+            xname = self.get_xml_name(gdir, pmid)
+            if os.path.exists(xname):
+                tgt = os.stat(fname).st_mtime
+                src = os.stat(xname).st_mtime
+                if tgt >= src:  # target newer that surc
+                    return
+
         soup = self.get_soup(gdir, pmid)
         e = self.create_clean(soup, pmid)
         a = e.abstract()
@@ -288,10 +301,10 @@ class Generate(object):
 
         t = template.render(papers=papers, issn=self.issn, this=self)
         if save:
-            if todo and self.issn not in {'epmc', 'elsevier'}:
+            if self.issn not in {'epmc', 'elsevier'}:
                 name = self.journal
             else:
-                name = ''
+                name = self.issn
             name = name.replace('.', '').lower()
             name = '-'.join(name.split())
             with open(prefix + '%s-%s-n%d.html' % (self.issn, name, nart), 'w') as fp:

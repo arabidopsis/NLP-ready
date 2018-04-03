@@ -85,6 +85,10 @@ class Wiley(Clean):
         return None
 
     def tostr(self, sec):
+        for a in sec.select('figure'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
         for a in sec.select('p a[title="Link to bibliographic citation"]'):
             a.replace_with('CITATION')
 
@@ -142,6 +146,11 @@ class Wiley2(Clean):
         return super().title()
 
     def tostr(self, sec):
+
+        for a in sec.select('figure'):
+            p = self.root.new_tag('p')
+            p.string = '[[FIGURE]]'
+            a.replace_with(p)
         for a in sec.select('p a[title="Link to bibliographic citation"]'):
             a.replace_with('CITATION')
 
