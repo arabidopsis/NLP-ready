@@ -1,6 +1,6 @@
 import os
 import sys
-import re
+import regex as re
 import csv
 import time
 from io import BytesIO
@@ -109,6 +109,22 @@ class Clean(object):
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
+
+    def tostr2(self, sec):
+        def to_p(s):
+            a = self.root.new_tag('p')
+            a.string = s.text
+            s.replace_with(a)
+
+        if isinstance(sec, list):
+            for s in sec:
+                for p in s.select('h2,h3,h4'):
+                    to_p(p)
+
+        else:
+            for p in sec.select('h2,h3,h4'):
+                to_p(p)
+        return self.tostr(sec)
 
     def s_abstract(self):
         if self.a is not _Plug:
@@ -226,6 +242,24 @@ class Generate(object):
         for pmid in readxml(gdir):
             self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix)
 
+    def tokenize(self):
+        gdir = 'xml_%s' % self.issn
+        for pmid in readxml(gdir):
+            soup = self.get_soup(gdir, pmid)
+            e = self.create_clean(soup, pmid)
+            a = e.abstract()
+            m = e.methods()
+            r = e.results()
+            if a:
+                for p in e.tostr(a):
+                    yield 'a', reduce_nums(p)
+            if m:
+                for p in e.tostr(m):
+                    yield 'm', reduce_nums(p)
+            if r:
+                for p in e.tostr(r):
+                    yield 'r', reduce_nums(p)
+
     def clean_name(self, pmid):
         dname = self.ensure_dir()
         fname = '{}/{}_cleaned.txt'.format(dname, pmid)
@@ -313,13 +347,47 @@ class Generate(object):
         return t
 
 
-PRIMER = re.compile(r'''\b((?:5[′']-)?[CTAG\s-]{7,}[CTAG](?:-3[′'])?)(\b|$|[\s;:)/,\.])''', re.I)
+# [SIC!] unicode dashes utf-8 b'\xe2\x80\x90' 0x2010
+PRIMER = re.compile(
+    r'''\b((?:5[′'][-‐])?[CTAG\s-]{7,}[CTAG](?:[-‐]3[′'])?)(\b|$|[\s;:)/,\.])''', re.I)
+pf = r'[0-9]+(?:\.[0-9]+)?'
+number = r'[+-]?' + pf + r'(?:\s*±\s*' + pf + r')?'
+pm = r'[0-9]+(?:\s*±\s*[0-9]+)?'
+TEMP = re.compile(number + r'\s*°C')
+MM = re.compile(number + r'\s*μ[Mm]')
+MGL = re.compile(number + r'\s*mg/l')
+
+N = re.compile(number + r'(?:\s|-)?(°C|μM|μl|mg/l|%|mM|nM|rpm|ml|NA|h|K|M|min|g/l|s|kb|μg/μl|μg)\b')
+FPCT = re.compile(r'[0-9]+\.[0-9]*%')
+PCT = re.compile(pm + '%')
+PH = re.compile(r'\bpH\s*' + number)
+INT = re.compile(r'\b[0-9]+\b')  # picks up ncb-111 !!!!
+FLOAT = re.compile(r'\b[0-9]+\.[0-9]*\b')
+
+INT = re.compile(r'\s[0-9]+(?=\s)')  # [sic] spaces. \b picks up ncb-111 !!!!
+FLOAT = re.compile(r'\s[0-9]+\.[0-9]*(?=\s)')
+EXP = re.compile(r'\b[0-9]+(?:\.[0-9]*)?\s*×\s*(e|E|10)[+−-]?[0-9]+\b')
+EXP2 = re.compile(r'\b[0-9]+\.[0-9]*(?:e|E|10)[+−-]?[0-9]+\b')
 
 
 from jinja2 import Markup
 
 
+def reduce_nums(txt):
+    txt = N.sub(r'NUMBER_\1', txt)
+    txt = PH.sub(r'NUMBER_pH', txt)
+    txt = FPCT.sub(r'NUMBER_%', txt)
+    txt = PCT.sub(r'NUMBER_%', txt)
+    txt = EXP.sub('EXPNUM', txt)
+    txt = EXP2.sub(' EXPNUM', txt)
+    txt = FLOAT.sub(' FLOAT ', txt)
+    txt = INT.sub(' INT ', txt)
+    return txt
+
+
 def find_primers(txt):
+    txt = reduce_nums(txt)
+
     return Markup(PRIMER.sub(r'<b class="primer">\1</b>\2', txt))
 
 

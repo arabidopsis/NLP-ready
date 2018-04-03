@@ -99,6 +99,36 @@ def tohtml(mod=''):
 
 @cli.command()
 @click.option('--mod', help='modules to run')
+def tokenize(mod=''):
+    # from nltk import word_tokenize, PorterStemmer
+    from collections import Counter
+    if mod:
+        mods = [s.strip() for s in mod.split(',')]
+    else:
+        mods = MODS
+    cc = Counter()
+    # porter = PorterStemmer()
+    for m in mods:
+        d = getmod(m)
+        for i in d['issn']:
+            print('tokenizing ', m, i)
+            g = d['Generate'](i)
+            # print('overwrite', not nowrite)
+            for s, p in g.tokenize():
+                for w in p.split():
+                    while w.startswith(('(', '[')):
+                        w = w[1:]
+                    while w.endswith((')', ';', '.', ':', ',', ']')):
+                        w = w[:-1]
+                    # w = porter.stem(w)
+                    cc[w] += 1
+
+    for c in cc.most_common():
+        print(c)
+
+
+@cli.command()
+@click.option('--mod', help='modules to run')
 @click.option('--nowrite', is_flag=True, help='don\'t overwrite')
 def clean(mod='', nowrite=False):
     if mod:

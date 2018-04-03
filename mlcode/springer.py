@@ -100,7 +100,7 @@ class Springer(Clean):
             a.replace_with('CITATION')
 
         def para(tag):
-            return tag.name == 'p' or (tag.name == 'div' and 'Para' in tag['class'])
+            return tag.name == 'p' or (tag.name == 'div' and tag.has_attr('class') and 'Para' in tag['class'])
 
         # txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p, div.Para')]
         txt = [self.SPACE.sub(' ', p.text) for p in sec.find_all(para)]
