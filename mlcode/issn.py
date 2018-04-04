@@ -1,4 +1,5 @@
 import click
+import os
 from mlabc import Generate
 
 # add module name to this list...
@@ -9,7 +10,7 @@ MODS = [
     "bbb",
     "bioj",
     "bmcpb",
-    "cell", # cell needs chromedriver... run python3 cell.py download
+    "cell",  # cell needs chromedriver... run python3 cell.py download
     "dev",
     "elife",
     "elsevier",
@@ -81,34 +82,53 @@ def cli():
 @cli.command()
 @click.option('--mod', help='modules to run')
 def tohtml(mod=''):
-    from jinja2 import Environment, FileSystemLoader, select_autoescape
-    from mlabc import find_primers
-    env = Environment(
-        loader=FileSystemLoader('templates'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-    env.filters['prime'] = find_primers
+    from mlabc import read_issn, pmid2doi, make_jinja_env
+    # from pickle import load, dump
+
+    env = make_jinja_env()
+    os.makedirs('html/journals', exist_ok=True)
+
     template = env.get_template('index.html')
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:
         mods = MODS
     journals = []
+
+    issns = {issn: t[1] for issn, t in read_issn().items()}
+    total1 = set()
+    total2 = set()
+    tt = 0
+    p2i = pmid2doi()
     for m in mods:
         d = getmod(m)
         for issn in d['issn']:
-            print('writing ', m, issn)
-            g = d['Generate'](issn)
+            print('writing', m, issn, issns.get(issn, ''))
+            g = d['Generate'](issn, pmid2doi=p2i)
             # try:
-            fname, papers = g.tohtml(save=True, prefix='html/' + m + '_', env=env)
-            journal = g.journal
-            journals.append((fname[5:], issn, len(papers), journal))
+            fname, papers = g.tohtml(save=True, prefix='html/journals/' + m + '_',
+                                     env=env, verbose=False)
+            journal = issns.get(issn, issn)
+            nfailed = len([p for p, s in papers if not s.has_all_sections()])
+            apmids = [p.pmid for p, s in papers if s.has_all_sections()]
+            tpmids = [p.pmid for p, s in papers]
+            t = (fname[5:], issn, len(tpmids), journal, nfailed)
+            journals.append(t)
+            for p in apmids:
+                total1.add(p)
+            for p in tpmids:
+                total2.add(p)
+            tt += len(tpmids)
+
             # except Exception as e:
             #     click.secho("failed %s %s %s" % (m, i, str(e)), fg='magenta')
             #     raise e
+
+    journals = sorted(journals, key=lambda t: t[3])
     t = template.render(journals=journals)
     with open('html/index.html', 'w') as fp:
         fp.write(t)
+    click.secho("found %d pubmeds. %d unique, %d usable" % (tt, len(total2), len(total1)), fg='blue')
 
 
 @cli.command()

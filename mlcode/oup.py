@@ -21,23 +21,35 @@ ISSN = {
 }
 
 
+def ok_elem(tag):
+    if tag.name == 'p':
+        return True
+    if tag.name == 'div':
+        if tag.has_attr('class'):
+            cls = set(tag['class'])
+            if 'fig' in cls:
+                return True
+    return False
+
+
 class OUP(Clean):
 
     def __init__(self, root):
         self.root = root
-        a = root.select('div.article-body div.widget-items')[0]
-        assert a
-        self.article = a
+        a = root.select('div.article-body div.widget-items')
+        assert a, a
+        self.article = a[0]
+
         objs = defaultdict(list)
         target = None
-        for d in a.contents:
+        for d in self.article.contents:
             if d.name == 'h2':
                 target = d.text.lower().strip()
             elif d.name == 'section' and d.attrs['class'] == ['abstract']:
                 target = 'abstract'
                 for p in d.select('p'):
                     objs[target].append(p)
-            elif d.name == 'p' or (d.name == 'div' and d.has_attr('class') and 'fig' in d['class']):
+            elif ok_elem(d):
                 if target:
                     objs[target].append(d)
         res = {}

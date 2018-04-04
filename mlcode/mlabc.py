@@ -11,6 +11,7 @@ import requests
 from requests import ConnectionError
 from bs4 import BeautifulSoup
 
+from rescantxt import reduce_nums, find_primers
 
 DATADIR = '../data/'
 JCSV = 'journals.csv'
@@ -77,11 +78,12 @@ class Clean(object):
     m = _Plug
     r = _Plug
     t = _Plug
+    f = _Plug
 
     def __init__(self, root):
         self.root = root
 
-    def find_title(self, sec, h='h2', op=lambda a, b: a == b, txt=[]):
+    def find_title(self, sec, h='h2', op=lambda h, b: h == b, txt=[]):
         h = sec.find(h)
         if h:
             h2 = h.text.lower()
@@ -103,6 +105,9 @@ class Clean(object):
         return None
 
     def methods(self):
+        return None
+
+    def full_text(self):
         return None
 
     def tostr(self, sec):
@@ -144,6 +149,12 @@ class Clean(object):
         self.r = self.results()
         return self.r
 
+    def s_full_text(self):
+        if self.f is not _Plug:
+            return self.f
+        self.f = self.full_text()
+        return self.f
+
     def s_title(self):
         if self.t is not _Plug:
             return self.t
@@ -170,13 +181,32 @@ class Clean(object):
         return ' '.join(ret) if ret else ''
 
 
+def pmid2doi(check=lambda doi, issn: True):
+    with open(JCSV, 'r', encoding='utf8') as fp:
+        R = csv.reader(fp)
+        next(R)
+        pmid2doi = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
+                    for pmid, issn, name, year, doi in R if check(doi, issn)}
+    return pmid2doi
+
+
+def make_jinja_env():
+    from jinja2 import Environment, FileSystemLoader, select_autoescape
+    env = Environment(
+        loader=FileSystemLoader('templates'),
+        autoescape=select_autoescape(['html', 'xml'])
+    )
+    env.filters['prime'] = find_primers
+    return env
+
+
 class Generate(object):
     parser = 'lxml'
 
-    def __init__(self, issn, onlynewer=False, **kwargs):
+    def __init__(self, issn, onlynewer=False, pmid2doi=None, journal=None, **kwargs):
         self.issn = issn
-        self._pmid2doi = None
-        self._journal = None
+        self._pmid2doi = pmid2doi
+        self._journal = journal
         self._onlynewer = onlynewer
 
     @property
@@ -199,9 +229,11 @@ class Generate(object):
 
     @property
     def journal(self):
+        if self._journal:
+            return self._journal
         if self.issn in {'epmc', 'elsevier'}:
-            return self.issn
-        if not self._journal:
+            self._journal = self.issn
+        else:
             d = read_issn()
             if self.issn in d:
                 self._journal = d[self.issn][1]
@@ -301,14 +333,19 @@ class Generate(object):
             w = ' '.join(e.tostr(m))
             print('!~MM~! %s' % w, file=fp)
 
-    def tohtml(self, template='template.html', save=False, prefix='', env=None):
-        from jinja2 import Environment, FileSystemLoader, select_autoescape
+    def tohtml(self, template='template.html', save=False, prefix='', env=None, verbose=True):
         if env is None:
-            env = Environment(
-                loader=FileSystemLoader('templates'),
-                autoescape=select_autoescape(['html', 'xml'])
-            )
-            env.filters['prime'] = find_primers
+            env = make_jinja_env()
+
+        def getfname(nart):
+            if self.issn not in {'epmc', 'elsevier'}:
+                name = self.journal
+            else:
+                name = self.issn
+            name = name.replace('.', '').lower()
+            name = '-'.join(name.split())
+            fname = prefix + '%s-%s-n%d.html' % (self.issn, name, nart)
+            return fname
 
         template = env.get_template(template)
         gdir = 'xml_%s' % self.issn
@@ -318,80 +355,32 @@ class Generate(object):
 
         todo = sorted(todo, key=lambda p: -p.year)
         nart = len(todo)
+        fname = getfname(nart)
+
         for paper in todo:
-            print(paper.pmid, paper.issn, paper.doi)
+            if verbose:
+                print(paper.pmid, paper.issn, paper.doi)
 
             soup = self.get_soup(gdir, paper.pmid)
             try:
                 e = self.create_clean(soup, paper.pmid)
-                if not e.has_all_sections():
-                    click.secho('not all sections for %s http://doi.org/%s' %
-                                (paper.pmid, paper.doi), fg='magenta', file=sys.stderr)
+                missing = e.missing()
+                if missing:
+                    click.secho('missing %s for %s http://doi.org/%s' %
+                                (missing, paper.pmid, paper.doi), fg='magenta', file=sys.stderr)
                 papers.append((paper, e))
             except Exception as err:
                 click.secho('failed for %s http://doi.org/%s %s' %
                             (paper.pmid, paper.doi, str(err)), fg='red', file=sys.stderr)
-                raise err
                 papers.append((paper, Clean(soup)))
 
         t = template.render(papers=papers, issn=self.issn, this=self)
         if save:
-            if self.issn not in {'epmc', 'elsevier'}:
-                name = self.journal
-            else:
-                name = self.issn
-            name = name.replace('.', '').lower()
-            name = '-'.join(name.split())
-            fname = prefix + '%s-%s-n%d.html' % (self.issn, name, nart)
             with open(fname, 'w') as fp:
                 fp.write(t)
             return fname, papers
 
         return t
-
-
-# [SIC!] unicode dashes utf-8 b'\xe2\x80\x90' 0x2010
-PRIMER = re.compile(
-    r'''\b((?:5[′'][-‐]?)?[CTAG\s-]{7,}[CTAG](?:[-‐]?3[′'])?)(\b|$|[\s;:)/,\.])''', re.I)
-pf = r'[0-9]+(?:\.[0-9]+)?'
-number = r'[+-]?' + pf + r'(?:\s*±\s*' + pf + r')?'
-pm = r'[0-9]+(?:\s*±\s*[0-9]+)?'
-TEMP = re.compile(number + r'\s*°C')
-MM = re.compile(number + r'\s*μ[Mm]')
-MGL = re.compile(number + r'\s*mg/l')
-
-N = re.compile(number + r'(?:\s|-)?(°C|μM|μl|mg/l|%|mM|nM|rpm|ml|NA|h|K|M|min|g/l|s|kb|μg/μl|μg)\b')
-FPCT = re.compile(r'[0-9]+\.[0-9]*%')
-PCT = re.compile(pm + '%')
-PH = re.compile(r'\bpH\s*' + number)
-INT = re.compile(r'\b[0-9]+\b')  # picks up ncb-111 !!!!
-FLOAT = re.compile(r'\b[0-9]+\.[0-9]*\b')
-
-INT = re.compile(r'\s[0-9]+(?=\s)')  # [sic] spaces. \b picks up ncb-111 !!!!
-FLOAT = re.compile(r'\s[0-9]+\.[0-9]*(?=\s)')
-EXP = re.compile(r'\b[0-9]+(?:\.[0-9]*)?\s*×\s*(e|E|10)[+−-]?[0-9]+\b')
-EXP2 = re.compile(r'\b[0-9]+\.[0-9]*(?:e|E|10)[+−-]?[0-9]+\b')
-
-
-from jinja2 import Markup
-
-
-def reduce_nums(txt):
-    txt = N.sub(r'NUMBER_\1', txt)
-    txt = PH.sub(r'NUMBER_pH', txt)
-    txt = FPCT.sub(r'NUMBER_%', txt)
-    txt = PCT.sub(r'NUMBER_%', txt)
-    txt = EXP.sub('EXPNUM', txt)
-    txt = EXP2.sub(' EXPNUM', txt)
-    txt = FLOAT.sub(' FLOAT ', txt)
-    txt = INT.sub(' INT ', txt)
-    return txt
-
-
-def find_primers(txt):
-    # txt = reduce_nums(txt)
-
-    return Markup(PRIMER.sub(r'<b class="primer">\1</b>\2', txt))
 
 
 class Download(object):

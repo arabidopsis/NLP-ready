@@ -62,7 +62,7 @@ class Wiley(Clean):
             h2 = sec.find('h2')
             if h2:
                 txt = h2.text.lower().strip()
-                if txt.endswith(('results', 'results and discussion')):
+                if txt.endswith(('results', 'results and discussion', 'significance of the study')):
                     return sec
 
         return None

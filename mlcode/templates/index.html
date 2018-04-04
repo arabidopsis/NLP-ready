@@ -14,18 +14,22 @@
     #}
   <link  href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"  media="all" rel="stylesheet" />
   <style type="text/css">
-    .missing { color: red; }
-    b.primer { color: blue; }
+    .failed { color: red; }
+    table tr td:nth-child(3) { text-align:right; }
   </style>
 </head>
 <body id="top">
   <div class="container">
       <h2>Journals converted</h2>
-      <ol>
-      {% for fname, issn, num, journal in journals %}
-      <li><a href="{{fname}}">"{{journal}}" &mdash; {{num}} papers</a>  ISSN:({{issn}})</li>
+      <table class="table">
+          <tr><th>Link</th><th>ISSN</th><th>Failed/Total</th></tr>
+      {% for fname, issn, num, journal, nfailed in journals %}
+        <tr><td><a href="{{fname}}">{{journal}}</a></td>
+            <td>{{issn}}</td>
+            <td class="{% if nfailed> 0 %}failed{%else%}ok{% endif %}">{{nfailed}}/{{num}}</td>
+        </tr>
       {% endfor %}
-    </ol>
+      </table>
   </div>
 </body>
 </html>

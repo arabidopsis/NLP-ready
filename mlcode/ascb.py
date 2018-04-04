@@ -17,22 +17,26 @@ class ASCB(Clean):
         a = root.select('div.article__body')[0]
         assert a
         self.article = a
-        objs = defaultdict(list)
+
+        sections = {'results', 'materials and methods'}
+        res = {k.lower(): v for k, v in self._full_text()}
+
+        assert set(res) & sections
+        self.resultsd = res
+
+    def _full_text(self):
         target = None
+        targets = []
+        objs = defaultdict(list)
         a = self.article.select('div.hlFld-Fulltext')[0]
         for d in a.contents:
             if d.name == 'h2':
-                target = d.text.lower().strip()
+                target = d.text.strip()
+                targets.append(target)
             elif d.name == 'p' or d.name == 'figure':
                 if target:
                     objs[target].append(d)
-        res = {}
-        sections = {'results', 'materials and methods'}
-        for k in objs:
-            if k in sections:
-                res[k] = objs[k]
-        assert set(res) == sections
-        self.resultsd = res
+        return [(t, objs[t]) for t in targets]
 
     def results(self):
         return self.resultsd.get('results')
@@ -45,6 +49,9 @@ class ASCB(Clean):
         if s:
             return s[0].select('p') or s
         return None
+
+    def full_text(self):
+        return self._full_text()
 
     def title(self):
         s = self.root.select('h1.citation__title')

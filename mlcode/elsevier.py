@@ -208,6 +208,8 @@ class GenerateElsevier(Generate):
     def create_clean(self, soup, pmid):
         ret = Elsevier(soup)
         # print('HERE', ret.pubmed, pmid)
+        if ret.pubmed != pmid:
+            click.secho('pubmed incorrect %s expecting: %s' % (ret.pubmed, pmid), fg='red')
         assert ret.pubmed == pmid, (ret.pubmed, pmid)
         return ret
 

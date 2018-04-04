@@ -169,22 +169,33 @@ class CELL(Clean):
 
         secs = self.article.select('div.Body section')
         for sec in secs:
-            h2 = sec.find('h2')
-            if h2 and h2.text.lower() == 'results':
+            if self.find_title(sec, op=lambda h2, b: h2.endswith(b),
+                               txt=['results', 'results and discussion', 'results and discussions']):
+                return sec
+            if self.find_title(sec,
+                               txt=['experimental']):
                 return sec
         return None
 
     def methods(self):
         secs = self.article.select('div.Body section')
         for sec in secs:
-            h2 = sec.find('h2')
-            if h2 and h2.text.lower() == 'experimental procedures':
+            if self.find_title(sec, op=lambda h2, b: h2.endswith(b),
+                               txt=['experimental procedures', 'materials and methods',
+                                    'material and methods', 'methods']):
                 return sec
+
         return None
 
     def abstract(self):
         secs = self.article.select('.Abstracts')
         return secs[0] if secs else None
+
+    def title(self):
+        t = self.article.select('.Head .title-text')
+        if t:
+            return t[0].text.strip()
+        return super().title()
 
     def tostr(self, sec):
         for a in sec.select('p a.workspace-trigger'):
