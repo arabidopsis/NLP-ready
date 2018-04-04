@@ -9,7 +9,7 @@ MODS = [
     "bbb",
     "bioj",
     "bmcpb",
-    # "cell", # cell needs chromedriver... run python3 cell.py download
+    "cell", # cell needs chromedriver... run python3 cell.py download
     "dev",
     "elife",
     "elsevier",
@@ -145,6 +145,7 @@ def tokenize(mod=''):
 @click.option('--mod', help='modules to run')
 @click.option('--nowrite', is_flag=True, help='don\'t overwrite')
 def clean(mod='', nowrite=False):
+    "Create clean documents."""
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:
