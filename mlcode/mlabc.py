@@ -301,13 +301,14 @@ class Generate(object):
             w = ' '.join(e.tostr(m))
             print('!~MM~! %s' % w, file=fp)
 
-    def tohtml(self, template='template.html', save=False, prefix=''):
+    def tohtml(self, template='template.html', save=False, prefix='', env=None):
         from jinja2 import Environment, FileSystemLoader, select_autoescape
-        env = Environment(
-            loader=FileSystemLoader('templates'),
-            autoescape=select_autoescape(['html', 'xml'])
-        )
-        env.filters['prime'] = find_primers
+        if env is None:
+            env = Environment(
+                loader=FileSystemLoader('templates'),
+                autoescape=select_autoescape(['html', 'xml'])
+            )
+            env.filters['prime'] = find_primers
 
         template = env.get_template(template)
         gdir = 'xml_%s' % self.issn
@@ -341,8 +342,10 @@ class Generate(object):
                 name = self.issn
             name = name.replace('.', '').lower()
             name = '-'.join(name.split())
-            with open(prefix + '%s-%s-n%d.html' % (self.issn, name, nart), 'w') as fp:
+            fname = prefix + '%s-%s-n%d.html' % (self.issn, name, nart)
+            with open(fname, 'w') as fp:
                 fp.write(t)
+            return fname, papers
 
         return t
 
