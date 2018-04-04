@@ -153,6 +153,8 @@ class Wiley2(Clean):
             a.replace_with(p)
         for a in sec.select('p a[title="Link to bibliographic citation"]'):
             a.replace_with('CITATION')
+        for a in sec.select('p a.bibLink'):
+            a.replace_with('CITATION')
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
