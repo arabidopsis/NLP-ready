@@ -177,7 +177,7 @@ class Generate(object):
         self.issn = issn
         self._pmid2doi = None
         self._journal = None
-        self._onlynower = onlynewer
+        self._onlynewer = onlynewer
 
     @property
     def pmid2doi(self):
@@ -389,7 +389,7 @@ def reduce_nums(txt):
 
 
 def find_primers(txt):
-    txt = reduce_nums(txt)
+    # txt = reduce_nums(txt)
 
     return Markup(PRIMER.sub(r'<b class="primer">\1</b>\2', txt))
 
