@@ -31,7 +31,6 @@ class JProteome(Clean):
 
     def methods(self):
         secs = self.article.select('#articleBody .hlFld-Fulltext .NLM_sec_level_1')
-        print(secs)
         for sec in secs:
             h2 = sec.find('h2')
             if h2:
