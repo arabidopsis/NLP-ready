@@ -112,7 +112,8 @@ def tohtml(mod=''):
             nfailed = len([p for p, s in papers if not s.has_all_sections()])
             apmids = [p.pmid for p, s in papers if s.has_all_sections()]
             tpmids = [p.pmid for p, s in papers]
-            t = (fname[5:], issn, len(tpmids), journal, nfailed)
+            ndone = len(tpmids)
+            t = (fname[5:], issn, ndone, journal, nfailed)
             journals.append(t)
             for p in apmids:
                 total1.add(p)

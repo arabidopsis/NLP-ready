@@ -23,18 +23,20 @@
 
   <h1>Journal {{issn}} &mdash; {{this.journal}}</h1>
   <a href="../index.html">back to index</a>
+
   <br/>
   <span class="label label-danger">m</span>: missing Methods section,
   <span class="label label-danger">r</span>: missing Results section,
   <span class="label label-danger">a</span>: missing Abstract section
   <br/>
-
+  <h3>Scanned</h3>
   <ol>
     {% for p, e in papers %}
       <li><a href="#{{p.pmid}}">{{p.pmid}}</a> {% if e.has_all_sections() %}{% else %}
         <span class="label label-danger">{{e.missing()}}</span>{% endif %}
         ({{p.year}}) {{e.s_title()}}
-      </li>
+        (<a href="https://ncbi.nlm.nih.gov/pubmed/{{p.pmid}}">ncbi</a>)
+    </li>
     {% endfor %}
   </ol>
   {% for p, e in papers %}

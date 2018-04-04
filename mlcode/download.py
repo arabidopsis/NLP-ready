@@ -248,7 +248,23 @@ def wiley_issn():
     print(ISSN)
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+def summary():
+    journal_summary()
+
+
+@cli.command()
+@click.option('--out', default=JCSV, help="output filename", show_default=True)
+@click.option('--sleep', default=1., help='wait sleep seconds between requests', show_default=True)
+def journals(sleep=.2, out=JCSV):
+    """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
+    getmeta(sleep, pubmeds=out)
+
+
 if __name__ == '__main__':
-    # getmeta(sleep=1.0)
-    # journal_summary()
-    wiley_issn()
+    cli()

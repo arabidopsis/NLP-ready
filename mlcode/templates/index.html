@@ -26,7 +26,7 @@
       {% for fname, issn, num, journal, nfailed in journals %}
         <tr><td><a href="{{fname}}">{{journal}}</a></td>
             <td>{{issn}}</td>
-            <td class="{% if nfailed> 0 %}failed{%else%}ok{% endif %}">{{nfailed}}/{{num}}</td>
+            <td class="{% if nfailed> 0 %}failed{%else%}ok{% endif %}">{% if nfailed> 0 %}{{nfailed}}/{%endif%}{{num}}</td>
         </tr>
       {% endfor %}
       </table>

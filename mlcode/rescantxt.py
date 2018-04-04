@@ -2,7 +2,7 @@ import re
 from jinja2 import Markup
 # [SIC!] unicode dashes utf-8 b'\xe2\x80\x90' 0x2010
 PRIMER = re.compile(
-    r'''\b((?:5[′'][-‐]?)?[CTAG\s-]{7,}[CTAG](?:[-‐]?3[′'])?)(\b|$|[\s;:)/,\.])''', re.I)
+    r'''\b((?:5[′'][-‐]?)?[CTAG\s-]{7,}[CTAG](?:[\s-‐]?3[′'])?)(\b|$|[\s;:)/,\.])''', re.I)
 pf = r'[0-9]+(?:\.[0-9]+)?'
 number = r'[+-]?' + pf + r'(?:\s*±\s*' + pf + r')?'
 pm = r'[0-9]+(?:\s*±\s*[0-9]+)?'
