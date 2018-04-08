@@ -6,3 +6,4 @@ syntax: glob
 data/*
 mlcode/PMC-ids.csv.gz
 mlcode/html/
+html/

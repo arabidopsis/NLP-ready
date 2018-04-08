@@ -27,7 +27,7 @@
   <br/>
   <span class="label label-danger">m</span>: missing Methods section,
   <span class="label label-danger">r</span>: missing Results section,
-  <span class="label label-danger">a</span>: missing Abstract section
+  <span class="label label-danger">a</span>: missing Abstract
   <br/>
   <h3>Scanned</h3>
   <ol>
@@ -44,7 +44,8 @@
 
       <h2>PMID:{{p.pmid}} ({{p.year}})</h2>
       <h3>{{e.s_title()}}</h3>
-      <a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a> <a href="#top"> top<i class="fa fa-angle-up"></i></a>
+      doi:<a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a>.
+      Go to <a href="#top"> top<i class="fa fa-angle-up"></i></a>
       {% set abstract = e.s_abstract() %}
       {% if abstract is not none %}
           <h3>Abstract</h3>
