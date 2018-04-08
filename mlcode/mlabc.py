@@ -282,13 +282,13 @@ class Generate(object):
             a = e.abstract()
             m = e.methods()
             r = e.results()
-            if a:
+            if a is not None:
                 for p in e.tostr(a):
                     yield 'a', reduce_nums(p)
-            if m:
+            if m is not None:
                 for p in e.tostr(m):
                     yield 'm', reduce_nums(p)
-            if r:
+            if r is not None:
                 for p in e.tostr(r):
                     yield 'r', reduce_nums(p)
 
