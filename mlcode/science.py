@@ -52,7 +52,8 @@ class Science(Clean):
         def xref(s):
             for c in s.select('li div[data-doi]'):
                 cite = c.find('cite')
-                title = cite.select('.cite-article-title')[0].text
+                title = cite.select('.cit-article-title')
+                title = title[0].text if title else None
                 yield dict(doi=c.attrs['data-doi'], title=title)
 
         for s in self.article.select('div.section'):
