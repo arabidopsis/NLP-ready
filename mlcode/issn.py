@@ -130,18 +130,21 @@ def tohtml(mod=''):
             #     raise e
 
     if os.path.exists('issnmap.pkl'):
-        issnmap2 = load('issnmap.pkl')
+        with open('issnmap.pkl', 'rb') as fp:
+            issnmap2 = load(fp)
         issnmap2.update(issnmap)  # overwrite
         issnmap = issnmap2
 
-    dump('issnmap.pkl', issnmap)
+    with open('issnmap.pkl', 'wb') as fp:
+        dump(issnmap, fp)
 
     journals = issnmap.values()
     journals = sorted(journals, key=lambda t: t[3])
     t = template.render(journals=journals)
     with open('html/index.html', 'w') as fp:
         fp.write(t)
-    click.secho("found %d pubmeds. %d unique, %d usable" % (tt, len(total2), len(total1)), fg='blue')
+    click.secho("found %d pubmeds. %d unique, %d usable" %
+                (tt, len(total2), len(total1)), fg='blue')
 
 
 @cli.command()
