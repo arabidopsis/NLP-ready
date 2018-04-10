@@ -1,5 +1,5 @@
 # configuration
 DATADIR = '../data/'
 # pmid, issn, name, year, doi, title
-JCSV = 'journals.csv'
+JCSV = '../csv/suba-journals.csv'
 PKLFILE = 'issnmap.pkl'

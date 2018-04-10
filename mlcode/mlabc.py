@@ -15,7 +15,7 @@ from rescantxt import reduce_nums, find_primers
 from config import DATADIR, JCSV
 
 
-Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name'])
+Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name', 'pmcid'])
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
 
@@ -34,7 +34,6 @@ def read_suba_papers_csv():
 
 
 def readx_suba_papers_csv(csvfile):
-    # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
     with open(csvfile, 'r', encoding='utf8') as fp:
         R = csv.reader(fp)
         next(R)  # skip header
