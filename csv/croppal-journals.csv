@@ -34,3 +34,509 @@ pmid,issn,name,year,doi,pmcid,title
 24926784,1559-2324,Plant Signal Behav,2014,,,Rice acyl-CoA-binding proteins OsACBP4 and OsACBP5 are differentially localized in the endoplasmic reticulum of transgenic Arabidopsis.
 23590975,1532-2548,Plant Physiol.,2013,10.1104/pp.113.218081,PMC3668054,Identification of mitochondrial coenzyme a transporters from maize and Arabidopsis.
 14657403,0032-0889,Plant Physiol.,2004,10.1104/pp.103.027466,PMC316304,An invertase inhibitor from maize localizes to the embryo surrounding region during early kernel development.
+28183294,1471-2229,BMC Plant Biol.,2017,10.1186/s12870-017-0971-0,PMC5301458,Chloroplast proteome response to drought stress and recovery in tomato (Solanum lycopersicum L.).
+10937693,0022-0957,J. Exp. Bot.,2000,,,Induced activity of adenine phosphoribosyltransferase (APRT) in iron-deficiency barley roots: a possible role for phytosiderophore production.
+11389760,0960-7412,Plant J.,2001,,,"Synthesis, processing and export of cytoplasmic endo-beta-1,4-xylanase from barley aleurone during germination."
+11886893,0022-0957,J. Exp. Bot.,2002,,,"IDI7, a new iron-regulated ABC transporter from barley roots, localizes to the tonoplast."
+12011350,0032-0889,Plant Physiol.,2002,10.1104/pp.010918,PMC155883,Gibberellin signaling in barley aleurone cells. Control of SLN1 and GAMYB expression.
+12581306,0960-7412,Plant J.,2003,,,A role for HvGAMYB in anther development.
+12953112,1040-4651,Plant Cell,2003,,PMC181332,"A novel WRKY transcription factor, SUSIBA2, participates in sugar signaling in barley by binding to the sugar-responsive elements of the iso1 promoter."
+14617061,0960-7412,Plant J.,2003,,,Functional analysis of barley RAC/ROP G-protein family members in susceptibility to the powdery mildew fungus.
+15141952,0894-0282,Mol. Plant Microbe Interact.,2004,10.1094/MPMI.2004.17.5.484,,The barley apoptosis suppressor homologue BAX inhibitor-1 compromises nonhost penetration resistance of barley to the inappropriate pathogen Blumeria graminis f. sp. tritici.
+15153196,1399-3054,Physiol Plant,2004,10.1111/j.0031-9317.2004.00325.x,,Isolation of a novel barley cDNA encoding a nuclear protein involved in stress response and leaf senescence.
+15347799,0032-0889,Plant Physiol.,2004,10.1104/pp.104.041665,PMC523338,Two transcription factors are negative regulators of gibberellin response in the HvSPY-signaling pathway in barley aleurone.
+15604689,0167-4412,Plant Mol. Biol.,2004,10.1007/s11103-004-0906-7,,Hv-WRKY38: a new transcription factor involved in cold- and drought-response in barley.
+15821866,0167-4412,Plant Mol. Biol.,2005,10.1007/s11103-004-6520-x,,Transcriptional regulation by abscisic acid in barley (Hordeum vulgare L.) seeds involves autoregulation of the transcription factor HvABI5.
+15821867,0167-4412,Plant Mol. Biol.,2005,10.1007/s11103-004-6769-0,,The complex developmental expression of a novel stress-responsive barley Ltp gene is determined by a shortened promoter sequence.
+15918880,0960-7412,Plant J.,2005,10.1111/j.1365-313X.2005.02402.x,,"The DOF protein, SAD, interacts with GAMYB in plant nuclei and activates transcription of endosperm-specific genes during barley seed development."
+16608452,0028-646X,New Phytol.,2006,10.1111/j.1469-8137.2006.01663.x,,Heavy metal stress and leaf senescence induce the barley gene HvC2d1 encoding a calcium-dependent novel C2 domain-like protein.
+16937017,0032-0935,Planta,2007,10.1007/s00425-006-0373-2,,The barley ERF-type transcription factor HvRAF confers enhanced pathogen resistance and salt tolerance in Arabidopsis.
+17634181,0032-0781,Plant Cell Physiol.,2007,10.1093/pcp/pcm091,,An aluminum-activated citrate transporter in barley.
+18466344,1462-5822,Cell. Microbiol.,2008,10.1111/j.1462-5822.2008.01167.x,,Barley RIC171 interacts with RACB in planta and supports entry of the powdery mildew fungus.
+18583533,0032-0889,Plant Physiol.,2008,10.1104/pp.108.120238,PMC2492636,"An abscisic acid-induced protein, HVA22, inhibits gibberellin-mediated programmed cell death in cereal aleurone cells."
+18721317,1435-8603,Plant Biol (Stuttg),2008,10.1111/j.1438-8677.2008.00092.x,,Identification and characterization of novel senescence-associated genes from barley (Hordeum vulgare) primary leaves.
+18956174,0040-5752,Theor. Appl. Genet.,2009,10.1007/s00122-008-0912-2,,Over-expression of the cell death regulator BAX inhibitor-1 in barley confers reduced or enhanced susceptibility to distinct fungal pathogens.
+19759340,1532-2548,Plant Physiol.,2009,10.1104/pp.109.146019,PMC2773090,"Characterization of the entire cystatin gene family in barley and their target cathepsin L-like cysteine-proteases, partners in the hordein mobilization during seed germination."
+20176888,1460-2431,J. Exp. Bot.,2010,10.1093/jxb/erq023,PMC2837267,HvALMT1 from barley is involved in the transport of organic anions.
+20376676,1432-2048,Planta,2010,10.1007/s00425-010-1155-4,,Characterization of a novel glycinebetaine/proline transporter gene expressed in the mestome sheath and lateral root cap cells in barley.
+20473685,1432-2048,Planta,2010,10.1007/s00425-010-1183-0,,Whirly1 in chloroplasts associates with intron containing RNAs and rarely co-localizes with nucleoids.
+20507468,1364-3703,Mol. Plant Pathol.,2006,10.1111/j.1364-3703.2006.00359.x,,Transient over-expression of barley BAX Inhibitor-1 weakens oxidative defence and MLA12-mediated resistance to Blumeria graminis f.sp. hordei.
+21156329,1618-1328,J. Plant Physiol.,2011,10.1016/j.jplph.2010.11.003,,A soluble acid invertase is directed to the vacuole by a signal anchor mechanism.
+21685259,1532-298X,Plant Cell,2011,10.1105/tpc.110.082131,PMC3160019,A barley ROP GTPase ACTIVATING PROTEIN associates with microtubules and regulates entry of the barley powdery mildew fungus into leaf epidermal cells.
+22242122,1932-6203,PLoS ONE,2011,10.1371/journal.pone.0029456,PMC3248443,The promoter of the cereal VERNALIZATION1 gene is sufficient for transcriptional induction by prolonged cold.
+22415513,1532-2548,Plant Physiol.,2012,10.1104/pp.111.191940,PMC3375967,Barley ROP binding kinase1 is involved in microtubule organization and in basal penetration resistance to the barley powdery mildew fungus.
+22773748,1532-298X,Plant Cell,2012,10.1105/tpc.112.097741,PMC3426119,Convergent starvation signals and hormone crosstalk in regulating nutrient mobilization upon germination in cereals.
+22958600,1746-4811,Plant Methods,2012,10.1186/1746-4811-8-36,PMC3479045,Barley callus: a model system for bioengineering of starch in cereals.
+23720664,1664-462X,Front Plant Sci,2013,10.3389/fpls.2013.00127,PMC3655284,A component of the Sec61 ER protein transporting pore is required for plant susceptibility to powdery mildew.
+24033183,1469-8137,New Phytol.,2014,10.1111/nph.12468,,HvZIP7 mediates zinc accumulation in barley (Hordeum vulgare) at moderately high zinc supply.
+9465122,0027-8424,Proc. Natl. Acad. Sci. U.S.A.,1998,,PMC19218,Characterization of a calmodulin-binding transporter from the plasma membrane of barley aleurone.
+15682463,1615-9853,Proteomics,2005,10.1002/pmic.200401129,,A proteomic approach for investigation of photosynthetic apparatus in plants.
+16758444,1615-9853,Proteomics,2006,10.1002/pmic.200500924,,Mapping the proteome of thylakoid membranes by de novo sequencing of intermembrane peptide domains.
+17081062,1535-3893,J. Proteome Res.,2006,10.1021/pr0602850,,"Enrichment and identification of integral membrane proteins from barley aleurone layers by reversed-phase chromatography, SDS-PAGE, and LC-MS/MS."
+17675669,0021-9258,J. Biol. Chem.,2007,10.1074/jbc.M705132200,,Photosynthetic antenna size in higher plants is controlled by the plastoquinone redox state at the post-transcriptional rather than transcriptional level.
+19137553,1615-9861,Proteomics,2009,10.1002/pmic.200800337,,Mass spectrometric characterization of membrane integral low molecular weight proteins from photosystem II in barley etioplasts.
+19639596,1615-9861,Proteomics,2009,10.1002/pmic.200800745,,The plasma membrane proteome of germinating barley embryos.
+21440687,1876-7737,J Proteomics,2011,10.1016/j.jprot.2011.03.020,,Proteomic comparison of etioplast and chloroplast protein complexes.
+24344171,1532-2548,Plant Physiol.,2014,10.1104/pp.113.233163,PMC3912118,"Gibberellic acid-induced aleurone layers responding to heat shock or tunicamycin provide insight into the N-glycoproteome, protein secretion, and endoplasmic reticulum stress."
+12481076,0032-0889,Plant Physiol.,2002,10.1104/pp.009803,PMC166704,Proteomics of light-harvesting proteins in different plant species. Analysis and comparison by liquid chromatography-electrospray ionization mass spectrometry. Photosystem I.
+19391183,1615-9861,Proteomics,2009,10.1002/pmic.200800806,,Quantitative detection of changes in the leaf-mesophyll tonoplast proteome in dependency of a cadmium exposure of barley (Hordeum vulgare L.) plants.
+10664124,0032-0935,Planta,2000,,,Characterization of two cDNA clones encoding isozymes of the F(1)F(0)-ATPase inhibitor protein of rice mitochondria.
+10713441,0378-1119,Gene,2000,,,"Rice gibberellin-insensitive gene homolog, OsGAI, encodes a nuclear-localized protein capable of gene activation at transcriptional level."
+10805458,0032-0935,Planta,2000,10.1007/s004250050688,,Identification of a signal peptide for oryzacystatin-I.
+10831839,0378-1119,Gene,2000,,,Molecular and cellular characterizations of a cDNA clone encoding a novel isozyme of aldehyde dehydrogenase from rice.
+10998053,0014-2956,Eur. J. Biochem.,2000,,,"Characterization of RCI-1, a chloroplastic rice lipoxygenase whose synthesis is induced by chemical plant resistance activators."
+11166431,1873-2259,Plant Sci.,2001,,,Numerous and highly developed tubular projections from plastids observed in Tobacco epidermal cells.
+11337074,1873-2259,Plant Sci.,2001,,,"Chloroplast fructose-1,6-bisphosphatase from Oryza differs in salt tolerance property from the Porteresia enzyme and is protected by osmolytes."
+11826299,1040-4651,Plant Cell,2002,,PMC150551,The gibberellin signaling pathway is regulated by the appearance and disappearance of SLENDER RICE1 in nuclei.
+11855722,0167-4412,Plant Mol. Biol.,2002,,,"The subcellular localization of an unusual rice calmodulin isoform, OsCaM61, depends on its prenylation status."
+12000455,0960-7412,Plant J.,2002,,,OsPNH1 regulates leaf development and maintenance of the shoot apical meristem in rice.
+12040100,0032-0781,Plant Cell Physiol.,2002,,,Isolation and characterization of a putative transducer of endoplasmic reticulum stress in Oryza sativa.
+12369618,0167-4412,Plant Mol. Biol.,2002,,,"OsARF1, an auxin response factor from rice, is auxin-regulated and classifies as a primary auxin responsive gene."
+12376644,0032-0889,Plant Physiol.,2002,10.1104/pp.007781,PMC166606,Inventory and functional characterization of the HAK potassium transporters of rice.
+12468735,1040-4651,Plant Cell,2002,,PMC151210,"Abscisic acid-induced transcription is mediated by phosphorylation of an abscisic acid response element binding factor, TRAB1."
+12569397,0032-0935,Planta,2003,10.1007/s00425-002-0910-6,,Regulation of biosynthesis and intracellular localization of rice and tobacco homologues of nucleosome assembly protein 1.
+12591613,0006-3002,Biochim. Biophys. Acta,2003,,,Identification and characterization of two new members of the GRAS gene family in rice responsive to N-acetylchitooligosaccharide elicitor.
+12753582,0960-7412,Plant J.,2003,,,Cell cycle function of a rice B2-type cyclin interacting with a B-type cyclin-dependent kinase.
+12913143,0032-0889,Plant Physiol.,2003,,PMC181272,"Hyperphosphorylation of a mitochondrial protein, prohibitin, is induced by calyculin A in a rice lesion-mimic mutant cdr1."
+12913152,0032-0889,Plant Physiol.,2003,,PMC181281,"BWMK1, a rice mitogen-activated protein kinase, locates in the nucleus and mediates pathogenesis-related gene expression by activation of a transcription factor."
+14535884,0960-7412,Plant J.,2003,,,"Roles of OsCKI1, a rice casein kinase I, in root development and plant hormone sensitivity."
+14630954,0032-0889,Plant Physiol.,2003,10.1104/pp.103.022202,PMC300751,Auxin responsiveness of a novel cytochrome p450 in rice coleoptiles.
+14657402,0032-0889,Plant Physiol.,2003,10.1104/pp.103.025759,PMC300706,Functional analysis and intracellular localization of rice cryptochromes.
+14701929,0032-0781,Plant Cell Physiol.,2003,,,"Molecular and biochemical analyses of OsRab7, a rice Rab7 homolog."
+14756772,0960-7412,Plant J.,2004,,,"GID2, an F-box subunit of the SCF E3 complex, specifically interacts with phosphorylated SLR1 protein and regulates the gibberellin-dependent degradation of SLR1 in rice."
+14988485,0032-0781,Plant Cell Physiol.,2004,,,"Function, intracellular localization and the importance in salt tolerance of a vacuolar Na(+)/H(+) antiporter from rice."
+15047897,0032-0889,Plant Physiol.,2004,10.1104/pp.103.034967,PMC419826,A rice WRKY gene encodes a transcriptional repressor of the gibberellin signaling pathway in aleurone cells.
+15215503,0032-0781,Plant Cell Physiol.,2004,,,A novel interaction between calreticulin and ubiquitin-like nuclear protein in rice.
+15255870,0960-7412,Plant J.,2004,10.1111/j.1365-313X.2004.02146.x,,OsYSL2 is a rice metal-nicotianamine transporter that is regulated by iron and expressed in the phloem.
+15509842,0032-0781,Plant Cell Physiol.,2004,10.1093/pcp/pch133,,Characterization of a rice nuclear-encoded plastid RNA polymerase gene OsRpoTp.
+15604716,0167-4412,Plant Mol. Biol.,2004,10.1007/s11103-004-1967-3,,Different subcellular localization and trafficking properties of KNOX class 1 homeodomain proteins from rice.
+15604733,0167-4412,Plant Mol. Biol.,2004,10.1007/s11103-004-2648-y,,Ectopic expression of OsYAB1 causes extra stamens and carpels in rice.
+15659629,1040-4651,Plant Cell,2005,10.1105/tpc.104.028456,PMC548814,Functional isolation of novel nuclear proteins showing a variety of subnuclear localizations.
+15737637,0006-291X,Biochem. Biophys. Res. Commun.,2005,10.1016/j.bbrc.2005.01.161,,The expression of the rice (Oryza sativa L.) homologue of Snm1 is induced by DNA damages.
+15792960,0032-0781,Plant Cell Physiol.,2005,10.1093/pcp/pci090,,"RNAi-mediated silencing of OsGEN-L (OsGEN-like), a new member of the RAD2/XPG nuclease family, causes male sterility by defect of microspore development in rice."
+15807780,0960-7412,Plant J.,2005,10.1111/j.1365-313X.2005.02367.x,,Roles of isoamylase and ADP-glucose pyrophosphorylase in starch granule synthesis in rice endosperm.
+15821023,0032-0781,Plant Cell Physiol.,2005,10.1093/pcp/pci091,,Involvement of alpha-amylase I-1 in starch degradation in rice chloroplasts.
+15915636,0894-0282,Mol. Plant Microbe Interact.,2005,10.1094/MPMI-18-0375,,"OsLSD1, a rice zinc finger protein, regulates programmed cell death and callus differentiation."
+15939553,0378-1119,Gene,2005,10.1016/j.gene.2005.03.047,,"Characterization of the origin recognition complex (ORC) from a higher plant, rice (Oryza sativa L.)."
+15980189,0032-0889,Plant Physiol.,2005,10.1104/pp.105.062703,PMC1176408,A gibberellin-regulated calcineurin B in rice localizes to the tonoplast and is implicated in vacuole function.
+15980199,0032-0889,Plant Physiol.,2005,10.1104/pp.105.060509,PMC1176416,Interacting proteins and differences in nuclear transport reveal specific functions for the NAP1 family proteins in plants.
+16021404,0167-4412,Plant Mol. Biol.,2005,10.1007/s11103-005-5702-5,,"OsPPR1, a pentatricopeptide repeat protein of rice is essential for the chloroplast biogenesis."
+16115061,0960-7412,Plant J.,2005,10.1111/j.1365-313X.2005.02485.x,,"Rice NRR, a negative regulator of disease resistance, interacts with Arabidopsis NPR1 and rice NH1."
+16117849,1001-0602,Cell Res.,2005,10.1038/sj.cr.7290329,,"OsWRKY03, a rice transcriptional activator that functions in defense signaling pathway upstream of OsNPR1."
+16141453,1040-4651,Plant Cell,2005,10.1105/tpc.105.034090,PMC1242267,Rice Undeveloped Tapetum1 is a major regulator of early tapetum development.
+16192280,0021-9258,J. Biol. Chem.,2005,10.1074/jbc.M504616200,,Isolation of a calmodulin-binding transcription factor from rice (Oryza sativa L.).
+16193045,1476-4687,Nature,2005,10.1038/nature04028,,GIBBERELLIN INSENSITIVE DWARF1 encodes a soluble receptor for gibberellin.
+16263903,0022-0957,J. Exp. Bot.,2005,10.1093/jxb/eri317,,"OsZIP4, a novel zinc-regulated zinc transporter in rice."
+16275657,0032-0781,Plant Cell Physiol.,2006,10.1093/pcp/pci227,,"Expression of the vacuolar Ca2+/H+ exchanger, OsCAX1a, in rice: cell and age specificity of expression, and enhancement by Ca2+."
+16313672,1471-2121,BMC Cell Biol.,2005,10.1186/1471-2121-6-40,PMC1325227,The peroxisomal multifunctional protein interacts with cortical microtubules in plant cells.
+16397796,0032-0935,Planta,2006,10.1007/s00425-005-0214-8,,Rice ascorbate peroxidase gene family encodes functionally diverse isoforms localized in different subcellular compartments.
+16412081,0960-7412,Plant J.,2006,10.1111/j.1365-313X.2005.02624.x,,Rice plants take up iron as an Fe3+-phytosiderophore and as Fe2+.
+16489123,1040-4651,Plant Cell,2006,10.1105/tpc.105.038240,PMC1383642,Cytoplasmic male sterility of rice with boro II cytoplasm is caused by a cytotoxic peptide and is restored by two related PPR motif genes via distinct modes of mRNA silencing.
+16501255,0032-0781,Plant Cell Physiol.,2006,10.1093/pcp/pcj025,,"Functional characterization of OsPPT1, which encodes p-hydroxybenzoate polyprenyltransferase involved in ubiquinone biosynthesis in Oryza sativa."
+16531052,0981-9428,Plant Physiol. Biochem.,2006,10.1016/j.plaphy.2005.12.001,,Functional characterization of OsRacB GTPase--a potentially negative regulator of basal disease resistance in rice.
+16531481,0032-0889,Plant Physiol.,2006,10.1104/pp.106.078592,PMC1459319,Rice HYDROPEROXIDE LYASES with unique expression patterns generate distinct aldehyde signatures in Arabidopsis.
+16552590,0032-0935,Planta,2006,10.1007/s00425-006-0251-y,,"Structure, expression, and functional analysis of the hexokinase gene family in rice (Oryza sativa L.)."
+16905871,1341-7568,Genes Genet. Syst.,2006,,,"Two OsGASR genes, rice GAST homologue genes that are abundant in proliferating tissues, show different expression patterns in developing panicles."
+16919842,0176-1617,J. Plant Physiol.,2007,10.1016/j.jplph.2006.07.006,,"OsWRKY71, a rice transcription factor, is involved in rice defense response."
+16971692,0737-4038,Mol. Biol. Evol.,2006,10.1093/molbev/msl112,,Evidence for transit peptide acquisition through duplication and subsequent frameshift mutation of a preexisting protein gene in rice.
+16977424,0167-4412,Plant Mol. Biol.,2007,10.1007/s11103-006-9079-x,,A rice dehydration-inducible SNF1-related protein kinase 2 phosphorylates an abscisic acid responsive element-binding factor and associates with ABA signaling.
+16990291,0032-0781,Plant Cell Physiol.,2006,10.1093/pcp/pcl013,,Rice Immature Pollen 1 (RIP1) is a regulator of late pollen development.
+17028208,1040-4651,Plant Cell,2006,10.1105/tpc.105.039891,PMC1626603,Rice plastidial N-glycosylated nucleotide pyrophosphatase/phosphodiesterase is transported from the ER-golgi to the chloroplast through the secretory pathway.
+17048141,1435-8603,Plant Biol (Stuttg),2007,10.1055/s-2006-924561,,"GER1, a GDSL motif-encoding gene from rice is a novel early light- and jasmonate-induced gene."
+17086397,0032-0935,Planta,2007,10.1007/s00425-006-0430-x,,Genes for alkaline/neutral invertase in rice: alkaline/neutral invertases are located in plant mitochondria and also in plastids.
+17144896,0960-7412,Plant J.,2007,10.1111/j.1365-313X.2006.02941.x,,The rice heterochronic gene SUPERNUMERARY BRACT regulates the transition from spikelet meristem to floral meristem.
+17148693,0032-0781,Plant Cell Physiol.,2007,10.1093/pcp/pcl050,,"Two novel nuclear genes, OsSIG5 and OsSIG6, encoding potential plastid sigma factors of RNA polymerase in rice: tissue-specific and light-responsive gene expression."
+17174956,0014-5793,FEBS Lett.,2007,10.1016/j.febslet.2006.11.073,,Interaction of rice dwarf virus outer capsid P8 protein with rice glycolate oxidase mediates relocalization of P8.
+17205969,0032-0781,Plant Cell Physiol.,2007,10.1093/pcp/pcm003,,"Ethylene promotes submergence-induced expression of OsABA8ox1, a gene that encodes ABA 8'-hydroxylase in rice."
+17209124,1040-4651,Plant Cell,2007,10.1105/tpc.106.045708,PMC1820953,"Rice SCAMP1 defines clathrin-coated, trans-golgi-located tubular-vesicular structures as an early endosome in tobacco BY-2 cells."
+17309686,1467-7652,Plant Biotechnol. J.,2007,10.1111/j.1467-7652.2007.00243.x,,Functional analysis of rice NPR1-like genes reveals that OsNPR1/NH1 is the rice orthologue conferring disease resistance with enhanced herbivore susceptibility.
+17383966,0021-9258,J. Biol. Chem.,2007,10.1074/jbc.M609866200,,Oxygen initiation of respiration and mitochondrial biogenesis in rice.
+17404758,1617-4615,Mol. Genet. Genomics,2007,10.1007/s00438-007-0232-2,,The rice OsLOL2 gene encodes a zinc finger protein involved in rice growth and disease resistance.
+17406793,0167-4412,Plant Mol. Biol.,2007,10.1007/s11103-007-9153-z,,Identification of the ADP-glucose pyrophosphorylase isoforms essential for starch synthesis in the leaf and seed endosperm of rice (Oryza sativa L.).
+17458549,0721-7714,Plant Cell Rep.,2007,10.1007/s00299-006-0299-y,,Overexpression of SBPase enhances photosynthesis against high temperature stress in transgenic rice plants.
+17532485,0006-3002,Biochim. Biophys. Acta,2007,10.1016/j.bbaexp.2007.04.006,,Involvement of the elicitor-induced gene OsWRKY53 in the expression of defense-related genes in rice.
+17586462,0006-291X,Biochem. Biophys. Res. Commun.,2007,10.1016/j.bbrc.2007.06.052,,Alternative splicing of the OsBWMK1 gene generates three transcript variants showing differential subcellular localizations.
+17587305,0960-7412,Plant J.,2007,10.1111/j.1365-313X.2007.03168.x,,Functional analysis of a NAC-type transcription factor OsNAC6 involved in abiotic and biotic stress-responsive gene expression in rice.
+17594063,0167-4412,Plant Mol. Biol.,2007,10.1007/s11103-007-9196-1,,"Mutations in the rice liguleless gene result in a complete loss of the auricle, ligule, and laminar joint."
+17617177,0960-7412,Plant J.,2007,10.1111/j.1365-313X.2007.03190.x,,"OsRAD21-3, an orthologue of yeast RAD21, is required for pollen development in Oryza sativa."
+17676337,0949-944X,Dev. Genes Evol.,2007,10.1007/s00427-007-0173-0,,"A rice YABBY gene, OsYABBY4, preferentially expresses in developing vascular tissue."
+17698277,0300-9084,Biochimie,2007,10.1016/j.biochi.2007.06.014,,Plant pre-tRNA splicing enzymes are targeted to multiple cellular compartments.
+17710559,0962-8819,Transgenic Res.,2008,10.1007/s11248-007-9126-7,,"Visualisation of plastids in endosperm, pollen and roots of transgenic wheat expressing modified GFP fused to transit peptides from wheat SSU RubisCO, rice FtsZ and maize ferredoxin III proteins."
+17727616,0960-7412,Plant J.,2007,10.1111/j.1365-313X.2007.03251.x,,"The rice nuclear gene, VIRESCENT 2, is essential for chloroplast development and encodes a novel type of guanylate kinase targeted to plastids and mitochondria."
+17938177,0021-9258,J. Biol. Chem.,2007,10.1074/jbc.M703820200,,Calcium-activated (p)ppGpp synthetase in chloroplasts of land plants.
+17938955,0032-0935,Planta,2008,10.1007/s00425-007-0635-7,,Identification of the OsOPR7 gene encoding 12-oxophytodienoate reductase involved in the biosynthesis of jasmonic acid in rice.
+17960484,0167-4412,Plant Mol. Biol.,2007,10.1007/s11103-007-9244-x,,Overexpression of rice WRKY89 enhances ultraviolet B tolerance and disease resistance in rice plants.
+18049796,0167-4412,Plant Mol. Biol.,2008,10.1007/s11103-007-9270-8,,Functional analysis of rice HOMEOBOX4 (Oshox4) gene reveals a negative function in gibberellin responses.
+18205020,0167-4412,Plant Mol. Biol.,2008,10.1007/s11103-007-9284-2,,"Overexpression of OsiSAP8, a member of stress associated protein (SAP) gene family of rice confers tolerance to salt, drought and cold stress in transgenic tobacco and rice."
+18219493,1617-4615,Mol. Genet. Genomics,2008,10.1007/s00438-008-0318-5,,"SUMO-conjugating enzyme (Sce) and FK506-binding protein (FKBP) encoding rice (Oryza sativa L.) genes: genome-wide analysis, expression studies and evidence for their involvement in abiotic stress response."
+18257679,0894-0282,Mol. Plant Microbe Interact.,2008,10.1094/MPMI-21-3-0294,,OsRAR1 and OsSGT1 physically interact and function in rice basal disease resistance.
+18273684,0167-4412,Plant Mol. Biol.,2008,10.1007/s11103-008-9309-5,,Characterization of transcription factor gene SNAC2 conferring cold and salt tolerance in rice.
+18282189,1399-3054,Physiol Plant,2008,10.1111/j.1399-3054.2008.01051.x,,"Cellular distribution of ACT domain repeat protein 9, a nuclear localizing protein, in rice (Oryza sativa)."
+18308761,1471-9053,Plant Cell Physiol.,2008,10.1093/pcp/pcn036,,"DCW11, down-regulated gene 11 in CW-type cytoplasmic male sterile rice, encoding mitochondrial protein phosphatase 2c is related to cytoplasmic male sterility."
+18395997,0378-1119,Gene,2008,10.1016/j.gene.2008.02.011,,Expression analysis of the calcineurin B-like gene family in rice (Oryza sativa L.) under environmental stresses.
+18442365,1471-2229,BMC Plant Biol.,2008,10.1186/1471-2229-8-49,PMC2386468,The SNF1-type serine-threonine protein kinase SAPK4 regulates stress-responsive gene expression in rice.
+18503045,1460-2431,J. Exp. Bot.,2008,10.1093/jxb/ern086,,"Cysteine proteinases regulate chloroplast protein content and composition in tobacco leaves: a model for dynamic interactions with ribulose-1,5-bisphosphate carboxylase/oxygenase (Rubisco) vesicular bodies."
+18506478,0032-0935,Planta,2008,10.1007/s00425-008-0755-8,,"Molecular cloning, functional characterization and expression analysis of a novel monosaccharide transporter gene OsMST6 from rice (Oryza sativa L.)."
+18508957,0032-0889,Plant Physiol.,2008,10.1104/pp.108.119925,PMC2492649,SCAMPs highlight the developing cell plate during cytokinesis in tobacco BY-2 cells.
+18515498,1040-4651,Plant Cell,2008,10.1105/tpc.108.059311,PMC2438455,A transporter regulating silicon distribution in rice shoots.
+18547394,1365-313X,Plant J.,2008,10.1111/j.1365-313X.2008.03569.x,PMC3072431,"Molecular cloning and characterization of OsCDase, a ceramidase enzyme from rice."
+18594992,0167-4412,Plant Mol. Biol.,2008,10.1007/s11103-008-9365-x,,"ROLLED LEAF 9, encoding a GARP protein, regulates the leaf abaxial cell fate in rice."
+18718933,1471-9053,Plant Cell Physiol.,2008,10.1093/pcp/pcn121,,Rice peptide deformylase PDF1B is crucial for development of chloroplasts.
+18723667,0032-0889,Plant Physiol.,2008,10.1104/pp.108.123547,PMC2556838,Abnormal chloroplast development and growth inhibition in rice thioredoxin m knock-down plants.
+18725639,1091-6490,Proc. Natl. Acad. Sci. U.S.A.,2008,10.1073/pnas.0806019105,PMC2529042,"RID1, encoding a Cys2/His2-type zinc finger transcription factor, acts as a master switch from vegetative to floral development in rice."
+18931143,0032-0889,Plant Physiol.,2008,10.1104/pp.108.128199,PMC2593664,Characterization of OsbZIP23 as a key player of the basic leucine zipper transcription factor family for conferring abscisic acid sensitivity and salinity and drought tolerance in rice.
+18939965,1365-313X,Plant J.,2009,10.1111/j.1365-313X.2008.03703.x,,"BC10, a DUF266-containing and Golgi-located type II membrane protein, is required for cell-wall biosynthesis in rice (Oryza sativa L.)."
+19010999,0032-0889,Plant Physiol.,2009,10.1104/pp.108.131227,PMC2633841,Role of the rice hexokinases OsHXK5 and OsHXK6 as glucose sensors.
+19014580,1471-2148,BMC Evol. Biol.,2008,10.1186/1471-2148-8-314,PMC2631504,Transfer of rice mitochondrial ribosomal protein L6 gene to the nucleus: acquisition of the 5'-untranslated region via a transposable element.
+19017626,1471-9053,Plant Cell Physiol.,2009,10.1093/pcp/pcn175,,Novel cysteine-rich peptides from Digitaria ciliaris and Oryza sativa enhance tolerance to cadmium by limiting its cellular accumulation.
+19039666,0167-4412,Plant Mol. Biol.,2009,10.1007/s11103-008-9430-5,,"A novel wall-associated receptor-like protein kinase gene, OsWAK1, plays important roles in rice blast disease resistance."
+19049971,0021-9258,J. Biol. Chem.,2009,10.1074/jbc.M806042200,,Rice OsYSL15 is an iron-regulated iron(III)-deoxymugineic acid transporter expressed in the roots and is essential for iron uptake in early growth of the seedlings.
+19089317,0167-4412,Plant Mol. Biol.,2009,10.1007/s11103-008-9442-1,,Rice phot1a mutation reduces plant growth by affecting photosynthetic responses to light during early seedling growth.
+19129168,1460-2431,J. Exp. Bot.,2009,10.1093/jxb/ern311,PMC2651459,A green fluorescent protein fused to rice prolamin forms protein body-like structures in transgenic rice.
+19135985,1090-2104,Biochem. Biophys. Res. Commun.,2009,10.1016/j.bbrc.2008.12.163,,Overexpression of a NAC transcription factor enhances rice drought and salt tolerance.
+19136647,1040-4651,Plant Cell,2009,10.1105/tpc.108.063248,PMC2648074,The plastidial 2-C-methyl-D-erythritol 4-phosphate pathway provides the isoprenyl moiety for protein geranylgeranylation in tobacco BY-2 cells.
+19154200,1365-313X,Plant J.,2009,10.1111/j.1365-313X.2009.03799.x,,Short panicle1 encodes a putative PTR family transporter and determines rice panicle size.
+19181864,1460-2431,J. Exp. Bot.,2009,10.1093/jxb/ern343,PMC2652057,Heterologous expression analyses of rice OsCAS in Arabidopsis and in yeast provide evidence for its roles in cyanide detoxification rather than in cysteine synthesis in vivo.
+19198875,1432-2048,Planta,2009,10.1007/s00425-009-0893-7,,Functional characterization of rice OsDof12.
+19214577,1617-4623,Mol. Genet. Genomics,2009,10.1007/s00438-009-0429-7,,Conservation of dual-targeted proteins in Arabidopsis and rice points to a similar pattern of gene-family evolution.
+19225807,1432-2048,Planta,2009,10.1007/s00425-009-0895-5,,Tolerance to various environmental stresses conferred by the salt-responsive rice gene ONAC063 in transgenic Arabidopsis.
+19244140,1040-4651,Plant Cell,2009,10.1105/tpc.108.064543,PMC2660611,A bacterial-type ABC transporter is involved in aluminum tolerance in rice.
+19376836,0032-0889,Plant Physiol.,2009,10.1104/pp.109.135418,PMC2689993,Disruption of OsYSL15 leads to iron inefficiency in rice plants.
+19396402,1573-6776,Biotechnol. Lett.,2009,10.1007/s10529-009-0004-7,,Stage- and tissue-specific expression of rice OsIsu1 gene encoding a scaffold protein for mitochondrial iron-sulfur-cluster biogenesis.
+19415325,1432-2048,Planta,2009,10.1007/s00425-009-0934-2,,"OsMSRA4.1 and OsMSRB1.1, two rice plastidial methionine sulfoxide reductases, are involved in abiotic stress responses."
+19453459,1365-313X,Plant J.,2009,10.1111/j.1365-313X.2009.03909.x,,Rice OGR1 encodes a pentatricopeptide repeat-DYW protein and is essential for RNA editing in mitochondria.
+19458265,1091-6490,Proc. Natl. Acad. Sci. U.S.A.,2009,10.1073/pnas.0901860106,PMC2695074,Suppressed expression of Retrograde-Regulated Male Sterility restores pollen fertility in cytoplasmic male sterile rice plants.
+19468840,1573-5028,Plant Mol. Biol.,2009,10.1007/s11103-009-9500-3,PMC2706380,OsYSL18 is a rice iron(III)-deoxymugineic acid transporter specifically expressed in reproductive organs and phloem of lamina joints.
+19505461,1873-3468,FEBS Lett.,2009,10.1016/j.febslet.2009.06.003,,Subcellular localization of rice histone deacetylases in organelles.
+19618278,1573-5028,Plant Mol. Biol.,2009,10.1007/s11103-009-9524-8,,Identification and expression profiling analysis of TIFY family genes involved in stress and phytohormone responses in rice.
+19622530,1471-9053,Plant Cell Physiol.,2009,10.1093/pcp/pcp104,,Amyloplast division progresses simultaneously at multiple sites in the endosperm of rice.
+19682292,1365-3040,Plant Cell Environ.,2009,10.1111/j.1365-3040.2009.02032.x,,Increased nitrogen-use efficiency in transgenic rice plants over-expressing a nitrogen-responsive early nodulin gene identified from rice expression profiling.
+19688213,1432-203X,Plant Cell Rep.,2009,10.1007/s00299-009-0760-9,,"Signal peptide peptidases are expressed in the shoot apex of rice, localized to the endoplasmic reticulum."
+19765235,1365-313X,Plant J.,2009,10.1111/j.1365-313X.2009.04022.x,,Rice cellulose synthase-like D4 is essential for normal cell-wall biosynthesis and plant growth.
+19767453,1532-298X,Plant Cell,2009,10.1105/tpc.109.068288,PMC2768910,The rice alpha-amylase glycoprotein is targeted from the Golgi apparatus through the secretory pathway to the plastids.
+19807881,1365-313X,Plant J.,2010,10.1111/j.1365-313X.2009.04039.x,,Inactivation of the CTD phosphatase-like gene OsCPL1 enhances the development of the abscission layer and seed shattering in rice.
+19825016,1469-8137,New Phytol.,2010,10.1111/j.1469-8137.2009.03047.x,,"SPL28 encodes a clathrin-associated adaptor protein complex 1, medium subunit micro 1 (AP1M1) and is responsible for spotted leaf and early senescence in rice (Oryza sativa)."
+19825680,1674-2052,Mol Plant,2009,10.1093/mp/ssp051,,Rice-specific mitochondrial iron-regulated gene (MIR) plays an important role in iron homeostasis.
+19850038,1873-3468,FEBS Lett.,2009,10.1016/j.febslet.2009.10.039,,OsBADH1 is possibly involved in acetaldehyde oxidation in rice plant peroxisomes.
+19904499,0219-1032,Mol. Cells,2009,10.1007/s10059-009-0161-5,,Rice OsACDR1 (Oryza sativa accelerated cell death and resistance 1) is a potential positive regulator of fungal disease resistance.
+20007444,1532-2548,Plant Physiol.,2010,10.1104/pp.109.149856,PMC2815886,A Raf-like MAPKKK gene DSM1 mediates drought resistance through reactive oxygen species scavenging in rice.
+20039179,1617-4623,Mol. Genet. Genomics,2010,10.1007/s00438-009-0507-x,,Systematic analysis of GT factor family of rice reveals a novel subfamily involved in stress responses.
+20039193,1573-5028,Plant Mol. Biol.,2010,10.1007/s11103-009-9592-9,,The bZIP transcription factor OsABF1 is an ABA responsive element binding factor that enhances abiotic stress signaling in rice.
+20097911,1471-9053,Plant Cell Physiol.,2010,10.1093/pcp/pcq012,,A rice stromal processing peptidase regulates chloroplast and root development.
+20141629,1471-2164,BMC Genomics,2010,10.1186/1471-2164-11-95,PMC2829514,"Genome-wide analysis of rice ClpB/HSP100, ClpC and ClpD genes."
+20202129,1469-8137,New Phytol.,2010,10.1111/j.1469-8137.2010.03194.x,,"Expression analysis and functional characterization of the monosaccharide transporters, OsTMTs, involving vacuolar sugar transport in rice (Oryza sativa)."
+20213122,1432-2048,Planta,2010,10.1007/s00425-010-1127-8,,"Identification and organization of chloroplastic and cytosolic L-myo-inositol 1-phosphate synthase coding gene(s) in Oryza sativa: comparison with the wild halophytic rice, Porteresia coarctata."
+20226077,1759-8753,Mob DNA,2010,10.1186/1759-8753-1-5,PMC2836001,Transposition of the Tourist-MITE mPing in yeast: an assay that retains key features of catalysis by the class 2 PIF/Harbinger superfamily.
+20227044,1673-8527,J Genet Genomics,2010,10.1016/S1673-8527(09)60029-1,,ELE restrains empty glumes from developing into lemmas.
+20227662,1934-6069,Cell Host Microbe,2010,10.1016/j.chom.2010.02.008,,The Hop/Sti1-Hsp90 chaperone complex facilitates the maturation and transport of a PAMP receptor in rice innate immunity.
+20419467,1573-5028,Plant Mol. Biol.,2010,10.1007/s11103-010-9637-0,,OsZIP5 is a plasma membrane zinc transporter in rice.
+20421194,1460-2431,J. Exp. Bot.,2010,10.1093/jxb/erq103,PMC2882263,Two solanesyl diphosphate synthases with different subcellular localizations and their respective physiological roles in Oryza sativa.
+20496122,0219-1032,Mol. Cells,2010,10.1007/s10059-010-0069-0,,Zinc deficiency-inducible OsZIP8 encodes a plasma membrane-localized zinc transporter in rice.
+20576316,1618-1328,J. Plant Physiol.,2010,10.1016/j.jplph.2010.05.008,,The ABRE-binding bZIP transcription factor OsABF2 is a positive regulator of abiotic stress and ABA signaling in rice.
+20593223,1573-5028,Plant Mol. Biol.,2010,10.1007/s11103-010-9656-x,,Mutation in Wilted Dwarf and Lethal 1 (WDL1) causes abnormal cuticle formation and rapid water loss in rice.
+20607362,1573-5028,Plant Mol. Biol.,2010,10.1007/s11103-010-9659-7,,"A rice DEAD-box protein, OsRH36, can complement an Arabidopsis atrh36 mutant, but cannot functionally replace its yeast homolog Dbp8p."
+20616165,1674-2052,Mol Plant,2010,10.1093/mp/ssq038,,Plasma membrane localization and potential endocytosis of constitutively expressed XA21 proteins in transgenic rice.
+20627947,1471-9053,Plant Cell Physiol.,2010,10.1093/pcp/pcq098,,Protein disulfide isomerase like 1-1 participates in the maturation of proglutelin within the endoplasmic reticulum in rice endosperm.
+20632034,1617-4623,Mol. Genet. Genomics,2010,10.1007/s00438-010-0557-0,,The abiotic stress-responsive NAC-type transcription factor OsNAC5 regulates stress-inducible genes and stress tolerance in rice.
+20632185,1432-2048,Planta,2010,10.1007/s00425-010-1226-6,,OsPRA1 plays a significant role in targeting of OsRab7 into the tonoplast via the prevacuolar compartment during vacuolar trafficking in plant cells.
+20663087,1365-313X,Plant J.,2010,10.1111/j.1365-313X.2010.04308.x,,"The rice dynamin-related protein DRP2B mediates membrane trafficking, and thereby plays a critical role in secondary cell wall cellulose biosynthesis."
+20852032,1532-2548,Plant Physiol.,2010,10.1104/pp.110.163741,PMC2971608,Characterization of the beta-carotene hydroxylase gene DSM2 conferring drought and oxidative stress resistance by increasing xanthophylls and abscisic acid synthesis in rice.
+21087465,1471-2229,BMC Plant Biol.,2010,10.1186/1471-2229-10-253,PMC3012604,"Classification of rice (Oryza sativa L. Japonica nipponbare) immunophilins (FKBPs, CYPs) and expression patterns under water stress."
+21224427,1532-298X,Plant Cell,2011,10.1105/tpc.110.081463,PMC3077780,Rice two-pore K+ channels are expressed in different types of vacuoles.
+21251105,1365-313X,Plant J.,2011,10.1111/j.1365-313X.2010.04469.x,,Multiple cytosolic and transmembrane determinants are required for the trafficking of SCAMP1 via an ER-Golgi-TGN-PM pathway.
+21251107,1365-313X,Plant J.,2011,10.1111/j.1365-313X.2011.04500.x,,Cyclobutane pyrimidine dimer (CPD) photolyase repairs ultraviolet-B-induced CPDs in rice chloroplast and mitochondrial DNA.
+21265890,1365-313X,Plant J.,2011,10.1111/j.1365-313X.2010.04427.x,,"The fertility restorer gene, Rf2, for Lead Rice-type cytoplasmic male sterility of rice encodes a mitochondrial glycine-rich protein."
+21278127,1532-298X,Plant Cell,2011,10.1105/tpc.110.079509,PMC3051231,Distinct roles of protein disulfide isomerase and P5 sulfhydryl oxidoreductases in multiple pathways for oxidation of structurally diverse storage proteins in rice.
+21282525,1532-298X,Plant Cell,2011,10.1105/tpc.109.073692,PMC3051251,"Pollen semi-sterility1 encodes a kinesin-1-like protein important for male meiosis, anther dehiscence, and fertility in rice."
+21307283,1532-298X,Plant Cell,2011,10.1105/tpc.110.081349,PMC3077795,RICE MORPHOLOGY DETERMINANT encodes the type II formin FH5 and regulates rice morphogenesis.
+21309870,1365-313X,Plant J.,2011,10.1111/j.1365-313X.2011.04535.x,,Alternative targeting of Arabidopsis plastidic glucose-6-phosphate dehydrogenase G6PD1 involves cysteine-dependent interaction with G6PD4 in the cytosol.
+21352234,1469-8137,New Phytol.,2011,10.1111/j.1469-8137.2011.03659.x,,Ascorbate peroxidase-related (APx-R) is a new heme-containing protein functionally associated with ascorbate peroxidase but evolutionarily divergent.
+21447055,1467-7652,Plant Biotechnol. J.,2011,10.1111/j.1467-7652.2011.00610.x,,Mutations in the F-box gene LARGER PANICLE improve the panicle architecture and enhance the grain yield in rice.
+21481190,1742-4658,FEBS J.,2011,10.1111/j.1742-4658.2011.08122.x,,Expression analysis of the nucleocytoplasmic lectin 'Orysata' from rice in Pichia pastoris.
+21499841,1573-5028,Plant Mol. Biol.,2011,10.1007/s11103-011-9775-z,,OsSDIR1 overexpression greatly improves drought tolerance in transgenic rice.
+21502185,1532-2548,Plant Physiol.,2011,10.1104/pp.111.175240,PMC3135946,The phosphate transporter gene OsPht1;8 is involved in phosphate homeostasis in rice.
+21511810,1752-9867,Mol Plant,2011,10.1093/mp/ssr028,,Rice OsGL1-1 is involved in leaf cuticular wax and cuticle membrane.
+21533550,0219-1032,Mol. Cells,2011,10.1007/s10059-011-1038-y,PMC3887615,Identification and characterization of the duplicate rice sucrose synthase genes OsSUS5 and OsSUS7 which are associated with the plasma membrane.
+21547461,1432-2048,Planta,2011,10.1007/s00425-011-1423-y,,The WRKY transcription factor OsWRKY78 regulates stem elongation and seed development in rice.
+21551159,1471-9053,Plant Cell Physiol.,2011,10.1093/pcp/pcr058,PMC3110883,Rice debranching enzyme isoamylase3 facilitates starch metabolism and affects plastid morphogenesis.
+21558459,1095-8290,Ann. Bot.,2011,10.1093/aob/mcr057,PMC3091807,Analyses of two rice (Oryza sativa) cyclin-dependent kinase inhibitors and effects of transgenic expression of OsiICK6 on plant growth and development.
+21595879,1471-2229,BMC Plant Biol.,2011,10.1186/1471-2229-11-90,PMC3125349,A rice calcium-dependent protein kinase is expressed in cortical root cells during the presymbiotic phase of the arbuscular mycorrhizal symbiosis.
+21606318,1532-2548,Plant Physiol.,2011,10.1104/pp.111.177428,PMC3135945,OsREC8 is essential for chromatid cohesion and metaphase I monopolar orientation in rice meiosis.
+21610181,1532-2548,Plant Physiol.,2011,10.1104/pp.110.168047,PMC3135959,K+ transport by the OsHKT2;4 transporter from rice with atypical Na+ transport properties and competition in permeation of K+ over Mg2+ and Ca2+ ions.
+21610725,2041-1723,Nat Commun,2011,10.1038/ncomms1326,PMC3113228,The rice mitochondrial iron transporter is essential for plant growth.
+21613379,1460-2431,J. Exp. Bot.,2011,10.1093/jxb/err178,PMC3170556,Reduced expression of a gene encoding a Golgi localized monosaccharide transporter (OsGMST1) confers hypersensitivity to salt in rice (Oryza sativa).
+21697258,1460-2431,J. Exp. Bot.,2011,10.1093/jxb/err136,PMC3192999,The OsNRAMP1 iron transporter is involved in Cd accumulation in rice.
+21717056,1573-4978,Mol. Biol. Rep.,2012,10.1007/s11033-011-1122-6,,Over-expression in the nucleotide-binding site-leucine rich repeat gene DEPG1 increases susceptibility to bacterial leaf streak disease in transgenic rice plants.
+21729241,1742-4658,FEBS J.,2011,10.1111/j.1742-4658.2011.08229.x,,Binding affinities and interactions among different heat shock element types and heat shock factors in rice (Oryza sativa L.).
+21734114,1532-2548,Plant Physiol.,2011,10.1104/pp.111.181248,PMC3165901,Functional analysis of two isoforms of leaf-type ferredoxin-NADP(+)-oxidoreductase in rice using the heterologous expression system of Arabidopsis.
+21771914,1532-2548,Plant Physiol.,2011,10.1104/pp.111.176982,PMC3165862,"Impaired function of the tonoplast-localized sucrose transporter in rice, OsSUT2, limits the transport of vacuolar reserve sucrose and affects plant growth."
+21796433,1438-2199,Amino Acids,2012,10.1007/s00726-011-1002-3,,Constitutively and highly expressed Oryza sativa polyamine oxidases localize in peroxisomes and catalyze polyamine back conversion.
+21809091,1432-2048,Planta,2012,10.1007/s00425-011-1481-1,,"Wax crystal-sparse leaf2, a rice homologue of WAX2/GL1, is involved in synthesis of leaf cuticular wax."
+21853042,1932-6203,PLoS ONE,2011,10.1371/journal.pone.0022664,PMC3154905,Characterization of the PRMT gene family in rice reveals conservation of arginine methylation.
+21892614,1432-203X,Plant Cell Rep.,2012,10.1007/s00299-011-1140-9,,"Molecular characterization of a rice metal tolerance protein, OsMTP1."
+21897044,1347-6947,Biosci. Biotechnol. Biochem.,2011,10.1271/bbb.110285,,Physiological and biochemical characterization of three nucleoside diphosphate kinase isozymes from rice (Oryza sativa L.).
+21924254,1095-564X,Dev. Biol.,2011,10.1016/j.ydbio.2011.08.023,,An AT-hook gene is required for palea formation and floral organ number control in rice.
+21961694,1746-4811,Plant Methods,2011,10.1186/1746-4811-7-30,PMC3203094,A highly efficient rice green tissue protoplast system for transient gene expression and studying light/chloroplast-related processes.
+21969384,1532-2548,Plant Physiol.,2011,10.1104/pp.111.186031,PMC3327210,OsYSL6 is involved in the detoxification of excess manganese in rice.
+21973088,1469-8137,New Phytol.,2012,10.1111/j.1469-8137.2011.03910.x,,"OsARF12, a transcription activator on auxin response gene, regulates root elongation and affects iron accumulation in rice (Oryza sativa)."
+21976713,1752-9867,Mol Plant,2012,10.1093/mp/ssr084,,"OsGLU3, a putative membrane-bound endo-1,4-beta-glucanase, is required for root cell elongation and division in rice (Oryza sativa L.)."
+22010949,1469-8137,New Phytol.,2012,10.1111/j.1469-8137.2011.03929.x,,Rice DUR3 mediates high-affinity urea transport and plays an effective role in improvement of urea acquisition and utilization when expressed in Arabidopsis.
+22050533,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2011.04844.x,,Signal transduction by IRE1-mediated splicing of bZIP50 and other stress sensors in the endoplasmic reticulum stress response of rice.
+22084314,1471-9053,Plant Cell Physiol.,2012,10.1093/pcp/pcr157,,"A rice transmembrane bZIP transcription factor, OsbZIP39, regulates the endoplasmic reticulum stress response."
+22111585,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2011.04864.x,,The rice gene DEFECTIVE TAPETUM AND MEIOCYTES 1 (DTM1) is required for early tapetum development and meiosis.
+22136599,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2011.04872.x,,"Aberrant spikelet and panicle1, encoding a TOPLESS-related transcriptional co-repressor, is involved in the regulation of meristem fate in rice."
+22158700,1532-2548,Plant Physiol.,2012,10.1104/pp.111.191379,PMC3271775,A CCCH-type zinc finger nucleic acid-binding protein quantitatively confers resistance against rice bacterial blight disease.
+22161313,1559-0305,Mol. Biotechnol.,2012,10.1007/s12033-011-9477-4,,"ENAC1, a NAC transcription factor, is an early and transient response regulator induced by abiotic stress in rice (Oryza sativa L.)."
+22189955,1432-2048,Planta,2012,10.1007/s00425-011-1564-z,,bZIP transcription factor OsbZIP52/RISBZ5: a potential negative regulator of cold and drought stress response in rice.
+22201023,1573-4978,Mol. Biol. Rep.,2012,10.1007/s11033-011-1399-5,,"Molecular cloning and characterization of OsUPS, a U-box containing E3 ligase gene that respond to phosphate starvation in rice (Oryza sativa)."
+22228180,0219-1032,Mol. Cells,2012,10.1007/s10059-012-2165-9,PMC3887722,Activation of rice Yellow Stripe1-Like 16 (OsYSL16) enhances iron efficiency.
+22353560,1744-7909,J Integr Plant Biol,2012,10.1111/j.1744-7909.2012.01094.x,,A mutation of OSOTP 51 leads to impairment of photosystem I complex assembly and serious photo-damage in rice.
+22378946,1460-2431,J. Exp. Bot.,2012,10.1093/jxb/ers051,PMC3350935,Identification and evaluation of ω-3 fatty acid desaturase genes for hyperfortifying α-linolenic acid in transgenic rice seed.
+22409537,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2012.04989.x,,Rice LGD1 containing RNA binding activity affects growth and development through alternative promoters.
+22413771,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2012.04995.x,,The photoprotective protein PsbS exerts control over CO(2) assimilation rate in fluctuating light in rice.
+22419106,1432-2242,Theor. Appl. Genet.,2012,10.1007/s00122-012-1840-8,,A novel gene IBF1 is required for the inhibition of brown pigment deposition in rice hull furrows.
+22442415,1460-2431,J. Exp. Bot.,2012,10.1093/jxb/ers079,PMC3388842,The rice ERF transcription factor OsERF922 negatively regulates resistance to Magnaporthe oryzae and salt tolerance.
+22451723,1460-2431,J. Exp. Bot.,2012,10.1093/jxb/ers098,PMC3398448,Modulation of ethylene responses by OsRTH1 overexpression reveals the biological significance of ethylene in rice seedling growth and development.
+22548273,1365-3040,Plant Cell Environ.,2012,10.1111/j.1365-3040.2012.02527.x,,The OsHMA2 transporter is involved in root-to-shoot translocation of Zn and Cd in rice.
+22616023,2041-2851,AoB Plants,2012,10.1093/aobpla/pls011,PMC3357053,Transcription factor OsHsfC1b regulates salt tolerance and development in Oryza sativa ssp. japonica.
+22644768,1432-2048,Planta,2012,10.1007/s00425-012-1667-1,,"Molecular cloning and characterization of OsCHR4, a rice chromatin-remodeling factor required for early chloroplast development in adaxial mesophyll."
+22665444,1532-2548,Plant Physiol.,2012,10.1104/pp.112.195529,PMC3425189,Brittle culm15 encodes a membrane-associated chitinase-like protein required for cellulose biosynthesis in rice.
+22676236,1365-3040,Plant Cell Environ.,2013,10.1111/j.1365-3040.2012.02553.x,,Involvement of ASR genes in aluminium tolerance mechanisms in rice.
+22747551,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2012.05091.x,,Rice MPR25 encodes a pentatricopeptide repeat protein and is essential for RNA editing of nad5 transcripts in mitochondria.
+22788523,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2012.05106.x,,"Lack of the Golgi phosphate transporter PHT4;6 causes strong developmental defects, constitutively activated disease resistance mechanisms and altered intracellular phosphate compartmentation in Arabidopsis."
+22829206,1573-5028,Plant Mol. Biol.,2012,10.1007/s11103-012-9945-7,,RNAi knockdown of rice SE5 gene is sensitive to the herbicide methyl viologen by the down-regulation of antioxidant defense.
+22840326,1618-1328,J. Plant Physiol.,2012,10.1016/j.jplph.2012.06.010,,Hsp90 binds microtubules and is involved in the reorganization of the microtubular network in angiosperms.
+22882529,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2012.05121.x,,The putative auxin efflux carrier OsPIN3t is involved in the drought stress response and drought tolerance.
+22882555,missing-issn,,,,,
+22902685,1559-2324,Plant Signal Behav,2012,10.4161/psb.21662,PMC3493409,The rice ASR5 protein: a putative role in the response to aluminum photosynthesis disturbance.
+22921006,1873-2259,Plant Sci.,2012,10.1016/j.plantsci.2012.06.006,,Overexpression of OsTLP27 in rice improves chloroplast function and photochemical efficiency.
+22956125,1432-2048,Planta,2013,10.1007/s00425-012-1736-5,,SUI-family genes encode phosphatidylserine synthases and regulate stem development in rice.
+22984070,1095-9203,Science,2012,10.1126/science.1223702,,A killer-protector system regulates both hybrid sterility and segregation distortion in rice.
+22990444,1559-2324,Plant Signal Behav,2012,10.4161/psb.22086,PMC3548864,Intracellular localization and physiological function of a rice Ca²⁺-permeable channel OsTPC1.
+23053539,1432-2048,Planta,2013,10.1007/s00425-012-1756-1,,"Young Leaf Chlorosis 1, a chloroplast-localized gene required for chlorophyll and lutein accumulation during early leaf development in rice."
+23061987,1438-8677,Plant Biol (Stuttg),2013,10.1111/j.1438-8677.2012.00664.x,,A salicylic acid-induced rice (Oryza sativa L.) transcription factor OsWRKY77 is involved in disease resistance of Arabidopsis thaliana.
+23083684,1618-1328,J. Plant Physiol.,2013,10.1016/j.jplph.2012.08.019,,"Overexpression of OrbHLH001, a putative helix-loop-helix transcription factor, causes increased expression of AKT1 and maintains ionic balance under salt stress in rice."
+23122787,1618-1328,J. Plant Physiol.,2013,10.1016/j.jplph.2012.09.007,,"Differential subcellular localization, enzymatic properties and expression patterns of γ-aminobutyric acid transaminases (GABA-Ts) in rice (Oryza sativa)."
+23192363,1432-203X,Plant Cell Rep.,2013,10.1007/s00299-012-1372-3,,Accumulation of rice prolamin-GFP fusion proteins induces ER-derived protein bodies in transgenic rice calli.
+23220939,1752-9867,Mol Plant,2013,10.1093/mp/sss145,,The role of OsMSH5 in crossover formation during rice meiosis.
+23233223,1869-1889,Sci China Life Sci,2012,10.1007/s11427-012-4414-8,,"Overexpression of OsDPR, a novel rice gene highly expressed under iron deficiency, suppresses plant growth."
+23263792,1532-2548,Plant Physiol.,2013,10.1104/pp.112.210948,PMC3561011,Rice glycosyltransferase1 encodes a glycosyltransferase essential for pollen wall formation.
+23296688,1532-2548,Plant Physiol.,2013,10.1104/pp.112.205385,PMC3585590,"OsTZF1, a CCCH-tandem zinc finger protein, confers delayed senescence and stress tolerance in rice by regulating stress-related genes."
+23462973,1573-5028,Plant Mol. Biol.,2013,10.1007/s11103-013-0032-5,,"OsWRKY28, a PAMP-responsive transrepressor, negatively regulates innate immune responses in rice against rice blast fungus."
+23485991,1422-0067,Int J Mol Sci,2013,10.3390/ijms14035899,PMC3634459,"A Rice Immunophilin Gene, OsFKBP16-3, Confers Tolerance to Environmental Stress in Arabidopsis and Rice."
+23602899,1090-2104,Biochem. Biophys. Res. Commun.,2013,10.1016/j.bbrc.2013.04.014,,Rice Rab11 is required for JA-mediated defense signaling.
+23620301,0219-1032,Mol. Cells,2013,10.1007/s10059-013-2337-2,PMC3887859,"OsCpn60α1, encoding the plastid chaperonin 60α subunit, is essential for folding of rbcL."
+23629832,1532-2548,Plant Physiol.,2013,10.1104/pp.113.216044,PMC3668076,"MULTI-FLORET SPIKELET1, which encodes an AP2/ERF protein, determines spikelet meristem fate and sterile lemma identity in rice."
+23698632,1460-2431,J. Exp. Bot.,2013,10.1093/jxb/ert143,PMC3741691,"The rice RING finger E3 ligase, OsHCI1, drives nuclear export of multiple substrate proteins and its heterogeneous overexpression enhances acquired thermotolerance."
+23700971,1365-3040,Plant Cell Environ.,2014,10.1111/pce.12138,,"Expression in Arabidopsis and cellular localization reveal involvement of rice NRAMP, OsNRAMP1, in arsenic transport and tolerance."
+23741473,1932-6203,PLoS ONE,2013,10.1371/journal.pone.0065139,PMC3669293,Rice OsGL1-6 is involved in leaf cuticular wax accumulation and drought resistance.
+23783412,1573-5028,Plant Mol. Biol.,2013,10.1007/s11103-013-0095-3,,Identification and characterization of a novel chloroplast/mitochondria co-localized glutathione reductase 3 involved in salt stress response in rice.
+23849113,1873-2259,Plant Sci.,2013,10.1016/j.plantsci.2013.05.003,,The endoplasmic reticulum-quality control component SDF2 is essential for XA21-mediated immunity in rice.
+23849131,1873-2259,Plant Sci.,2013,10.1016/j.plantsci.2013.06.003,,Mutation of OsDET1 increases chlorophyll content in rice.
+23886623,1532-2548,Plant Physiol.,2013,10.1104/pp.113.217547,PMC3762635,Abscisic acid- and stress-induced highly proline-rich glycoproteins regulate root growth in rice.
+23888867,1365-313X,Plant J.,2013,10.1111/tpj.12296,,A plasma membrane-localized small peptide is involved in rice aluminum tolerance.
+23894405,1932-6203,PLoS ONE,2013,10.1371/journal.pone.0069046,PMC3718813,RNAi-directed downregulation of vacuolar H(+) -ATPase subunit a results in enhanced stomatal aperture and density in rice.
+23926064,1471-9053,Plant Cell Physiol.,2013,10.1093/pcp/pct112,,Expression and functional analysis of the CorA-MRS2-ALR-type magnesium transporter family in rice.
+23963678,1460-2431,J. Exp. Bot.,2013,10.1093/jxb/ert243,PMC3808320,"Mn tolerance in rice is mediated by MTP8.1, a member of the cation diffusion facilitator family."
+24043853,1460-2431,J. Exp. Bot.,2013,10.1093/jxb/ert298,PMC3830488,WRKY76 is a rice transcriptional repressor playing opposite roles in blast disease resistance and cold stress tolerance.
+24064929,1532-2548,Plant Physiol.,2013,10.1104/pp.113.226225,PMC3813655,A member of the heavy metal P-type ATPase OsHMA5 is involved in xylem loading of copper in rice.
+24089432,1471-9053,Plant Cell Physiol.,2013,10.1093/pcp/pct122,,Identification of transcription factors involved in rice secondary cell wall formation.
+24128296,1365-313X,Plant J.,2013,10.1111/tpj.12352,,"OsACA6, a P-type IIB Ca²⁺ ATPase promotes salinity and drought stress tolerance in tobacco by ROS scavenging and enhancing the expression of stress-responsive genes."
+24151203,1471-9053,Plant Cell Physiol.,2014,10.1093/pcp/pct149,,A mutable albino allele in rice reveals that formation of thylakoid membranes requires the SNOW-WHITE LEAF1 gene.
+24153418,1460-2431,J. Exp. Bot.,2013,10.1093/jxb/ert312,PMC3871807,Analysis of rice ER-resident J-proteins reveals diversity and functional differentiation of the ER-resident Hsp70 system in plants.
+24251791,1365-313X,Plant J.,2014,10.1111/tpj.12383,,"Nicotianamine synthase 2 localizes to the vesicles of iron-deficient rice roots, and its mutation in the YXXφ or LL motif causes the disruption of vesicle formation or movement in rice."
+24280027,1939-8425,Rice (N Y),2013,10.1186/1939-8433-6-24,PMC4883695,A point mutation in the zinc finger motif of RID1/EHD2/OsID1 protein leads to outstanding yield-related traits in japonica rice variety Wuyunjing 7.
+24286292,1742-4658,FEBS J.,2014,10.1111/febs.12656,,Genome-wide expressional and functional analysis of calcium transport elements during abiotic stress and development in rice.
+24320692,1365-313X,Plant J.,2014,10.1111/tpj.12405,,"SMALL GRAIN 1, which encodes a mitogen-activated protein kinase kinase 4, influences grain size in rice."
+24335509,1532-2548,Plant Physiol.,2014,10.1104/pp.113.229591,PMC3912094,Amyloplast-localized SUBSTANDARD STARCH GRAIN4 protein influences the size of starch grains in rice endosperm.
+24401104,1744-7909,J Integr Plant Biol,2014,10.1111/jipb.12125,,Two hydroxypyruvate reductases encoded by OsHPR1 and OsHPR2 are involved in photorespiratory metabolism in rice.
+24475234,1932-6203,PLoS ONE,2014,10.1371/journal.pone.0087110,PMC3903634,"OsGA2ox5, a gibberellin metabolism enzyme, is involved in plant growth, the root gravity response and salt stress."
+24738983,1469-8137,New Phytol.,2014,10.1111/nph.12809,,Subcellular localization of rice acyl-CoA-binding proteins (ACBPs) indicates that OsACBP6::GFP is targeted to the peroxisomes.
+24784760,1532-2548,Plant Physiol.,2014,10.1104/pp.113.230268,PMC4044838,Overexpression of a Calcium-Dependent Protein Kinase Confers Salt and Drought Tolerance in Rice by Preventing Membrane Lipid Peroxidation.
+24802508,1932-6203,PLoS ONE,2014,10.1371/journal.pone.0096712,PMC4011751,Recombinant expression and characterization of the cytoplasmic rice β-glucosidase Os1BGlu4.
+24964058,0894-0282,Mol. Plant Microbe Interact.,2014,10.1094/MPMI-03-14-0068-R,,Targeted gene disruption of OsCERK1 reveals its indispensable role in chitin perception and involvement in the peptidoglycan response and immunity in rice.
+24977183,1537-744X,ScientificWorldJournal,2014,10.1155/2014/178038,PMC3995101,CMYB1 encoding a MYB transcriptional activator is involved in abiotic stress and circadian rhythm in rice.
+25041515,1365-313X,Plant J.,2014,10.1111/tpj.12614,,"RCN1/OsABCG5, an ATP-binding cassette (ABC) transporter, is required for hypodermal suberization of roots in rice (Oryza sativa)."
+25081037,0219-1032,Mol. Cells,2014,10.14348/molcells.2014.0128,PMC4132305,OsWRKY42 represses OsMT1d and induces reactive oxygen species and leaf senescence in rice.
+25089296,1537-744X,ScientificWorldJournal,2014,10.1155/2014/809353,PMC4095735,"OsSLI1, a homeodomain containing transcription activator, involves abscisic acid related stress response in rice (Oryza sativa L.)."
+25103875,1469-8137,New Phytol.,2014,10.1111/nph.12986,PMC4232926,Identification and functional assay of the interaction motifs in the partner protein OsNAR2.1 of the two-component system for high-affinity nitrate transport.
+25138437,1432-203X,Plant Cell Rep.,2014,10.1007/s00299-014-1666-8,PMC4197380,OsABCG15 encodes a membrane protein that plays an important role in anther cuticle and pollen exine formation in rice.
+25316064,1460-2431,J. Exp. Bot.,2015,10.1093/jxb/eru405,,Identification and characterization of chloroplast casein kinase II from Oryza sativa (rice).
+25327517,1365-313X,Plant J.,2015,10.1111/tpj.12705,,Rice SNF2 family helicase ENL1 is essential for syncytial endosperm development.
+9193078,0960-7412,Plant J.,1997,,,"Expression of a betaine aldehyde dehydrogenase gene in rice, a glycinebetaine nonaccumulator, and possible localization of its protein in peroxisomes."
+12746528,0032-0889,Plant Physiol.,2003,10.1104/pp.102.018986,PMC166968,Towards an analysis of the rice mitochondrial proteome.
+15069638,1617-4615,Mol. Genet. Genomics,2004,10.1007/s00438-004-1002-z,,Proteomics of the rice cell: systematic identification of the protein populations in subcellular compartments.
+15258153,0021-9258,J. Biol. Chem.,2004,10.1074/jbc.M406015200,,Changes in the mitochondrial proteome during the anoxia to air transition in rice focus around cytochrome-containing respiratory complexes.
+15276429,0031-9422,Phytochemistry,2004,10.1016/j.phytochem.2004.04.012,,Rice proteomics: recent developments and analysis of nuclear proteins.
+15276442,0031-9422,Phytochemistry,2004,10.1016/j.phytochem.2004.04.007,,Identification of oxidised proteins in the matrix of rice leaf mitochondria by immunoprecipitation and two-dimensional liquid chromatography-tandem mass spectrometry.
+16429260,0167-4412,Plant Mol. Biol.,2006,10.1007/s11103-005-3688-7,,Ordered assembly of mitochondria during rice germination begins with pro-mitochondrial structures rich in components of the protein import apparatus.
+16443157,0891-5849,Free Radic. Biol. Med.,2006,10.1016/j.freeradbiomed.2005.08.036,,Protein oxidation in plant mitochondria detected as oxidized tryptophan.
+17189339,0032-0889,Plant Physiol.,2007,10.1104/pp.106.090738,PMC1803725,Proteome dynamics during plastid differentiation in rice.
+18372294,1471-9053,Plant Cell Physiol.,2008,10.1093/pcp/pcn049,,Nano scale proteomics revealed the presence of regulatory proteins including three FT-Like proteins in phloem and xylem saps from rice.
+18557835,1365-313X,Plant J.,2008,10.1111/j.1365-313X.2008.03578.x,,A proteomic and phosphoproteomic analysis of Oryza sativa plasma membrane and vacuolar membrane.
+19010998,0032-0889,Plant Physiol.,2009,10.1104/pp.108.131300,PMC2633852,"Experimental analysis of the rice mitochondrial proteome, its biogenesis, and heterogeneity."
+19038476,1618-1328,J. Plant Physiol.,2009,10.1016/j.jplph.2008.09.010,,Proteomics of weakly bound cell wall proteins in rice calli.
+19217306,1873-2690,Plant Physiol. Biochem.,2009,10.1016/j.plaphy.2008.12.021,,Mitochondrial proteome during salt stress-induced programmed cell death in rice.
+19226311,1399-3054,Physiol Plant,2009,10.1111/j.1399-3054.2008.01198.x,,Proteomic analysis of the secretome of rice calli.
+19621931,1535-3893,J. Proteome Res.,2009,10.1021/pr900187e,,Application of rice nuclear proteome analysis to the identification of evolutionarily conserved and glucose-responsive nuclear proteins.
+19685898,1535-3907,J. Proteome Res.,2009,10.1021/pr900537p,,Proteomic analysis of cytoskeleton-associated RNA binding proteins in developing rice seed.
+19924544,1573-5028,Plant Mol. Biol.,2010,10.1007/s11103-009-9573-z,,Functional and composition differences between mitochondrial complex II in Arabidopsis and rice are correlated with the complex genetic history of the enzyme.
+20720170,1532-2548,Plant Physiol.,2010,10.1104/pp.110.162214,PMC2948988,Analysis of the rice mitochondrial carrier family reveals anaerobic accumulation of a basic amino acid carrier involved in arginine metabolism during seed germination.
+21347307,1932-6203,PLoS ONE,2011,10.1371/journal.pone.0016723,PMC3037377,Comparative proteomics analysis of the root apoplasts of rice seedlings in response to hydrogen peroxide.
+21433289,1615-9861,Proteomics,2011,10.1002/pmic.201000703,,Integrated proteome and metabolite analysis of the de-etiolation process in plastids from rice (Oryza sativa L.).
+23027867,1083-351X,J. Biol. Chem.,2012,10.1074/jbc.M112.382549,PMC3501019,Alterations of mitochondrial protein assembly and jasmonic acid biosynthesis pathway in Honglian (HL)-type cytoplasmic male sterility rice.
+23159799,1876-7737,J Proteomics,2013,10.1016/j.jprot.2012.10.029,,In-depth insight into in vivo apoplastic secretome of rice-Magnaporthe oryzae interaction.
+23303719,1615-9861,Proteomics,2013,10.1002/pmic.201100416,,Identification of centromeric and telomeric DNA-binding proteins in rice.
+23356873,1469-8137,New Phytol.,2013,10.1111/nph.12123,,Differential induction of mitochondrial machinery by light intensity correlates with changes in respiratory metabolism and photorespiration in rice leaves.
+23777608,1477-5956,Proteome Sci,2013,10.1186/1477-5956-11-26,PMC3695858,Nuclear proteome response to cell wall removal in rice (Oryza sativa).
+24083427,1535-3907,J. Proteome Res.,2013,10.1021/pr400614n,,Effect of phosphorus levels on the protein profiles of secreted protein and root surface protein of rice.
+18022940,1615-9853,Proteomics,2007,10.1002/pmic.200700580,,Proteome and phosphoproteome analysis of chromatin associated proteins in rice (Oryza sativa).
+18203134,0173-0835,Electrophoresis,2008,10.1002/elps.200700412,,Removal of high-abundance proteins for nuclear subproteome studies in rice (Oryza sativa) endosperm.
+19253284,1615-9861,Proteomics,2009,10.1002/pmic.200800589,,Secretome analysis of differentially induced proteins in rice suspension-cultured cells triggered by rice blast fungus and elicitor.
+23128297,1876-7737,J Proteomics,2013,10.1016/j.jprot.2012.10.021,,Identification of glycosyltransferases involved in cell wall synthesis of wheat endosperm.
+24136528,1940-6029,Methods Mol. Biol.,2014,10.1007/978-1-62703-631-3_19,,Modifications of wheat germ cell-free system for functional proteomics of plant membrane proteins.
+23683508,1618-1328,J. Plant Physiol.,2013,10.1016/j.jplph.2013.03.016,,Comparative analysis of the chloroplast proteomes of a wheat (Triticum aestivum L.) single seed descent line and its parents.
+23895732,1535-3907,J. Proteome Res.,2013,10.1021/pr400504a,,Investigating the role of respiration in plant salinity tolerance by analyzing mitochondrial proteomes from wheat and a salinity-tolerant Amphiploid (wheat × Lophopyrum elongatum).
+22160430,1573-4978,Mol. Biol. Rep.,2012,10.1007/s11033-011-1302-4,,Towards an understanding of wheat chloroplasts: a methodical investigation of thylakoid proteome.
+22736107,1573-4978,Mol. Biol. Rep.,2012,10.1007/s11033-012-1777-7,,Changes in physiology and protein abundance in salt-stressed wheat chloroplasts.
+22056444,1347-6947,Biosci. Biotechnol. Biochem.,2011,10.1271/bbb.110479,,A systematic strategy for proteomic analysis of chloroplast protein complexes in wheat.
+19786127,0006-3002,Biochim. Biophys. Acta,2010,10.1016/j.bbapap.2009.09.023,,Cell wall proteome of wheat roots under flooding stress using gel-based and LC MS/MS-based proteomics approaches.
+20410318,1460-2431,J. Exp. Bot.,2010,10.1093/jxb/erq101,PMC2882262,The physiological importance of photosynthetic ferredoxin NADP+ oxidoreductase (FNR) isoforms in wheat.
+21043471,1535-3907,J. Proteome Res.,2010,10.1021/pr1007834,,Wheat mitochondrial proteomes provide new links between antioxidant defense and plant salinity tolerance.
+19643044,1976-6696,BMB Rep,2009,,,Proteome analysis of chloroplast proteins in stage albinism line of winter wheat (triticum aestivum) FA85.
+18071923,0166-8595,Photosyn. Res.,2008,10.1007/s11120-007-9281-y,,Proteomic analysis of highly purified prolamellar bodies reveals their significance in chloroplast development.
+18419817,1471-2229,BMC Plant Biol.,2008,10.1186/1471-2229-8-39,PMC2383896,Metabolic pathways of the wheat (Triticum aestivum) endosperm amyloplast revealed by proteomics.
+16595579,0022-0957,J. Exp. Bot.,2006,10.1093/jxb/erj156,,Proteome of amyloplasts isolated from developing wheat endosperm presents evidence of broad metabolic capability.
+16481623,0027-8424,Proc. Natl. Acad. Sci. U.S.A.,2006,10.1073/pnas.0511040103,PMC1413819,A complete ferredoxin/thioredoxin system regulates fundamental processes in amyloplasts.
+22527397,1471-2970,"Philos. Trans. R. Soc. Lond., B, Biol. Sci.",2012,10.1098/rstb.2011.0238,PMC3321688,"Molecular interactions of ROOTLESS CONCERNING CROWN AND SEMINAL ROOTS, a LOB domain protein regulating shoot-borne root initiation in maize (Zea mays L.)."
+18622732,0167-4412,Plant Mol. Biol.,2008,10.1007/s11103-008-9373-x,,The expression pattern of plasma membrane aquaporins in maize leaf highlights their role in hydraulic regulation.
+14671024,1040-4651,Plant Cell,2004,10.1105/tpc.017194,PMC301406,Interactions between plasma membrane aquaporins modulate their water channel activity.
+11029706,0960-7412,Plant J.,2000,,,"Maize ROP7 GTPase contains a unique, CaaX box-independent plasma membrane targeting signal."
+19201915,0032-0889,Plant Physiol.,2009,10.1104/pp.108.130146,PMC2633859,Advancing cell biology and functional genomics in maize using fluorescent protein-tagged lines.
+17105995,1355-8382,RNA,2007,10.1261/rna.139607,PMC1705760,The CRM domain: an RNA binding module derived from an ancient ribosome-associated protein.
+22199372,1471-9053,Plant Cell Physiol.,2012,10.1093/pcp/pcr183,,Insights into Maize LEA proteins: from proteomics to functional approaches.
+12121449,0960-7412,Plant J.,2002,,,A nucleus-encoded maize protein with sigma factor activity accumulates in mitochondria and chloroplasts.
+20040499,1477-9129,Development,2010,10.1242/dev.035964,,"DiSUMO-like DSUL is required for nuclei positioning, cell specification and viability during female gametophyte maturation in maize."
+16709191,0960-7412,Plant J.,2006,10.1111/j.1365-313X.2006.02742.x,,Maize DBF1-interactor protein 1 containing an R3H domain is a potential regulator of DBF1 activity in stress responses.
+12856940,0167-4412,Plant Mol. Biol.,2003,,,Molecular characterization of His-Asp phosphorelay signaling factors in maize leaves: implications of the signal divergence by cytokinin-inducible response regulators in the cytosol and the nuclei.
+18682426,1471-9053,Plant Cell Physiol.,2008,10.1093/pcp/pcn112,,Maize plasma membrane aquaporins belonging to the PIP1 and PIP2 subgroups are in vivo phosphorylated.
+18430213,1471-2229,BMC Plant Biol.,2008,10.1186/1471-2229-8-44,PMC2395261,Characterisation of the tryptophan synthase alpha subunit in maize.
+15604678,0167-4412,Plant Mol. Biol.,2004,10.1007/s11103-004-0553-z,,"Interaction of maize Opaque-2 and the transcriptional co-activators GCN5 and ADA2, in the modulation of transcriptional activity."
+22307781,1573-4978,Mol. Biol. Rep.,2012,10.1007/s11033-012-1453-y,,Cloning and characterization of the stress-induced bZIP gene ZmbZIP60 from maize.
+12913155,0032-0889,Plant Physiol.,2003,,PMC181284,Three nicotianamine synthase genes isolated from maize are differentially regulated by iron nutritional status.
+18218975,0032-0889,Plant Physiol.,2008,10.1104/pp.107.109553,PMC2259071,"Characterization of the monoterpene synthase gene tps26, the ortholog of a gene induced by insect herbivory in maize."
+10929132,0960-7412,Plant J.,2000,,,DNA-interactions and nuclear localisation of the chromosomal HMG domain protein SSRP1 from maize.
+23175742,1532-298X,Plant Cell,2012,10.1105/tpc.112.104125,PMC3531853,Identification of PAN2 by quantitative proteomics as a leucine-rich repeat-receptor-like kinase acting upstream of PAN1 to polarize cell division in maize.
+25341533,1532-2548,Plant Physiol.,2014,10.1104/pp.114.247486,PMC4256885,The maize DWARF1 encodes a gibberellin 3-oxidase and is dual localized to the nucleus and cytosol.
+24817160,1471-9053,Plant Cell Physiol.,2014,10.1093/pcp/pcu054,,"A novel maize homeodomain-leucine zipper (HD-Zip) I gene, Zmhdz10, positively regulates drought and salt tolerance in both rice and Arabidopsis."
+24985738,1744-7909,J Integr Plant Biol,2015,10.1111/jipb.12234,,A putative plant organelle RNA recognition protein gene is essential for maize kernel development.
+17933905,1040-4651,Plant Cell,2007,10.1105/tpc.106.048868,PMC2174714,Subcellular localization and functional domain studies of DEFECTIVE KERNEL1 in maize and Arabidopsis suggest a model for aleurone cell fate specification involving CRINKLY4 and SUPERNUMERARY ALEURONE LAYER1.
+15840644,0032-0781,Plant Cell Physiol.,2005,10.1093/pcp/pci108,,NADP-malic enzyme and Hsp70: co-purification of both proteins and modification of NADP-malic enzyme properties by association with Hsp70.
+25203637,1932-6203,PLoS ONE,2014,10.1371/journal.pone.0107346,PMC4159291,"Diversity of stability, localization, interaction and control of downstream gene activity in the Maize Aux/IAA protein family."
+24092882,1471-9053,Plant Cell Physiol.,2013,10.1093/pcp/pct142,,Maize membrane-bound transcription factor Zmbzip17 is a key regulator in the cross-talk of ER quality control and ABA signaling.
+24025774,1476-4687,Nature,2013,10.1038/nature12583,,The maize Gα gene COMPACT PLANT2 functions in CLAVATA signalling to control shoot meristem size.
+11230568,0032-0781,Plant Cell Physiol.,2001,,,Transcriptional expression characteristics and subcellular localization of ADP-glucose pyrophosphorylase in the oil plant Perilla frutescens.
+22291199,1532-2548,Plant Physiol.,2012,10.1104/pp.111.189241,PMC3320169,The maize tapetum employs diverse mechanisms to synthesize and store proteins and flavonoids and transfer them to the pollen surface.
+17259266,1040-4651,Plant Cell,2007,10.1105/tpc.105.039594,PMC1820960,empty pericarp4 encodes a mitochondrion-targeted pentatricopeptide repeat protein necessary for seed development and plant growth in maize.
+23543751,1471-9053,Plant Cell Physiol.,2013,10.1093/pcp/pct047,,"ZmLEA3, a multifunctional group 3 LEA protein from maize (Zea mays L.), is involved in biotic and abiotic stresses."
+22440334,1618-1328,J. Plant Physiol.,2012,10.1016/j.jplph.2011.12.020,,Characterization and expression analysis of six MADS-box genes in maize (Zea mays L.).
+18550681,0032-0889,Plant Physiol.,2008,10.1104/pp.108.121541,PMC2492655,The Relationship between auxin transport and maize branching.
+11641280,0890-9369,Genes Dev.,2001,10.1101/gad.208501,PMC312812,The fasciated ear2 gene encodes a leucine-rich repeat receptor-like protein that regulates shoot meristem proliferation in maize.
+19450586,1873-3468,FEBS Lett.,2009,10.1016/j.febslet.2009.05.022,,Maize AKINbetagamma dimerizes through the KIS/CBM domain and assembles into SnRK1 complexes.
+16362327,0032-0935,Planta,2006,10.1007/s00425-005-0179-7,,"ZmLrk-1, a receptor-like kinase induced by fungal infection in germinating seeds."
+10330475,1040-4651,Plant Cell,1999,,PMC144232,Functional analysis of two maize cDNAs encoding T7-like RNA polymerases.
+10330467,1040-4651,Plant Cell,1999,,PMC144225,Three-dimensional microscopy of the Rad51 recombination protein during meiotic prophase.
+20532241,1545-7885,PLoS Biol.,2010,10.1371/journal.pbio.1000388,PMC2879413,Defensin-like ZmES4 mediates pollen tube burst in maize via opening of the potassium channel KZM1.
+24089437,1532-2548,Plant Physiol.,2013,10.1104/pp.113.227314,PMC3813652,"Maize LAZY1 mediates shoot gravitropism and inflorescence development through regulating auxin transport, auxin signaling, and light response."
+18688729,0167-4412,Plant Mol. Biol.,2008,10.1007/s11103-008-9382-9,,Significant improvement of stress tolerance in tobacco plants by overexpressing a stress-responsive aldehyde dehydrogenase gene from maize (Zea mays).
+20829359,1083-351X,J. Biol. Chem.,2010,10.1074/jbc.M110.116285,PMC2975188,Relevant elements of a maize gamma-zein domain involved in protein body biogenesis.
+21638061,1432-203X,Plant Cell Rep.,2011,10.1007/s00299-011-1077-z,,Cloning and characterization of a maize SnRK2 protein kinase gene confers enhanced salt tolerance in transgenic Arabidopsis.
+10889237,0032-0889,Plant Physiol.,2000,,PMC59051,Complementary expression of two plastid-localized sigma-like factors in maize.
+21789193,1932-6203,PLoS ONE,2011,10.1371/journal.pone.0021909,PMC3137599,Role of plant-specific N-terminal domain of maize CK2β1 subunit in CK2β functions and holoenzyme regulation.
+22654889,1664-462X,Front Plant Sci,2012,10.3389/fpls.2012.00101,PMC3360202,Evolution and expression of tandem duplicated maize flavonol synthase genes.
+21190064,1573-5028,Plant Mol. Biol.,2011,10.1007/s11103-010-9723-3,,Recognition of A. thaliana centromeres by heterologous CENH3 requires high similarity to the endogenous protein.
+18392626,0721-7714,Plant Cell Rep.,2008,10.1007/s00299-008-0542-9,,Dual targeting of organellar seryl-tRNA synthetase to maize mitochondria and chloroplasts.
+22915319,1573-5028,Plant Mol. Biol.,2012,10.1007/s11103-012-9951-9,,"Cellular localization of the embryo-specific hybrid PRP from Zea mays, and characterization of promoter regulatory elements of its gene."
+12096094,0022-0957,J. Exp. Bot.,2002,,,Esr proteins are secreted by the cells of the embryo surrounding region.
+23911729,1873-2690,Plant Physiol. Biochem.,2013,10.1016/j.plaphy.2013.07.004,,"A maize calcium-dependent protein kinase gene, ZmCPK4, positively regulated abscisic acid signaling and enhanced drought stress tolerance in transgenic Arabidopsis."
+18923021,0032-0889,Plant Physiol.,2009,10.1104/pp.108.130971,PMC2613742,"Tie-dyed1 encodes a novel, phloem-expressed transmembrane protein that functions in carbohydrate partitioning."
+17882422,0721-7714,Plant Cell Rep.,2008,10.1007/s00299-007-0447-z,,Calreticulin mRNA and protein are localized to protein bodies in storage maize callus cells.
+10504570,0960-7412,Plant J.,1999,,,Maize calreticulin localizes preferentially to plasmodesmata in root apex.
+11874098,0962-8819,Transgenic Res.,2002,,,Expression of the high capacity calcium-binding domain of calreticulin increases bioavailable calcium stores in plants.
+17022830,1471-2229,BMC Plant Biol.,2006,10.1186/1471-2229-6-22,PMC1609167,The PTI1-like kinase ZmPti1a from maize (Zea mays L.) co-localizes with callose at the plasma membrane of pollen and facilitates a competitive advantage to the male gametophyte.
+24268164,1873-2259,Plant Sci.,2014,10.1016/j.plantsci.2013.09.014,,"ZmMKK1, a novel group A mitogen-activated protein kinase kinase gene in maize, conferred chilling stress tolerance and was involved in pathogen defense in transgenic tobacco."
+12750468,0027-8424,Proc. Natl. Acad. Sci. U.S.A.,2003,10.1073/pnas.1132113100,PMC164533,Conservation and molecular dissection of ROUGH SHEATH2 and ASYMMETRIC LEAVES1 function in leaf development.
+22662764,1557-7430,DNA Cell Biol.,2012,10.1089/dna.2011.1514,PMC3378959,Maize histone H2B-mCherry: a new fluorescent chromatin marker for somatic and meiotic chromosome research.
+23455933,1438-7948,Funct. Integr. Genomics,2013,10.1007/s10142-013-0315-6,,Nicotianamine synthase gene family as central components in heavy metal and phytohormone response in maize.
+16243905,1040-4651,Plant Cell,2005,10.1105/tpc.105.035519,PMC1276033,Functional differentiation of bundle sheath and mesophyll maize chloroplasts determined by comparative proteomics.
+16281185,1615-9853,Proteomics,2005,10.1002/pmic.200500047,,Pathogen elicitor-induced changes in the maize extracellular matrix proteome.
+16377746,0032-0889,Plant Physiol.,2006,10.1104/pp.105.070219,PMC1326053,Cell wall proteome in the maize primary root elongation zone. I. Extraction and identification of water-soluble and lightly ionically bound proteins.
+16602704,1535-3893,J. Proteome Res.,2006,10.1021/pr050471q,,Characterization of the maize xylem sap proteome.
+18258693,0032-0889,Plant Physiol.,2008,10.1104/pp.107.113423,PMC2287327,Deregulation of maize C4 photosynthetic development in a mesophyll cell-defective mutant.
+18453340,1535-9484,Mol. Cell Proteomics,2008,10.1074/mcp.M800016-MCP200,PMC2556027,Consequences of C4 differentiation for chloroplast membrane proteomes in maize mesophyll and bundle sheath cells.
+18521681,0098-0331,J. Chem. Ecol.,2008,10.1007/s10886-008-9477-4,,Protein expression changes in maize roots in response to humic substances.
+18599648,0032-0889,Plant Physiol.,2008,10.1104/pp.108.121012,PMC2528119,Comparative proteomics of chloroplast envelopes from C3 and C4 plants reveals specific adaptations of the plastid envelope to C4 photosynthesis and candidate proteins required for maintaining C4 metabolite fluxes.
+20089766,1532-2548,Plant Physiol.,2010,10.1104/pp.109.152694,PMC2832236,"Reconstruction of metabolic pathways, protein expression, and homeostasis machineries across maize bundle sheath and mesophyll chloroplasts: large-scale quantitative proteomics using the first maize genome assembly."
+20701693,1438-8677,Plant Biol (Stuttg),2010,10.1111/j.1438-8677.2009.00280.x,,Characterisation of Zea mays L. plastidial transglutaminase: interactions with thylakoid membrane proteins.
+21196305,1945-0508,Front Biosci (Elite Ed),2011,,,Shotgun proteomics analysis on maize chloroplast thylakoid membrane.
+22065420,1532-2548,Plant Physiol.,2012,10.1104/pp.111.188474,PMC3252073,Nucleoid-enriched proteomes in developing plastids and chloroplasts from maize leaves: a new conceptual framework for nucleoid functions.
+22192489,1746-4811,Plant Methods,2011,10.1186/1746-4811-7-48,PMC3284877,Comparative evaluation of extraction methods for apoplastic proteins from maize leaves.
+22501030,1744-7909,J Integr Plant Biol,2012,10.1111/j.1744-7909.2012.01122.x,,Nitrogen under- and over-supply induces distinct protein responses in maize xylem sap.
+22607058,1365-313X,Plant J.,2012,10.1111/j.1365-313X.2012.05056.x,,Specific changes in total and mitochondrial proteomes are associated with higher levels of heterosis in maize hybrids.
+22833285,1615-9861,Proteomics,2012,10.1002/pmic.201200196,,Differential phosphorylation of thylakoid proteins in mesophyll and bundle sheath chloroplasts from maize plants grown under low or high light.
+23198870,1535-3907,J. Proteome Res.,2013,10.1021/pr300952g,,Construction of plastid reference proteomes for maize and Arabidopsis and evaluation of their orthologous relationships; the concept of orthoproteomics.
+23353019,1876-7737,J Proteomics,2013,10.1016/j.jprot.2013.01.006,,The plasma membrane proteome of maize roots grown under low and high iron conditions.
+23508561,1664-462X,Front Plant Sci,2013,10.3389/fpls.2013.00033,PMC3589600,Developmental distribution of the plasma membrane-enriched proteome in the maize primary root growth zone.
+23543921,1664-462X,Front Plant Sci,2013,10.3389/fpls.2013.00065,PMC3610082,Comparative proteomics of chloroplasts envelopes from bundle sheath and mesophyll chloroplasts reveals novel membrane proteins with a possible role in c4-related metabolite fluxes and development.
+24677780,1615-9861,Proteomics,2014,10.1002/pmic.201300147,,Maize (Zea mays L.) seedling leaf nuclear proteome and differentially expressed proteins between a hybrid and its parental lines.
+20408568,1535-3907,J. Proteome Res.,2010,10.1021/pr901168v,,The mucilage proteome of maize (Zea mays L.) primary roots.
+14966246,0032-0889,Plant Physiol.,2004,10.1104/pp.103.032003,PMC344533,A proteomic analysis of maize chloroplast biogenesis.
+24351685,1532-2548,Plant Physiol.,2014,10.1104/pp.113.229054,PMC3912095,The potato tuber mitochondrial proteome.
+24773703,1471-2164,BMC Genomics,2014,10.1186/1471-2164-15-315,PMC4234511,Proteomics and transcriptomics of the BABA-induced resistance response in potato using a novel functional annotation approach.
+25270759,1471-2229,BMC Plant Biol.,2014,10.1186/s12870-014-0254-y,PMC4192290,Phosphite-induced changes of the transcriptome and secretome in Solanum tuberosum leading to resistance against Phytophthora infestans.
+22313117,1535-3907,J. Proteome Res.,2012,10.1021/pr201004k,,Protein profiling in potato (Solanum tuberosum L.) leaf tissues by differential centrifugation.
+22902798,1873-2690,Plant Physiol. Biochem.,2012,10.1016/j.plaphy.2012.07.017,,Hydrophobic proteins secreted into the apoplast may contribute to resistance against Phytophthora infestans in potato.
+26455813,1876-7737,J Proteomics,2016,10.1016/j.jprot.2015.10.009,,The membrane proteome of male gametophyte in Solanum lycopersicum.
+26471654,0308-8146,Food Chem,2016,10.1016/j.foodchem.2015.08.055,,Mitochondrial ascorbate-glutathione cycle and proteomic analysis of carbonylated proteins during tomato (Solanum lycopersicum) fruit ripening.
+26371478,1932-6203,PLoS ONE,2015,10.1371/journal.pone.0137266,PMC4570674,Plastid Proteomic Analysis in Tomato Fruit Development.
+26583031,1664-462X,Front Plant Sci,2015,10.3389/fpls.2015.00967,PMC4631825,The effector repertoire of Fusarium oxysporum determines the tomato xylem proteome composition following infection.
+25431925,1422-0067,Int J Mol Sci,2014,10.3390/ijms151221803,PMC4284679,Physiological and proteomic analysis in chloroplasts of Solanum lycopersicum L. under silicon efficiency and salinity stress.
+25464976,1474-760X,Genome Biol.,2014,10.1186/s13059-014-0548-2,PMC4269173,Tomato nuclear proteome reveals the involvement of specific E2 ubiquitin-conjugating enzymes in fruit ripening.
+22892874,1618-0860,J. Plant Res.,2013,10.1007/s10265-012-0516-4,,Proteomic analysis of tomato (Solanum lycopersicum) secretome.
+22364583,1535-3907,J. Proteome Res.,2012,10.1021/pr200965c,PMC4874510,Proteomic analysis of ripening tomato fruit infected by Botrytis cinerea.
+22908117,1532-2548,Plant Physiol.,2012,10.1104/pp.112.203679,PMC3461550,Proteomic analysis of chloroplast-to-chromoplast transition in tomato reveals metabolic shifts coupled with disrupted thylakoid biogenesis machinery and elevated energy-production components.
+28394025,1469-8137,New Phytol.,2017,10.1111/nph.14540,PMC5637918,Quantitative analysis of the tomato nuclear proteome during Phytophthora capsici infection unveils regulators of immunity.
+20496099,1573-5028,Plant Mol. Biol.,2010,10.1007/s11103-010-9646-z,PMC3128696,Analysis of cell wall proteins regulated in stem of susceptible and resistant tomato species after inoculation with Ralstonia solanacearum: a proteomic approach.
+27689984,1420-3049,Molecules,2016,10.3390/molecules21101300,,Flavonoid Interaction with a Chitinase from Grape Berry Skin: Protein Identification and Modulation of the Enzymatic Activity.
+23391302,1471-2229,BMC Plant Biol.,2013,10.1186/1471-2229-13-24,PMC3640900,Large-scale proteomic analysis of the grapevine leaf apoplastic fluid reveals mainly stress-related proteins and cell wall modifying enzymes.
+27224218,1535-3907,J. Proteome Res.,2016,10.1021/acs.jproteome.6b00190,,Gel-Free/Label-Free Proteomic Analysis of Endoplasmic Reticulum Proteins in Soybean Root Tips under Flooding and Drought Stresses.
+27291164,1535-3907,J. Proteome Res.,2016,10.1021/acs.jproteome.6b00330,,Nuclear Proteomics Reveals the Role of Protein Synthesis and Chromatin Structure in Root Tip of Soybean during the Initial Stage of Flooding Stress.
+27780359,1535-3907,J. Proteome Res.,2016,10.1021/acs.jproteome.6b00572,,Insights into the Response of Soybean Mitochondrial Proteins to Various Sizes of Aluminum Oxide Nanoparticles under Flooding Stress.
+21107622,1438-2199,Amino Acids,2012,10.1007/s00726-010-0809-7,,Differential responses of microsomal proteins and metabolites in two contrasting cadmium (Cd)-accumulating soybean cultivars under Cd stress.
+22945350,1615-9861,Proteomics,2012,10.1002/pmic.201100629,,Comparative analyses of three legume species reveals conserved and unique root extracellular proteins.
+23041469,1876-7737,J Proteomics,2012,10.1016/j.jprot.2012.09.032,,Comprehensive analysis of endoplasmic reticulum-enriched fraction in root tips of soybean under flooding stress using proteomics techniques.
+21132161,1742-2051,Mol Biosyst,2011,10.1039/c0mb00171f,,Nuclear proteomic changes linked to soybean rust resistance.
+21246215,1432-2048,Planta,2011,10.1007/s00425-011-1352-9,,Protein and metabolite composition of xylem sap from field-grown soybeans (Glycine max).
+21766870,1535-3907,J. Proteome Res.,2011,10.1021/pr2001918,,Comprehensive analysis of mitochondria in roots and hypocotyls of soybean under flooding stress using proteomics and metabolomics techniques.
+19658398,1535-3907,J. Proteome Res.,2009,10.1021/pr9002883,,Analysis of plasma membrane proteome in soybean and application to flooding stress response.
+20443193,1615-9861,Proteomics,2010,10.1002/pmic.201000180,,Ozone stress-induced proteomic changes in leaf total soluble and chloroplast proteins of soybean reveal that carbon allocation is involved in adaptation in the early developmental stage.
+20458513,1438-2199,Amino Acids,2010,10.1007/s00726-010-0608-1,,Comparative proteomics analysis of differentially expressed proteins in soybean cell wall during flooding stress.
+20209511,1615-9861,Proteomics,2010,10.1002/pmic.200900632,,Comparative analysis of soybean plasma membrane proteins under osmotic stress using gel-based and LC MS/MS-based proteomics approaches.
+18757068,0031-9422,Phytochemistry,2008,10.1016/j.phytochem.2008.07.004,,Proteomic analysis of soybean nodule cytosol.
+19073762,1040-4651,Plant Cell,2008,10.1105/tpc.108.062877,PMC2630451,Proteomic identification and characterization of a novel peroxisomal adenine nucleotide transporter supplying ATP for fatty acid beta-oxidation in soybean and Arabidopsis.
+19772575,1471-2229,BMC Plant Biol.,2009,10.1186/1471-2229-9-119,PMC2758885,Distinct changes in soybean xylem sap proteome in response to pathogenic and symbiotic microbe interactions.
+20203239,1471-9053,Plant Cell Physiol.,2010,10.1093/pcp/pcq024,,"Analysis of the Rac/Rop small GTPase family in rice: expression, subcellular localization and role in disease resistance."
+18784285,0032-0889,Plant Physiol.,2008,10.1104/pp.108.123356,PMC2577279,XA27 depends on an amino-terminal signal-anchor-like sequence to localize to the apoplast for resistance to Xanthomonas oryzae pv oryzae.
+19938377,1559-2324,Plant Signal Behav,2009,,PMC2802814,Evidence for a role of hexokinases as conserved glucose sensors in both monocot and dicot plant species.
+23820081,1879-0038,Gene,2013,10.1016/j.gene.2013.06.037,,Expression of antimicrobial peptides thanatin(S) in transgenic Arabidopsis enhanced resistance to phytopathogenic fungi and bacteria.
+24714629,1559-2324,Plant Signal Behav,2014,,PMC4091560,Traffic jam on the cellular secretory pathway generated by a replication protein from a plant RNA virus.
+8246886,0026-8925,Mol. Gen. Genet.,1993,,,Functional expression of the transcriptional activator Opaque-2 of Zea mays in transformed yeast.
+11891300,0027-8424,Proc. Natl. Acad. Sci. U.S.A.,2002,10.1073/pnas.052484099,PMC122655,Intercellular trafficking of a KNOTTED1 green fluorescent protein fusion in the leaf and shoot meristem of Arabidopsis.
+12937943,0721-7714,Plant Cell Rep.,2003,10.1007/s00299-003-0693-7,,Jellyfish green fluorescent protein as a useful reporter for transient expression and stable transformation in Medicago sativa L.
+12900451,0950-1991,Development,2003,,,Developmental regulation and significance of KNOX protein trafficking in Arabidopsis.
+15001699,0032-0889,Plant Physiol.,2004,10.1104/pp.103.030577,PMC389931,The MADS box transcription factor ZmMADS2 is required for anther and pollen maturation in maize and accumulates in apoptotic bodies during anther dehiscence.
+15681383,1095-9203,Science,2005,10.1126/science.1104954,,Micropylar pollen tube guidance by egg apparatus 1 of maize.
+16460507,0960-7412,Plant J.,2006,10.1111/j.1365-313X.2005.02632.x,,Divergence of duplicated genes in maize: evolution of contrasting targeting information for enzymes in the porphyrin pathway.
+21778179,1460-2431,J. Exp. Bot.,2011,10.1093/jxb/err220,PMC3193018,Ligand-binding properties and subcellular localization of maize cytokinin receptors.
+21653193,1532-298X,Plant Cell,2011,10.1105/tpc.111.085597,PMC3160025,ROP GTPases act with the receptor-like protein PAN1 to polarize asymmetric cell division in maize.
+22706447,1532-2548,Plant Physiol.,2012,10.1104/pp.112.199737,PMC3425180,Reliable transient transformation of intact maize leaf cells for functional genomics and experimental study.
