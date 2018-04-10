@@ -1,7 +1,8 @@
 import click
 import os
 from pickle import load, dump
-from mlabc import Generate
+from mlabc import Generate, DATADIR
+from config import PKLFILE
 
 # add module name to this list...
 
@@ -82,7 +83,8 @@ def cli():
 
 @cli.command()
 @click.option('--mod', help='modules to run')
-def tohtml(mod=''):
+@click.option('--cache', default=PKLFILE, help='cached pickle file')
+def tohtml(cache, mod=''):
     from mlabc import read_issn, pmid2doi, make_jinja_env
     # from pickle import load, dump
 
@@ -108,14 +110,16 @@ def tohtml(mod=''):
             print('writing', m, issn, issns.get(issn, ''))
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:
-            fname, papers = g.tohtml(save=True, prefix='html/journals/' + m + '_',
+            prefix = DATADIR + 'html/'
+            fname, papers = g.tohtml(save=True, prefix=prefix + 'journals/' + m + '_',
                                      env=env, verbose=False)
             journal = issns.get(issn, issn)
             nfailed = len([p for p, s in papers if not s.has_all_sections()])
             apmids = [p.pmid for p, s in papers if s.has_all_sections()]
             tpmids = [p.pmid for p, s in papers]
             ndone = len(tpmids)
-            t = (fname[5:], issn, ndone, journal, nfailed)
+            i = fname.find('journals/')
+            t = (fname[i:], issn, ndone, journal, nfailed)
             # journals.append(t)
             for p in apmids:
                 total1.add(p)
@@ -129,13 +133,13 @@ def tohtml(mod=''):
             #     click.secho("failed %s %s %s" % (m, i, str(e)), fg='magenta')
             #     raise e
 
-    if os.path.exists('issnmap.pkl'):
-        with open('issnmap.pkl', 'rb') as fp:
+    if os.path.exists(cache):
+        with open(cache, 'rb') as fp:
             issnmap2 = load(fp)
         issnmap2.update(issnmap)  # overwrite
         issnmap = issnmap2
 
-    with open('issnmap.pkl', 'wb') as fp:
+    with open(cache, 'wb') as fp:
         dump(issnmap, fp)
 
     journals = issnmap.values()

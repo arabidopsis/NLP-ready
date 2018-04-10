@@ -68,12 +68,6 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
         pmid2doi = read_journals_csv()
         todo = [pmid for pmid in pmid2doi if pmid2doi[pmid].issn in ISSN and pmid not in (
             done | failed)]
-        # with open(JCSV) as fp:
-        #     R = csv.reader(fp)
-        #     next(R)
-        #     for pmid, issn, name, year, doi in R:
-        #         if issn in ISSN and pmid not in done and pmid not in failed:
-        #             todo.append(pmid)
 
     else:
         todo = [p.pmid for p in read_suba_papers_csv()

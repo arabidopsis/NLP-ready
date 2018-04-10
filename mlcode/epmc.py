@@ -162,6 +162,7 @@ class EPMC(Clean):
 # PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/
 
 def pmc_subset():
+    """Create a PMCID subset from PMC-ids.csv.gz."""
     pmids = set(p.pmid for p in read_suba_papers_csv())
     with open('PMC-ids-partial.csv', 'w') as out:
         W = csv.writer(out)

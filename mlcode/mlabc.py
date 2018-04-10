@@ -12,33 +12,50 @@ from requests import ConnectionError
 from bs4 import BeautifulSoup
 
 from rescantxt import reduce_nums, find_primers
+from config import DATADIR, JCSV
 
-DATADIR = '../data/'
-JCSV = 'journals.csv'
 
 Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name'])
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
 
 
+def pmid2doi(check=lambda doi, issn: True):
+    return {p.pmid: p for p in read_suba_papers_csv() if check(p.doi, p.issn)}
+
+
 def read_journals_csv():
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        pmid2doi = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
-                    for pmid, issn, name, year, doi in R}
-    return pmid2doi
+    return pmid2doi()
 
 
 def read_suba_papers_csv():
     """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
+    return readx_suba_papers_csv(JCSV)
+
+
+def readx_suba_papers_csv(csvfile):
     # R = csv.reader(open('SUBA_Data4_JDK.csv', encoding='latin1'))
-    with open(JCSV, 'r', encoding='utf8') as fp:
+    with open(csvfile, 'r', encoding='utf8') as fp:
         R = csv.reader(fp)
         next(R)  # skip header
         # print(header)
-        for pmid, issn, name, year, doi in R:
-            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
+        for row in R:
+            if len(row) == 5:
+                pmid, issn, name, year, doi = row
+                title = pmcid = None
+            else:
+                pmid, issn, name, year, doi, pmcid, title = row
+            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid , pmcid=None)
+
+
+def read_pubmed_csv(csvfile, pcol=0):
+    """csvfile is a list of *all* pubmed ids from SUBA4."""
+    with open(csvfile, 'r', encoding='utf8') as fp:
+        R = csv.reader(fp)
+        next(R)  # skip header
+        # print(header)
+        for row in R:
+            yield row[pcol]
 
 
 def read_issn():
@@ -191,14 +208,6 @@ class Clean(object):
         return ' '.join(ret) if ret else ''
 
 
-def pmid2doi(check=lambda doi, issn: True):
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        pmid2doi = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
-                    for pmid, issn, name, year, doi in R if check(doi, issn)}
-    return pmid2doi
-
 
 def make_jinja_env():
     from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -229,13 +238,8 @@ class Generate(object):
                 return True
             return doi and issn == self.issn
 
-        with open(JCSV, 'r', encoding='utf8') as fp:
-            R = csv.reader(fp)
-            next(R)
-            pmid2doi = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
-                        for pmid, issn, name, year, doi in R if check(doi, issn)}
-        self._pmid2doi = pmid2doi
-        return pmid2doi
+        self._pmid2doi = pmid2doi(check)
+        return self._pmid2doi
 
     @property
     def journal(self):
@@ -361,7 +365,7 @@ class Generate(object):
         gdir = 'xml_%s' % self.issn
         papers = []
         pmid2doi = self.pmid2doi
-        todo = [pmid2doi[pmid] for pmid in readxml(gdir)]
+        todo = [pmid2doi[pmid] for pmid in readxml(gdir) if pmid in pmid2doi]
 
         todo = sorted(todo, key=lambda p: -p.year)
         nart = len(todo)
@@ -440,12 +444,8 @@ class Download(object):
         done = set(readxml(gdir))
 
         allpmid = failed | done
-        with open(JCSV, 'r', encoding='utf8') as fp:
-            R = csv.reader(fp)
-            next(R)
-            todo = {pmid: Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid)
-                    for pmid, issn, name, year, doi in R
-                    if doi and issn in self.issn and pmid not in allpmid}
+        todo = {p.pmid: p for p in read_suba_papers_csv() 
+                if p.doi and p.issn == self.issn and p.pmid not in allpmid}
 
         print('%s: %d failed, %d done, %d todo' % (self.issn, len(failed), len(done), len(todo)))
         lst = sorted(todo.values(), key=lambda p: -p.year)

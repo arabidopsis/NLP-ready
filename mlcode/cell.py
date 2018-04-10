@@ -5,7 +5,7 @@ import click
 from io import StringIO
 from bs4 import BeautifulSoup
 
-from mlabc import Clean, Generate, readxml, DownloadSelenium, DATADIR, JCSV, dump
+from mlabc import Clean, Generate, readxml, DownloadSelenium, DATADIR, read_suba_papers_csv, dump
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -123,11 +123,7 @@ def download_cell_old(issn, sleep=5.0, mx=0, headless=True, close=True):
 
     ISSN = {issn}
     allpmid = failed | done
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)
-        todo = {pmid: (doi, issn) for pmid, issn, name, year,
-                doi in R if doi and issn in ISSN and pmid not in allpmid}
+    todo = {p.pmid: p for p in read_suba_papers_csv() if p.doi and p.issn in ISSN and p.pmid not in allpmid}
 
     print('%s: %d failed, %d done, %d todo' % (issn, len(failed), len(done), len(todo)))
     lst = sorted(todo.items(), key=lambda t: t[0])

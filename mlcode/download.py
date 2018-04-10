@@ -12,26 +12,7 @@ from io import BytesIO
 
 from bs4 import BeautifulSoup
 
-from mlabc import JCSV, read_suba_papers_csv
-
-
-# def getpmcids(pmids):
-#     """Map pubmed ids to the "open access" fulltext PMC ids."""
-#     ret = {}
-#     pmids = set(pmids)
-#     if not os.path.exists('PMC-ids.csv.gz'):
-#         raise RuntimeError(
-#             'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"')
-#     with gzip.open('PMC-ids.csv.gz', 'rt') as fp:
-#         R = csv.reader(fp)
-#         next(R)  # skip header
-#         for row in R:
-#             pmcid, pmid = row[8:10]
-#             if pmcid and pmid in pmids:
-#                 assert pmid not in ret, pmid
-#                 ret[pmid] = pmcid
-#
-#     return ret
+from mlabc import JCSV, read_pubmed_csv, read_suba_papers_csv
 
 
 EFETCH = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id='
@@ -78,11 +59,17 @@ def parse_xml(xml):
 
     data = tree.find('PubmedArticle/PubmedData')
     ids = data.findall('ArticleIdList/ArticleId')
-    doi = [i.text for i in ids if i.get('IdType') == 'doi']
+    doi = [i.text.strip() for i in ids if i.get('IdType') == 'doi']
     if doi:
         doi = doi[0]
     else:
         doi = None
+
+    pmcid = [i.text.strip() for i in ids if i.get('IdType') == 'pmc']
+    if pmcid:
+        pmcid = pmcid[0]
+    else:
+        pmcid = None
 
     # elementtree tries to encode everything as ascii
     # or if that fails it leaves the string alone
@@ -101,11 +88,12 @@ def parse_xml(xml):
         'issue': issue,
         'pages': pages,
         'doi': doi,
-        'issn': issn
+        'issn': issn,
+        'pmcid': pmcid,
     }
 
 
-def getmeta(sleep=.2, pubmeds=JCSV):
+def getmeta(csvfile, pubmeds, sleep=.2):
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
     # return data from xml file at NIH in a pythonic dictionary
     def pubmed_meta(session, id):
@@ -125,17 +113,19 @@ def getmeta(sleep=.2, pubmeds=JCSV):
     with open(pubmeds, 'a', encoding='utf8') as fp:
         W = csv.writer(fp)
         if not e:
-            W.writerow(['pmid', 'issn', 'name', 'year', 'doi', 'title'])
-        for p in read_suba_papers_csv():
-            pmid = p.pmid
+            W.writerow(['pmid', 'issn', 'name', 'year', 'doi', 'pmcid', 'title'])
+        for pmid in read_pubmed_csv(csvfile):
             if pmid not in done:
                 m = pubmed_meta(session, pmid)
                 if m is None:
                     click.secho('missing: %s' % pmid, fg='red')
+                    W.writerow([pmid, 'missing-issn', '', '', '', '', ''])
                     continue
                 assert pmid == m['pmid'], m
                 W.writerow([pmid, m['issn'] or '', m['journal'],
-                            str(m['year']), m['doi'] or '', m['title']])
+                            str(m['year']), m['doi'] or '',
+                            m['pmcid'] or '',
+                            m['title']])
                 done.add(pmid)
                 print('%s: %d done' % (pmid, len(done)))
                 if sleep:
@@ -144,13 +134,10 @@ def getmeta(sleep=.2, pubmeds=JCSV):
 
 def journal_summary():
     """Summarize journal statistics."""
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        next(R)  # skip header
-        d = defaultdict(list)
-        for pmid, issn, name, year, doi in R:
-            if doi:
-                d[(issn, name)].append(doi)
+    d = defaultdict(list)
+    for p in read_suba_papers_csv():
+        if p.doi:
+            d[(p.issn, p.name)].append(p.doi)
     header = [['ISSN', 'count', 'journal', 'doi prefix', 'example doi']]
     ret = []
     for k in d:
@@ -237,14 +224,11 @@ def wiley_issn():
         next(R)
         i2n = {issn: name for name, issn in R}
     ISSN = {}
-    with open(JCSV, 'r', encoding='utf8') as fp:
-        R = csv.reader(fp)
-        h = next(R)  # skip header
-        print(','.join(h))
-        for pmid, issn, name, year, doi in R:
-            if issn in i2n:
-                ISSN[issn] = name
-                print(','.join((pmid, issn, name, year, doi)))
+    print('pmid,issn,journal,year,doi')
+    for p in read_suba_papers_csv():
+        if p.issn in i2n:
+            ISSN[p.issn] = p.name
+            print(','.join((p.pmid, p.issn, p.name, str(p.year), p.doi)))
     print(ISSN)
 
 
@@ -261,9 +245,10 @@ def summary():
 @cli.command()
 @click.option('--out', default=JCSV, help="output filename", show_default=True)
 @click.option('--sleep', default=1., help='wait sleep seconds between requests', show_default=True)
-def journals(sleep=.2, out=JCSV):
+@click.argument('csvfile')
+def journals(csvfile, out, sleep=.2):
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
-    getmeta(sleep, pubmeds=out)
+    getmeta(csvfile, sleep=sleep, pubmeds=out)
 
 
 if __name__ == '__main__':
