@@ -109,27 +109,29 @@ def getmeta(csvfile, pubmeds, sleep=.2):
             done = {row[0] for row in R}
     else:
         done = set()
-    print('%d done' % len(done))
+
+    todo = [pmid for pmid in read_pubmed_csv(csvfile) if pmid not in done]
+    print('%d done. %d todo' % (len(done), len(todo)))
+
     with open(pubmeds, 'a', encoding='utf8') as fp:
         W = csv.writer(fp)
         if not e:
             W.writerow(['pmid', 'issn', 'name', 'year', 'doi', 'pmcid', 'title'])
-        for pmid in read_pubmed_csv(csvfile):
-            if pmid not in done:
-                m = pubmed_meta(session, pmid)
-                if m is None:
-                    click.secho('missing: %s' % pmid, fg='red')
-                    W.writerow([pmid, 'missing-issn', '', '', '', '', ''])
-                    continue
-                assert pmid == m['pmid'], m
-                W.writerow([pmid, m['issn'] or '', m['journal'],
-                            str(m['year']), m['doi'] or '',
-                            m['pmcid'] or '',
-                            m['title']])
-                done.add(pmid)
-                print('%s: %d done' % (pmid, len(done)))
-                if sleep:
-                    time.sleep(sleep)  # be nice :)
+        for pmid in todo:
+            m = pubmed_meta(session, pmid)
+            if m is None:
+                click.secho('missing: %s' % pmid, fg='red')
+                W.writerow([pmid, 'missing-issn', '', '', '', '', ''])
+                continue
+            assert pmid == m['pmid'], m
+            W.writerow([pmid, m['issn'] or '', m['journal'],
+                        str(m['year']), m['doi'] or '',
+                        m['pmcid'] or '',
+                        m['title']])
+            done.add(pmid)
+            print('%s: %d done' % (pmid, len(done)))
+            if sleep:
+                time.sleep(sleep)  # be nice :)
 
 
 def journal_summary():
