@@ -1,5 +1,6 @@
 import click
 import os
+from pickle import load, dump
 from mlabc import Generate
 
 # add module name to this list...
@@ -93,13 +94,14 @@ def tohtml(mod=''):
         mods = [s.strip() for s in mod.split(',')]
     else:
         mods = MODS
-    journals = []
+    # journals = []
 
     issns = {issn: t[1] for issn, t in read_issn().items()}
     total1 = set()
     total2 = set()
     tt = 0
     p2i = pmid2doi()
+    issnmap = {}
     for m in mods:
         d = getmod(m)
         for issn in d['issn']:
@@ -114,17 +116,27 @@ def tohtml(mod=''):
             tpmids = [p.pmid for p, s in papers]
             ndone = len(tpmids)
             t = (fname[5:], issn, ndone, journal, nfailed)
-            journals.append(t)
+            # journals.append(t)
             for p in apmids:
                 total1.add(p)
             for p in tpmids:
                 total2.add(p)
             tt += len(tpmids)
 
+            issnmap[issn] = t
+
             # except Exception as e:
             #     click.secho("failed %s %s %s" % (m, i, str(e)), fg='magenta')
             #     raise e
 
+    if os.path.exists('issnmap.pkl'):
+        issnmap2 = load('issnmap.pkl')
+        issnmap2.update(issnmap)  # overwrite
+        issnmap = issnmap2
+
+    dump('issnmap.pkl', issnmap)
+
+    journals = issnmap.values()
     journals = sorted(journals, key=lambda t: t[3])
     t = template.render(journals=journals)
     with open('html/index.html', 'w') as fp:

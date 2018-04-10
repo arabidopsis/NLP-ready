@@ -91,6 +91,23 @@ class ASPB(Clean):
 
         return super().title()
 
+    def xrefs(self):
+        def xref(s):
+            for c in s.select('li div[data-doi]'):
+                cite = c.find('cite')
+                title = cite.select('.cite-article-title')[0].text
+                yield dict(doi=c.attrs['data-doi'], title=title)
+
+        for s in self.article.select('div.section'):
+            if 'ref-list' in s.attrs['class']:
+                return list(xref(s))
+
+        for s in self.article.select('div.section'):
+            txt = s.find('h2').string.lower()
+            if txt.find('references') >= 0:
+                return list(xref(s))
+        return None
+
 
 class GenerateASPB(Generate):
     cc = set()

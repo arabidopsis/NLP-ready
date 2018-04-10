@@ -79,6 +79,7 @@ class Clean(object):
     r = _Plug
     t = _Plug
     f = _Plug
+    x = _Plug
 
     def __init__(self, root):
         self.root = root
@@ -105,6 +106,9 @@ class Clean(object):
         return None
 
     def methods(self):
+        return None
+
+    def xrefs(self):
         return None
 
     def full_text(self):
@@ -160,6 +164,12 @@ class Clean(object):
             return self.t
         self.t = self.title()
         return self.t
+
+    def s_xrefs(self):
+        if self.x is not _Plug:
+            return self.x
+        self.x = self.xrefs()
+        return self.x
 
     def has_all_sections(self):
         a = self.s_abstract()
