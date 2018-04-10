@@ -73,6 +73,14 @@
       {% else -%}
           <h2 class="missing">Methods</h2>
       {%- endif %}
+      {#
+      {% set xrefs = e.s_xrefs() %}
+      {% if xrefs %}
+        {% for j in xrefs %}
+        <a href="https://doi.org/{{j.doi}}">{{j.title}}</a>,
+        {% endfor %}
+      {% endif %}
+      #}
     </div>
 {% endfor %}
   </div>

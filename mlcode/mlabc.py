@@ -4,7 +4,7 @@ import regex as re
 import csv
 import time
 from io import BytesIO
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 import click
 import requests
@@ -59,13 +59,18 @@ def read_pubmed_csv(csvfile, pcol=0):
 
 def read_issn():
 
-    ISSN = {}
-    with open('jcounts.csv', 'r') as fp:
-        R = csv.reader(fp)
-        next(R)
-        for issn, count, name, _, _ in R:
-            ISSN[issn] = (int(count), name)
-    return ISSN
+    ISSN = defaultdict(list)
+    for p in read_suba_papers_csv():
+        ISSN[p.issn].append(p)
+    return {k: (len(v), v[0].name) for k, v in ISSN.items()}
+
+    # ISSN = {}
+    # with open('jcounts.csv', 'r') as fp:
+    #     R = csv.reader(fp)
+    #     next(R)
+    #     for issn, count, name, _, _ in R:
+    #         ISSN[p.issn] = (int(count), p.name)
+    # return ISSN
 
 
 def readxml(d):
