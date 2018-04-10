@@ -83,13 +83,14 @@ def cli():
 
 @cli.command()
 @click.option('--mod', help='modules to run')
-@click.option('--cache', default=PKLFILE, help='cached pickle file')
+@click.option('--cache', default=PKLFILE, help='cached pickle file', show_default=True)
 def tohtml(cache, mod=''):
     from mlabc import read_issn, pmid2doi, make_jinja_env
     # from pickle import load, dump
 
     env = make_jinja_env()
-    os.makedirs('html/journals', exist_ok=True)
+    prefix = DATADIR + 'html/'
+    os.makedirs(prefix + 'journals', exist_ok=True)
 
     template = env.get_template('index.html')
     if mod:
@@ -110,7 +111,6 @@ def tohtml(cache, mod=''):
             print('writing', m, issn, issns.get(issn, ''))
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:
-            prefix = DATADIR + 'html/'
             fname, papers = g.tohtml(save=True, prefix=prefix + 'journals/' + m + '_',
                                      env=env, verbose=False)
             journal = issns.get(issn, issn)
@@ -119,7 +119,8 @@ def tohtml(cache, mod=''):
             tpmids = [p.pmid for p, s in papers]
             ndone = len(tpmids)
             i = fname.find('journals/')
-            t = (fname[i:], issn, ndone, journal, nfailed)
+            url = fname[i:]
+            t = (url, issn, ndone, journal, nfailed)
             # journals.append(t)
             for p in apmids:
                 total1.add(p)
@@ -145,7 +146,7 @@ def tohtml(cache, mod=''):
     journals = issnmap.values()
     journals = sorted(journals, key=lambda t: t[3])
     t = template.render(journals=journals)
-    with open('html/index.html', 'w') as fp:
+    with open(prefix + 'index.html', 'w') as fp:
         fp.write(t)
     click.secho("found %d pubmeds. %d unique, %d usable" %
                 (tt, len(total2), len(total1)), fg='blue')
