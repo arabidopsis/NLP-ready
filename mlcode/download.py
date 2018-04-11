@@ -251,7 +251,7 @@ def summary():
 @click.option('--sleep', default=1., help='wait sleep seconds between requests', show_default=True)
 @click.argument('csvfile')
 def journals(csvfile, out, sleep=.2):
-    """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
+    """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of SUBA4 pubmed ids."""
     getmeta(csvfile, sleep=sleep, pubmeds=out)
 
 

@@ -43,6 +43,7 @@ ISSN = {
 
     '1438-8677': 'Plant Biol (Stuttg)',
     '1435-8603': 'Plant Biol (Stuttg)',
+    '1462-5822': 'Cell. Microbiol.',
 
 }
 

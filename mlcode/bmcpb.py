@@ -12,6 +12,7 @@ ISSN = {
     "1746-4811": "Plant Methods",
     '1471-2121': 'BMC Cell Biol.',
     '1471-2148': 'BMC Evol. Biol.',
+    "1477-5956": "Proteome Sci",
 
 }
 

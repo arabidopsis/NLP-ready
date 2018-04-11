@@ -28,13 +28,15 @@ ISSN = {
     '1438-793X': 'Funct. Integr. Genomics',
     '1438-7948': 'Funct. Integr. Genomics',
     '1466-1268': 'Cell Stress Chaperones',
-    '1573-5079': 'Photosyn. Res.',
+
     '2194-7961': 'Plant Reprod',
 
     '2193-1801': 'Springerplus',
 
     '1438-2199': 'Amino Acids',
     '1939-8425': 'Rice (N Y)',
+    '0166-8595': 'Photosyn. Res.',
+    '1573-5079': 'Photosyn. Res.',
 
 
 }
