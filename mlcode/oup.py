@@ -15,8 +15,12 @@ ISSN = {
     '1460-2423': 'Glycobiology',
     '1756-2651': 'J. Biochem.',
     '1537-1719': 'Mol. Biol. Evol.',
-    "1756-1663": "DNA Res.",
+
     "1362-4962": "Nucleic Acids Res.",
+    "2041-2851": "AoB Plants",
+
+    "1340-2838": "DNA Res.",
+    "1756-1663": "DNA Res.",
 
 }
 

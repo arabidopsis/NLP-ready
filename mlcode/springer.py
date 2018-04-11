@@ -34,6 +34,7 @@ ISSN = {
     '2193-1801': 'Springerplus',
 
     '1438-2199': 'Amino Acids',
+    '1939-8425': 'Rice (N Y)',
 
 
 }

@@ -1,12 +1,13 @@
 from collections import defaultdict
+import requests
 from mlabc import Download, Clean, Generate
 
 
-# 1059-1524 ,Mol. Biol. Cell
-
 ISSN = {
     '1059-1524': 'Mol. Biol. Cell',
-    '1939-4586': 'Mol. Biol. Cell'
+    '1939-4586': 'Mol. Biol. Cell',
+
+    '1557-7430': 'DNA Cell Biol.',
 }
 
 
@@ -85,6 +86,12 @@ def download_ascb(issn, sleep=5.0, mx=0):
 
     class D(Download):
         Referer = 'https://www.molbiolcell.org'
+
+        def get_response(self, paper, header):
+            if paper.issn == '1557-7430':
+                return requests.get(
+                    'https://www.liebertpub.com/doi/full/{}'.format(paper.doi), headers=header)
+            return super().get_response(paper, header)
 
         def check_soup(self, paper, soup, resp):
             a = soup.select('div.article__body div.abstractSection.abstractInFull')

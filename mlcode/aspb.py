@@ -7,7 +7,9 @@ ISSN = {
     '1040-4651': 'Plant Cell',
     '1532-298X': 'Plant Cell',  # web issn for the plant cell
     '0032-0889': 'Plant Physiol.',
-    '1532-2548': 'Plant Physiol.'
+    '1532-2548': 'Plant Physiol.',
+    # not part of ASPB
+    '1471-2970': 'Philos. Trans. R. Soc. Lond., B, Biol. Sci.',
 }
 
 
@@ -86,6 +88,9 @@ class ASPB(Clean):
 
     def title(self):
         s = self.root.select('#page-title')
+        if s:
+            return s[0].text.strip()
+        s = self.root.select('h1.highwire-cite-title')  # philo trans of royal society B.
         if s:
             return s[0].text.strip()
 
