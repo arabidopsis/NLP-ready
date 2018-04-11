@@ -20,6 +20,7 @@ ISSN = {
 
     # added
     '0040-5752': 'Theor. Appl. Genet.',
+    '1432-2242': 'Theor. Appl. Genet.',
     '0172-8083': 'Curr. Genet.',
     '0175-7598': 'Appl. Microbiol. Biotechnol.',
     '0219-1032': 'Mol. Cells',
@@ -37,6 +38,10 @@ ISSN = {
     '1939-8425': 'Rice (N Y)',
     '0166-8595': 'Photosyn. Res.',
     '1573-5079': 'Photosyn. Res.',
+    '1573-6776': 'Biotechnol. Lett.',
+    '0962-8819': 'Transgenic Res.',
+    '1559-0305': 'Mol. Biotechnol.',
+
 
 
 }

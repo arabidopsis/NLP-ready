@@ -41,6 +41,7 @@ ISSN = {
     '1360-1385': 'Trends Plant Sci.',
     '1522-4724': 'Mol. Cell Biol. Res. Commun.',
     '1618-1328': 'J. Plant Physiol.',
+    "0176-1617": "J. Plant Physiol.",
     '1872-8278': 'Mitochondrion',
     '1873-3778': 'J Chromatogr A',
 
@@ -56,6 +57,7 @@ ISSN = {
     "1046-5928": "Protein Expr. Purif.",
     "0042-6822": "Virology",
     "1096-0341": "Virology",
+
 
 
 }
@@ -123,7 +125,8 @@ def download_cell_old(issn, sleep=5.0, mx=0, headless=True, close=True):
 
     ISSN = {issn}
     allpmid = failed | done
-    todo = {p.pmid: p for p in read_suba_papers_csv() if p.doi and p.issn in ISSN and p.pmid not in allpmid}
+    todo = {p.pmid: p for p in read_suba_papers_csv(
+    ) if p.doi and p.issn in ISSN and p.pmid not in allpmid}
 
     print('%s: %d failed, %d done, %d todo' % (issn, len(failed), len(done), len(todo)))
     lst = sorted(todo.items(), key=lambda t: t[0])
