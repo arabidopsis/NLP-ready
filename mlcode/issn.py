@@ -59,6 +59,16 @@ def getmod(mod):
     return ret
 
 
+def issn2mod():
+    is2mod = {}
+    for mod in MODS:
+        m = getmod(mod)
+        d = m['issn']
+        for issn in d:
+            is2mod[issn] = mod
+    return is2mod
+
+
 def doubles():
     from summary import get_done
     from mlabc import read_journals_csv
@@ -186,7 +196,7 @@ def tokenize(mod=''):
 @click.option('--mod', help='modules to run')
 @click.option('--nowrite', is_flag=True, help='don\'t overwrite')
 def clean(mod='', nowrite=False):
-    "Create clean documents."""
+    """Create clean documents."""
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:

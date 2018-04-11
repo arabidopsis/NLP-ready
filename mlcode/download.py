@@ -136,18 +136,20 @@ def getmeta(csvfile, pubmeds, sleep=.2):
 
 def journal_summary():
     """Summarize journal statistics."""
+    from issn import issn2mod
     d = defaultdict(list)
     for p in read_suba_papers_csv():
         if p.doi:
             d[(p.issn, p.name)].append(p.doi)
-    header = [['ISSN', 'count', 'journal', 'doi prefix', 'example doi']]
+    header = [['ISSN', 'mod', 'count', 'journal', 'doi prefix', 'example doi']]
     ret = []
+    i2mod = issn2mod()
     for k in d:
         (issn, name) = k
         prefix = os.path.commonprefix(d[k])
-        ret.append((issn, len(d[k]), name, prefix, d[k][-1]))
+        ret.append((issn, i2mod.get(issn, 'missing!'), len(d[k]), name, prefix, d[k][-1]))
 
-    ret = sorted(ret, key=lambda t: (-t[1], t[2]))
+    ret = sorted(ret, key=lambda t: (-t[2], t[3]))
     # ret = sorted(ret, key=lambda t: t[2])
     for r in header + ret:
         print(','.join(str(x) for x in r))
