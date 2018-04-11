@@ -41,8 +41,8 @@ ISSN = {
     '1573-6776': 'Biotechnol. Lett.',
     '0962-8819': 'Transgenic Res.',
     '1559-0305': 'Mol. Biotechnol.',
-
-
+    '0098-0331': 'J. Chem. Ecol.',
+    '1940-6029': 'Methods Mol. Biol.',
 
 }
 

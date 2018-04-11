@@ -57,6 +57,7 @@ ISSN = {
     "1046-5928": "Protein Expr. Purif.",
     "0042-6822": "Virology",
     "1096-0341": "Virology",
+    "1673-8527": "J Genet Genomics",
 
 
 
