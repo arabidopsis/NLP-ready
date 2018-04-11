@@ -58,6 +58,8 @@ ISSN = {
     "0042-6822": "Virology",
     "1096-0341": "Virology",
     "1673-8527": "J Genet Genomics",
+    "0308-8146": "Food Chem",
+    "0300-9084": "Biochimie",
 
 
 

@@ -13,6 +13,7 @@ ISSN = {
     '1471-2121': 'BMC Cell Biol.',
     '1471-2148': 'BMC Evol. Biol.',
     "1477-5956": "Proteome Sci",
+    '1759-8753': 'Mob DNA',
 
 }
 

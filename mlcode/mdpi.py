@@ -7,6 +7,7 @@ from mlabc import Clean, Download, Generate
 
 ISSN = {
     '1422-0067': 'Int J Mol Sci',
+    '1420-3049': 'Molecules',
 }
 
 
