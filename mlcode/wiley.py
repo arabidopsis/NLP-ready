@@ -41,6 +41,9 @@ ISSN = {
     '1365-2591': 'Int Endod J',
     '1526-954X': 'Genesis',
 
+    '1438-8677': 'Plant Biol (Stuttg)',
+    '1435-8603': 'Plant Biol (Stuttg)',
+
 }
 
 

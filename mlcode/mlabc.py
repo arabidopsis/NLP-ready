@@ -44,11 +44,11 @@ def readx_suba_papers_csv(csvfile):
                 title = pmcid = None
             else:
                 pmid, issn, name, year, doi, pmcid, title = row
-            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid , pmcid=None)
+            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid, pmcid=None)
 
 
 def read_pubmed_csv(csvfile, pcol=0):
-    """csvfile is a list of *all* pubmed ids from SUBA4."""
+    """File csvfile is a list of *all* pubmed ids from SUBA4."""
     with open(csvfile, 'r', encoding='utf8') as fp:
         R = csv.reader(fp)
         next(R)  # skip header
@@ -210,7 +210,6 @@ class Clean(object):
         if r is None:
             ret.append('r')
         return ' '.join(ret) if ret else ''
-
 
 
 def make_jinja_env():
@@ -448,7 +447,7 @@ class Download(object):
         done = set(readxml(gdir))
 
         allpmid = failed | done
-        todo = {p.pmid: p for p in read_suba_papers_csv() 
+        todo = {p.pmid: p for p in read_suba_papers_csv()
                 if p.doi and p.issn == self.issn and p.pmid not in allpmid}
 
         print('%s: %d failed, %d done, %d todo' % (self.issn, len(failed), len(done), len(todo)))
