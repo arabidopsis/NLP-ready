@@ -44,6 +44,11 @@ def elsevier(pmid, url=PMID_ELSEVIER):
     # return soup.prettify()
 
 
+def ensure_dir(d):
+    if not os.path.isdir(DATADIR + d):
+        os.makedirs(DATADIR + d, exist_ok=True)
+
+
 def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
     """Download any Elsevier XML files using SUBA4 pubmed ids."""
     failed = set(readxml('failed_elsevier'))
@@ -76,6 +81,8 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
     todox = todo.copy()
     if mx:
         todo = todo[:mx]
+    if not todo:
+        return
     for pmid in todo:
         try:
             xml = elsevier(pmid)
@@ -91,6 +98,8 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
             d = 'failed_elsevier'
             xml = 'incorrect_pmid'
             failed.add(pmid)
+
+        ensure_dir(d)
         with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
         todox.remove(pmid)

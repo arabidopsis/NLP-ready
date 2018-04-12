@@ -31,6 +31,11 @@ def epmc(pmcid, session=None):
     return txt
 
 
+def ensure_dir(d):
+    if not os.path.isdir(DATADIR + d):
+        os.makedirs(DATADIR + d, exist_ok=True)
+
+
 def download_epmc(issn='epmc', sleep=0.5, mx=0):
     """Download any EuroPMC XML files using SUBA4 pubmed ids."""
     failed = set(readxml('failed_epmc'))
@@ -73,6 +78,7 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
                 txt = 'ok'
                 done.add(pmid)
 
+        ensure_dir(d)
         with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 

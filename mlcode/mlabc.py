@@ -415,7 +415,7 @@ class Download(object):
         self.sleep = sleep
         self.mx = mx
 
-    def check_dirs(self):
+    def ensure_dirs(self):
         fdir = 'failed_%s' % self.issn
         gdir = 'xml_%s' % self.issn
         if not os.path.isdir(DATADIR + fdir):
@@ -445,7 +445,7 @@ class Download(object):
         header = {'User-Agent': USER_AGENT,
                   'Referer': self.Referer
                   }
-        # self.check_dirs()
+        # self.ensure_dirs()
         fdir = 'failed_%s' % self.issn
         gdir = 'xml_%s' % self.issn
 
@@ -462,7 +462,7 @@ class Download(object):
             lst = lst[:self.mx]
         if not lst:
             return
-        self.check_dirs()
+        self.ensure_dirs()
         self.start()
         for idx, paper in enumerate(lst):
             try:
