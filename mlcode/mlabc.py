@@ -513,25 +513,29 @@ class FakeResponse(object):
 
 
 class DownloadSelenium(Download):
-    driver = None
-    headless = True
+
     WAIT = 10
 
-    def __init__(self, issn, mx=0, sleep=10., headless=True, close=True, **kwargs):
+    def __init__(self, issn, mx=0, sleep=10., headless=True, close=True,
+                 driver=None, **kwargs):
         super().__init__(issn, mx=mx, sleep=sleep, **kwargs)
         self.headless = headless
         self.close = close
+        self.driver = driver
 
     def start(self):
+        if self.driver is not None:
+            return
         from selenium import webdriver
         options = webdriver.ChromeOptions()
         if self.headless:
             options.add_argument('headless')
+        print('starting Chrome')
         self.driver = webdriver.Chrome(chrome_options=options)
         # self.driver.implicitly_wait(10)  # seconds
 
     def end(self):
-        if self.close and self.driver:
+        if self.close and self.driver is not None:
             self.driver.close()
 
     def wait(self):
@@ -539,9 +543,13 @@ class DownloadSelenium(Download):
         return WebDriverWait(self.driver, self.WAIT)
 
     def get_response(self, paper, header):
+        from selenium.common.exceptions import TimeoutException
         url = 'http://doi.org/{}'.format(paper.doi)
         self.driver.get(url)
-        self.wait()
+        try:
+            self.wait()
+        except TimeoutException as e:
+            assert False, 'selenium timeout'  # trigger failure with
 
         h = self.driver.find_element_by_tag_name('html')
         txt = h.get_attribute('outerHTML')

@@ -91,8 +91,9 @@ class DownloadCell(DownloadSelenium):
         assert len(secs) > 3, (paper.pmid, paper.doi, secs)
 
 
-def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
-    download = DownloadCell(issn, sleep=sleep, mx=mx, headless=headless, close=close)
+def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True, driver=None):
+    download = DownloadCell(issn, sleep=sleep, mx=mx, headless=headless,
+                            close=close, driver=driver)
 
     download.run()
 
@@ -112,7 +113,7 @@ def getpage(doi, driver):
     return txt
 
 
-def download_cell_old(issn, sleep=5.0, mx=0, headless=True, close=True):
+def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
     from selenium import webdriver
     # header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
     #           ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
@@ -299,11 +300,19 @@ DEFAULT = ','.join(ISSN)
 @click.option('--noclose', default=False, is_flag=True, help='don\'t close browser at end')
 @click.option('--issn', default=DEFAULT, show_default=True)
 def download(sleep, mx, issn, head, noclose):
+    from selenium import webdriver
+    options = webdriver.ChromeOptions()
+    if not head:
+        options.add_argument('headless')
+    driver = webdriver.Chrome(chrome_options=options)
     for i in issn.split(','):
-        driver = download_cell(issn=i, sleep=sleep, mx=mx, headless=not head, close=not noclose)
+        download_cell(issn=i, sleep=sleep, mx=mx, headless=not head,
+                      close=False, driver=driver)
     if noclose:
         import code
         code.interact(local=locals())
+    else:
+        driver.close()
 
 
 @cli.command()
@@ -323,6 +332,18 @@ def html(issn):
 @cli.command()
 def issn():
     print(' '.join(ISSN))
+
+
+@cli.command()
+@click.option('--issn', default=DEFAULT, show_default=True)
+def failed(issn):
+    for issn in issn.split(','):
+        gdir = 'failed_%s' % issn
+        for pmid in readxml(gdir):
+            fname = DATADIR + gdir + '/{}.html'.format(pmid)
+            with open(fname, 'rb') as fp:
+                err = fp.read().decode('utf-8')
+                print('%s,%s,"%s",%s' % (issn, pmid, err, fname))
 
 
 if __name__ == '__main__':

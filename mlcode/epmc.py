@@ -43,36 +43,48 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
     session = requests.Session()
 
     pmids = set()
+    pm2pmc = {}
     for p in read_suba_papers_csv():
         pmid = p.pmid
         if not pmid:
             continue
         if pmid in failed or pmid in done:
             continue
+        if not p.pmcid:
+            continue
 
         pmids.add(pmid)
+        pm2pmc[p.pmid] = p.pmcid
 
     print('%d failed, %d done, %d todo' % (len(failed), len(done), len(pmids)))
     if not pmids:
         return
 
-    p2mc = getpmcids(pmids)
+    if False:
+        p2mc = getpmcids(pmids)
+
+        if p2mc != pm2pmc:
+            print(set(p2mc) - set(pm2pmc))
+            print(set(pm2pmc) - set(p2mc))
+
+            assert p2mc == pm2pmc, (p2mc, pm2pmc)
 
     for pmid in pmids:
-        if pmid not in p2mc:
+        if pmid not in pm2pmc:
             d = 'failed_epmc'
             xml = 'nopmcid'
             failed.add(pmid)
             txt = 'nopmcid'
+            pmcid = ''
         else:
-            pmcid = p2mc[pmid]
+            pmcid = pm2pmc[pmid]
 
             xml = epmc(pmcid, session=session)
             if xml is None:
                 d = 'failed_epmc'
-                xml = 'failed'
+                xml = 'failed404'
                 failed.add(pmid)
-                txt = 'failed'
+                txt = 'failed404'
             else:
                 d = 'xml_epmc'
                 txt = 'ok'
@@ -82,7 +94,7 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
         with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 
-        print('%d failed (%s), %d done' % (len(failed), txt, len(done)))
+        print('%d failed (%s %s), %d done' % (len(failed), txt, pmcid, len(done)))
         if txt != 'nopmcid':
             time.sleep(sleep)
 

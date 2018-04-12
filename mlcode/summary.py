@@ -105,14 +105,14 @@ def _counts():
 
 
 def get_papers_todo(exclude=None, failed=False):
-    issns = read_issn()
+    # issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         if exclude and issn in exclude:
             continue
-        cnt, name = issns.get(issn, (0, issn))
+        # cnt, name = issns.get(issn, (0, issn))
         pmids = get_dir(xmld, ext=getext(xmld))
         for pmid in pmids:
             if pmid in papers:
@@ -128,11 +128,12 @@ def get_papers_todo(exclude=None, failed=False):
             for pmid in pmids:
                 if pmid in papers:
                     del papers[pmid]
-    return issns, papers
+    return papers
 
 
 def _todo(byname=False, exclude=None, failed=False):
-    issns, papers = get_papers_todo(exclude=exclude, failed=failed)
+    papers = get_papers_todo(exclude=exclude, failed=failed)
+    issns = {p.issn: p.name for p in papers.values()}
 
     ISSN = Counter()
     for pmid, p in papers.items():
@@ -143,7 +144,7 @@ def _todo(byname=False, exclude=None, failed=False):
         d2 = defaultdict(list)
         header = ["Journal", "ISSNs", "ToDo"]
         for issn, cnt in ISSN.items():
-            j = issns[issn][1]
+            j = issns[issn]
             d1[j] += cnt
             d2[j].append(issn)
         tbl = []
@@ -161,7 +162,7 @@ def _todo(byname=False, exclude=None, failed=False):
         tbl = []
         total = 0
         for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
-            tbl.append([issn, issns[issn][1], cnt])
+            tbl.append([issn, issns[issn], cnt])
             total += cnt
         tbl.append(('total', '', total))
         print(tabulate(tbl, headers=header, tablefmt="rst"))
@@ -170,7 +171,8 @@ def _todo(byname=False, exclude=None, failed=False):
 def _urls(exclude=None, failed=False):
     import requests
     import csv
-    issns, papers = get_papers_todo(exclude=exclude, failed=failed)
+    papers = get_papers_todo(exclude=exclude, failed=failed)
+    issns = {p.issn: p.name for p in papers.values()}
     header = {
         'User-Agent': USER_AGENT,
         'Referer': 'http://www.google.com'
@@ -206,7 +208,7 @@ def _urls(exclude=None, failed=False):
             except Exception as e:
                 click.secho('failed %s err=%s' % (p, str(e)), fg='red')
                 url = 'Failed! %s' % p.doi
-            W.writerow([p.pmid, p.issn, issns[p.issn][1], url])
+            W.writerow([p.pmid, p.issn, issns[p.issn], url])
             if (idx + 1) % 10 == 0:
                 print('done ', idx + 1)
 
