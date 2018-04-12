@@ -13,4 +13,4 @@ JCSV = '../csv/croppal-journals.csv'
 # for `python3 issn.py tohtml`
 # saves state so we can reproduce html
 # on a per module basis
-PKLFILE = '../csv/croppalmap.pkl'
+PKLFILE = DATADIR + 'croppalmap.pkl'

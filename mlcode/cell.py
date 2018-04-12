@@ -232,9 +232,14 @@ class CELL2(Clean):
     def methods(self):
         secs = self.article.select('section')
         for sec in secs:
+            if sec.has_attr('class'):
+                if 'materials-methods' in sec['class']:
+                    return sec
             h2 = sec.find('h2')
-            if h2 and h2.text.lower() == 'experimental procedures':
-                return sec
+            if h2:
+                txt = h2.text.lower()
+                if txt in {'experimental procedures', 'materials and methods'}:
+                    return sec
         return None
 
     def abstract(self):

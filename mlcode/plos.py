@@ -21,7 +21,7 @@ class PLOS(Clean):
     def results(self):
         secs = self.article.select('div.section.toc-section')
         for sec in secs:
-            if self.find_title(sec, txt=['results', 'results and discussion']):
+            if self.find_title(sec, txt=['results and discussion', 'results', 'result']):
                 return sec
 
         return None

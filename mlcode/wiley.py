@@ -166,9 +166,9 @@ class Wiley2(Clean):
 
 class GenerateWiley(Generate):
     def create_clean(self, soup, pmid):
-        p = self.pmid2doi[pmid]
-        if p.issn in {'1873-3468'}:
-            return Wiley(soup)
+        # p = self.pmid2doi[pmid]
+        # if p.issn in {'1873-3468'}:
+        #     return Wiley(soup)
         try:
             e = Wiley(soup)
         except Exception:

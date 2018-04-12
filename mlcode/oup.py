@@ -57,19 +57,31 @@ class OUP(Clean):
                 if target:
                     objs[target].append(d)
         res = {}
-        sections = {'abstract', 'results', 'materials and methods', 'results and discussion',
-                    'material and methods'}  # spelling!
+        # sections = {'abstract', 'results', 'materials and methods', 'results and discussion',
+        #             'material and methods'}  # spelling!
         for k in objs:
-            if k in sections:
-                res[k] = objs[k]
+            # if k in sections:
+            res[k] = objs[k]
         # assert set(res) == sections, (set(res))
         self.resultsd = res
 
     def results(self):
-        return self.resultsd.get('results') or self.resultsd.get('results and discussion')
+        K = ('results and discussion', 'results')
+        for k in K:
+            if k in self.resultsd:
+                return self.resultsd[k]
+        for k in self.resultsd:
+            if k.endswith(K):
+                return self.resultsd[k]
 
     def methods(self):
-        return self.resultsd.get('materials and methods') or self.resultsd.get('material and methods')
+        K = ('materials and methods', 'material and methods')
+        for k in K:
+            if k in self.resultsd:
+                return self.resultsd[k]
+        for k in self.resultsd:
+            if k.endswith(K):
+                return self.resultsd[k]
 
     def abstract(self):
         s = self.article.select('section.abstract')

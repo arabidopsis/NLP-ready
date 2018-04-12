@@ -93,9 +93,10 @@ def cli():
 
 @cli.command()
 @click.option('--mod', help='modules to run')
+@click.option('--issn', help='journals to run')
 @click.option('--cache', default=PKLFILE, help='cached pickle file', show_default=True)
-def tohtml(cache, mod=''):
-    from mlabc import read_issn, pmid2doi, make_jinja_env
+def tohtml(cache, issn=None, mod=''):
+    from mlabc import pmid2doi, make_jinja_env
     # from pickle import load, dump
 
     env = make_jinja_env()
@@ -107,30 +108,35 @@ def tohtml(cache, mod=''):
         mods = [s.strip() for s in mod.split(',')]
     else:
         mods = MODS
+    if issn:
+        issn = set(s.strip() for s in issn.split(','))
     # journals = []
 
-    issns = {issn: t[1] for issn, t in read_issn().items()}
     total1 = set()
     total2 = set()
     tt = 0
     p2i = pmid2doi()
+    issns = {p.issn: p.name for p in p2i.values() if not issn or p.issn in issn}
     issnmap = {}
-    for m in mods:
-        d = getmod(m)
+    for mod in mods:
+        d = getmod(mod)
         for issn in d['issn']:
-            print('writing', m, issn, issns.get(issn, ''))
+            if issn not in issns:  # no paper from this journal
+                continue
+            journal = issns[issn]
+            print('writing', mod, issn, journal)
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:
-            fname, papers = g.tohtml(save=True, prefix=prefix + 'journals/' + m + '_',
+            fname, papers = g.tohtml(save=True, prefix=prefix + 'journals/' + mod + '_',
                                      env=env, verbose=False)
-            journal = issns.get(issn, issn)
+
             nfailed = len([p for p, s in papers if not s.has_all_sections()])
             apmids = [p.pmid for p, s in papers if s.has_all_sections()]
             tpmids = [p.pmid for p, s in papers]
             ndone = len(tpmids)
             i = fname.find('journals/')
             url = fname[i:]
-            t = (url, issn, ndone, journal, nfailed)
+            t = (url, mod, issn, ndone, journal, nfailed)
             # journals.append(t)
             for p in apmids:
                 total1.add(p)
@@ -154,7 +160,7 @@ def tohtml(cache, mod=''):
         dump(issnmap, fp)
 
     journals = issnmap.values()
-    journals = sorted(journals, key=lambda t: t[3])
+    journals = sorted(journals, key=lambda t: t[4])
     t = template.render(journals=journals)
     with open(prefix + 'index.html', 'w') as fp:
         fp.write(t)

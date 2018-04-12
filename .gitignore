@@ -5,5 +5,5 @@ syntax: glob
 .ipynb_checkpoints/
 data/*
 mlcode/PMC-ids.csv.gz
-mlcode/html/
-html/
+data/*
+croppal/*

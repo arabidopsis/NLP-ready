@@ -1,4 +1,4 @@
-import csv
+# import csv
 import os
 import time
 # import sys
@@ -8,7 +8,7 @@ from lxml import etree
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-from mlabc import DATADIR, Clean, readxml, Generate, read_journals_csv, read_suba_papers_csv
+from mlabc import DATADIR, Clean, readxml, Generate, read_suba_papers_csv
 
 ISSN = {'elsevier': 'elsevier'}
 
@@ -54,29 +54,29 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
     failed = set(readxml('failed_elsevier'))
     done = set(readxml('xml_elsevier'))  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC
 
-    if use_issn:
-        # find ISSN subset for Elsevier see https://www.elsevier.com/solutions/sciencedirect/content/journal-title-lists
-        if not os.path.isfile('jnlactive.csv'):
-            raise RuntimeError(
-                'please download jnlactive.csv with: "wget https://www.elsevier.com/__data/promis_misc/sd-content/journals/jnlactive.csv"')
-        ISSN = set()
-        with open('jnlactive.csv', encoding='latin1') as fp:
-            R = csv.reader(fp)
-            next(R)
-            for name, issn, product, history in R:
-                if '-' not in issn:
-                    assert len(issn) == 8, issn
-                    issn = issn[:4] + '-' + issn[4:]  # sigh!
-                assert len(issn) == 9, issn
-                ISSN.add(issn)
-
-        pmid2doi = read_journals_csv()
-        todo = [pmid for pmid in pmid2doi if pmid2doi[pmid].issn in ISSN and pmid not in (
-            done | failed)]
-
-    else:
-        todo = [p.pmid for p in read_suba_papers_csv()
-                if p.pmid not in (failed | done)]
+    # if use_issn:
+    #     # find ISSN subset for Elsevier see https://www.elsevier.com/solutions/sciencedirect/content/journal-title-lists
+    #     if not os.path.isfile('jnlactive.csv'):
+    #         raise RuntimeError(
+    #             'please download jnlactive.csv with: "wget https://www.elsevier.com/__data/promis_misc/sd-content/journals/jnlactive.csv"')
+    #     ISSN = set()
+    #     with open('jnlactive.csv', encoding='latin1') as fp:
+    #         R = csv.reader(fp)
+    #         next(R)
+    #         for name, issn, product, history in R:
+    #             if '-' not in issn:
+    #                 assert len(issn) == 8, issn
+    #                 issn = issn[:4] + '-' + issn[4:]  # sigh!
+    #             assert len(issn) == 9, issn
+    #             ISSN.add(issn)
+    #
+    #     pmid2doi = read_journals_csv()
+    #     todo = [pmid for pmid in pmid2doi if pmid2doi[pmid].issn in ISSN and pmid not in (
+    #         done | failed)]
+    #
+    # else:
+    todo = [p.pmid for p in read_suba_papers_csv()
+            if p.pmid not in (failed | done)]
     print('%d failed, %d done %s todo' % (len(failed), len(done), len(todo)))
     todox = todo.copy()
     if mx:

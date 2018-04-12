@@ -77,7 +77,7 @@ class Springer(Clean):
             h2 = sec.find('h2')
             if h2:
                 txt = h2.text.lower().strip()
-                if txt in {'materials and methods', 'experimental procedures'}:
+                if txt in {'materials and methods', 'experimental procedures', 'methods'}:
                     return sec
         return None
 

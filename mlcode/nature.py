@@ -35,7 +35,12 @@ class Nature(Clean):
 
     def results(self):
         secs = self.article.xpath('.//section[@aria-labelledby="main"]')
-        return secs[0] if secs else None
+        if secs:
+            return secs[0]
+        secs = self.article.xpath('.//section[@aria-labelledby="results"]')
+        if secs:
+            return secs[0]
+        return None
 
     def methods(self):
         secs1 = None

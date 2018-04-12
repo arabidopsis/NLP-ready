@@ -395,9 +395,11 @@ class Generate(object):
             except Exception as err:
                 click.secho('failed for %s http://doi.org/%s %s' %
                             (paper.pmid, paper.doi, str(err)), fg='red', file=sys.stderr)
+                raise err
                 papers.append((paper, Clean(soup)))
 
-        t = template.render(papers=papers, issn=self.issn, failed=failed, this=self)
+        t = template.render(papers=papers, issn=self.issn, failed=failed, this=self,
+                            mod=self.__class__.__module__)
         if save:
             with open(fname, 'w') as fp:
                 fp.write(t)
