@@ -1,6 +1,7 @@
 requests
 click
-bs4
 lxml
+bs4
 tabulate
 selenium
+regex

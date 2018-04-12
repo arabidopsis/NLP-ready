@@ -44,6 +44,8 @@ ISSN = {
     '0098-0331': 'J. Chem. Ecol.',
     '1940-6029': 'Methods Mol. Biol.',
 
+    '1869-1889': 'Sci China Life Sci',
+
 }
 
 

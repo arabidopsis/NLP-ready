@@ -16,6 +16,7 @@
   <style type="text/css">
     .missing { color: red; }
     b.primer { color: blue; }
+    ol.failed { color: #888; }
   </style>
 </head>
 <body id="top">
@@ -39,6 +40,18 @@
     </li>
     {% endfor %}
   </ol>
+  {% if failed|length > 0 %}
+  <h3>Failed</h3>
+  <ol class="failed">
+    {% for p in failed %}
+      <li>{{p.pmid}} doi:<a href="https://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a>
+        ({{p.year}}) {% if p.title %}{{p.title}}{% endif %}
+        (<a href="https://ncbi.nlm.nih.gov/pubmed/{{p.pmid}}">ncbi</a>)
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+  <hr/>
   {% for p, e in papers %}
     <div id="{{p.pmid}}" class="panel panel-default">
 
