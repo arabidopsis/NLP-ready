@@ -15,7 +15,7 @@ from rescantxt import reduce_nums, find_primers
 from config import DATADIR, JCSV
 
 
-Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name', 'pmcid'])
+Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name', 'pmcid', 'title'])
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'
 
@@ -45,9 +45,9 @@ def readx_suba_papers_csv(csvfile):
             else:
                 pmid, issn, name, year, doi, pmcid, title = row
                 if issn == 'missing-issn':
-                    click.secho("missing %s" % pmid, fg='yellow')
+                    # click.secho("missing %s" % pmid, fg='yellow')
                     continue
-            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid , pmcid=None)
+            yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid, pmcid=pmcid, title=title)
 
 
 def read_pubmed_csv(csvfile, pcol=0):
@@ -80,7 +80,7 @@ def readxml(d):
     """Scan directory d and return the pubmed ids."""
     dd = DATADIR + d
     if not os.path.isdir(dd):
-        click.secho('readxml: no directory to scan for %s' % d, fg='red', file=sys.stderr)
+        # click.secho('readxml: no directory to scan for %s' % d, fg='red', file=sys.stderr)
         return
     for f in os.listdir(dd):
         f, ext = os.path.splitext(f)
@@ -369,11 +369,14 @@ class Generate(object):
 
         template = env.get_template(template)
         gdir = 'xml_%s' % self.issn
+        fdir = 'failed_%s' % self.issn
         papers = []
         pmid2doi = self.pmid2doi
         todo = [pmid2doi[pmid] for pmid in readxml(gdir) if pmid in pmid2doi]
+        failed = [pmid2doi[pmid] for pmid in readxml(fdir) if pmid in pmid2doi]
 
         todo = sorted(todo, key=lambda p: -p.year)
+        failed = sorted(failed, key=lambda p: -p.year)
         nart = len(todo)
         fname = getfname(nart)
 
@@ -394,7 +397,7 @@ class Generate(object):
                             (paper.pmid, paper.doi, str(err)), fg='red', file=sys.stderr)
                 papers.append((paper, Clean(soup)))
 
-        t = template.render(papers=papers, issn=self.issn, this=self)
+        t = template.render(papers=papers, issn=self.issn, failed=failed, this=self)
         if save:
             with open(fname, 'w') as fp:
                 fp.write(t)
@@ -442,7 +445,7 @@ class Download(object):
         header = {'User-Agent': USER_AGENT,
                   'Referer': self.Referer
                   }
-        self.check_dirs()
+        # self.check_dirs()
         fdir = 'failed_%s' % self.issn
         gdir = 'xml_%s' % self.issn
 
@@ -459,6 +462,7 @@ class Download(object):
             lst = lst[:self.mx]
         if not lst:
             return
+        self.check_dirs()
         self.start()
         for idx, paper in enumerate(lst):
             try:

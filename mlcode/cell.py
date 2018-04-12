@@ -1,4 +1,4 @@
-import csv
+# import csv
 import os
 import time
 import click
@@ -60,6 +60,7 @@ ISSN = {
     "1673-8527": "J Genet Genomics",
     "0308-8146": "Food Chem",
     "0300-9084": "Biochimie",
+    "0891-5849": "Free Radic. Biol. Med.",
 
 
 
