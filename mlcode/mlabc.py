@@ -45,7 +45,7 @@ def readx_suba_papers_csv(csvfile):
             else:
                 pmid, issn, name, year, doi, pmcid, title = row
                 if issn == 'missing-issn':
-                    click.secho("missing %s" % pmid, fg='yellow')
+                    # click.secho("missing %s" % pmid, fg='yellow')
                     continue
             yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid , pmcid=None)
 

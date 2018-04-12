@@ -38,13 +38,20 @@ def get_done():
 
 
 def _summary(showall=True, exclude=None):
-    issns = read_issn()
+    issns = defaultdict(list)
+    for p in read_suba_papers_csv():
+        if p.doi:
+            issns[p.issn].append(p)
+
     dd = {}
     for xmld in glob.glob(DATADIR + 'xml_*'):
         _, issn = xmld.split('_')
         if exclude and issn in exclude:
             continue
-        cnt, name = issns.get(issn, (0, issn))
+        if issn in issns:
+            cnt, name = len(issns[issn]), issns[issn][0].name
+        else:
+            cnt, name = 0, issn
         pmids = get_dir(xmld, ext=getext(xmld))
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
@@ -61,7 +68,7 @@ def _summary(showall=True, exclude=None):
             if exclude and issn in exclude:
                 continue
             if issn not in dd:
-                cnt, name = issns[issn]
+                cnt, name = len(issns[issn]), issns[issn][0].name
                 dd[issn] = (name, issn, cnt, 0, 0)
 
     header = 'issn,count,done,failed,total,todo,tname'.split(',')
