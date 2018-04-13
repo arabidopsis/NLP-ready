@@ -1,5 +1,7 @@
 # Configuration
 #
+# name of project
+NAME = 'cropPAL'
 # where to put the downloaded xml/html files
 # DATADIR = '../data/'
 DATADIR = '../croppal/'
@@ -7,7 +9,7 @@ DATADIR = '../croppal/'
 # we need an input a CSV of pubmed IDs
 # that we are interested in.
 # This finds ISSN of journal and DOI/PMCID of paper
-# from NCBI pubmed.
+# by scraping NCBI website.
 # JCSV = '../csv/suba-journals.csv'
 JCSV = '../csv/croppal-journals.csv'
 # for `python3 issn.py tohtml`

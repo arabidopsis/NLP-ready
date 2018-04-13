@@ -4,7 +4,7 @@ import gzip
 import time
 # import sys
 import requests
-# import click
+import click
 from lxml import etree
 
 from mlabc import DATADIR, readxml, Generate, Clean, read_suba_papers_csv
@@ -42,7 +42,7 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
     done = set(readxml('xml_epmc'))
     session = requests.Session()
 
-    pmids = set()
+    # pmids = set()
     pm2pmc = {}
     for p in read_suba_papers_csv():
         pmid = p.pmid
@@ -53,15 +53,15 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
         if not p.pmcid:
             continue
 
-        pmids.add(pmid)
+        # pmids.add(pmid)
         pm2pmc[p.pmid] = p.pmcid
 
-    print('%d failed, %d done, %d todo' % (len(failed), len(done), len(pmids)))
-    if not pmids:
+    print('%d failed, %d done, %d todo' % (len(failed), len(done), len(pm2pmc)))
+    if not pm2pmc:
         return
 
-    if False:
-        p2mc = getpmcids(pmids)
+    if os.environ.get('PMCIDS') == '1':
+        p2mc = getpmcids(set(pm2pmc))
 
         if p2mc != pm2pmc:
             print(set(p2mc) - set(pm2pmc))
@@ -69,34 +69,27 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
 
             assert p2mc == pm2pmc, (p2mc, pm2pmc)
 
-    for pmid in pmids:
-        if pmid not in pm2pmc:
-            d = 'failed_epmc'
-            xml = 'nopmcid'
-            failed.add(pmid)
-            txt = 'nopmcid'
-            pmcid = ''
-        else:
-            pmcid = pm2pmc[pmid]
+    for pmid in pm2pmc:
 
-            xml = epmc(pmcid, session=session)
-            if xml is None:
-                d = 'failed_epmc'
-                xml = 'failed404'
-                failed.add(pmid)
-                txt = 'failed404'
-            else:
-                d = 'xml_epmc'
-                txt = 'ok'
-                done.add(pmid)
+        pmcid = pm2pmc[pmid]
+
+        xml = epmc(pmcid, session=session)
+        if xml is None:
+            d = 'failed_epmc'
+            xml = 'failed404'
+            failed.add(pmid)
+            txt = 'failed404'
+        else:
+            d = 'xml_epmc'
+            txt = 'ok'
+            done.add(pmid)
 
         ensure_dir(d)
         with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 
         print('%d failed (%s %s), %d done' % (len(failed), txt, pmcid, len(done)))
-        if txt != 'nopmcid':
-            time.sleep(sleep)
+        time.sleep(sleep)
 
 
 def getxmlepmc(pmid):
@@ -179,10 +172,10 @@ class EPMC(Clean):
 
 # PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/
 
-def pmc_subset():
+def pmc_subset(fname):
     """Create a PMCID subset from PMC-ids.csv.gz."""
     pmids = set(p.pmid for p in read_suba_papers_csv())
-    with open('PMC-ids-partial.csv', 'w') as out:
+    with open(fname, 'w') as out:
         W = csv.writer(out)
         W.writerow(['pmid', 'pmcid'])
         with gzip.open('PMC-ids.csv.gz', 'rt') as fp:
@@ -194,12 +187,12 @@ def pmc_subset():
                     W.writerow([pmid, pmcid])
 
 
-def getpmcids(pmids):
+def getpmcids(pmids, fname='PMC-ids-partial.csv'):
     """Map pubmed ids to the "open access" fulltext PMC ids."""
     ret = {}
     pmids = set(pmids)
-    if os.path.exists('PMC-ids-partial.csv'):
-        with open('PMC-ids-partial.csv', 'r') as fp:
+    if os.path.exists(fname):
+        with open(fname, 'r') as fp:
             R = csv.reader(fp)
             next(R)
             for pmid, pmcid in R:
@@ -270,8 +263,24 @@ def html_epmc(issn='epmc'):
     print(e.tohtml())
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.option('--fname', help='output filename', default='PMC-ids-partial.csv')
+def subset(fname):
+    """Generate subset of PMC-ids.csv.gz."""
+    if not os.path.exists('PMC-ids.csv.gz'):
+        raise RuntimeError(
+            'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"')
+    pmc_subset(fname)
+
+
 if __name__ == '__main__':
+    cli()
     # download_epmc(sleep=2.0)
     # gen_epmc()
-    pmc_subset()
+    # pmc_subset()
     # html_epmc(issn='epmc')

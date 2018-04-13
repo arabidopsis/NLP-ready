@@ -353,7 +353,7 @@ class Generate(object):
             w = ' '.join(e.tostr(m))
             print('!~MM~! %s' % w, file=fp)
 
-    def tohtml(self, template='template.html', save=False, prefix='', env=None, verbose=True):
+    def tohtml(self, template='template.html', save=False, prefix='', env=None, verbose=True, num=False):
         if env is None:
             env = make_jinja_env()
 
@@ -399,7 +399,7 @@ class Generate(object):
                 papers.append((paper, Clean(soup)))
 
         t = template.render(papers=papers, issn=self.issn, failed=failed, this=self,
-                            mod=self.__class__.__module__)
+                            mod=self.__class__.__module__, num=num)
         if save:
             with open(fname, 'w') as fp:
                 fp.write(t)

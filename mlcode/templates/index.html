@@ -20,15 +20,21 @@
 </head>
 <body id="top">
   <div class="container">
-      <h2>Journals converted</h2>
+      <h2>Journals converted {{name}}</h2>
       <table class="table">
           <tr><th>Link</th><th>ISSN</th><th>Failed/Total</th></tr>
       {% for url, mod, issn, num, journal, nfailed in journals %}
         <tr><td><a href="{{url}}">{{journal}}</a></td>
             <td>{{issn}} <small>({{mod}})</small></td>
-            <td class="{% if nfailed> 0 %}failed{%else%}ok{% endif %}">{% if nfailed> 0 %}{{nfailed}}/{%endif%}{{num}}</td>
+            <td class="{% if nfailed > 0 %}failed{%else%}ok{% endif %}">{% if nfailed> 0 %}{{nfailed}}/{%endif%}{{num}}</td>
         </tr>
       {% endfor %}
+      {% set tfailed = journals|sum(attribute=5) %}
+      {% set total = journals|sum(attribute=3) %}
+      <tr><td>Total</td>
+          <td></td>
+          <td>{% if tfailed > 0 %}{{tfailed}}/{%endif%}{{total}}</td>
+      </tr>
       </table>
   </div>
 </body>

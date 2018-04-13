@@ -94,9 +94,12 @@ def cli():
 @cli.command()
 @click.option('--mod', help='modules to run')
 @click.option('--issn', help='journals to run')
+@click.option('--sort', default='journal')
+@click.option('--num', is_flag=True, help='reduce numbers to NUMBER etc.')
 @click.option('--cache', default=PKLFILE, help='cached pickle file', show_default=True)
-def tohtml(cache, issn=None, mod=''):
+def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
     from mlabc import pmid2doi, make_jinja_env
+    from config import NAME
     # from pickle import load, dump
 
     env = make_jinja_env()
@@ -118,6 +121,7 @@ def tohtml(cache, issn=None, mod=''):
     p2i = pmid2doi()
     issns = {p.issn: p.name for p in p2i.values() if not issn or p.issn in issn}
     issnmap = {}
+    keymap = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'failed': 5}
     for mod in mods:
         d = getmod(mod)
         for issn in d['issn']:
@@ -128,7 +132,7 @@ def tohtml(cache, issn=None, mod=''):
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:
             fname, papers = g.tohtml(save=True, prefix=prefix + 'journals/' + mod + '_',
-                                     env=env, verbose=False)
+                                     env=env, verbose=False, num=num)
 
             nfailed = len([p for p, s in papers if not s.has_all_sections()])
             apmids = [p.pmid for p, s in papers if s.has_all_sections()]
@@ -160,8 +164,19 @@ def tohtml(cache, issn=None, mod=''):
         dump(issnmap, fp)
 
     journals = issnmap.values()
-    journals = sorted(journals, key=lambda t: t[4])
-    t = template.render(journals=journals)
+
+    def sortf():
+        s = sort
+        if sort[0] == '-':
+            s = sort[1:]
+        k = keymap[s]
+        if s == sort:
+            return lambda t: t[k]
+        else:
+            return lambda t: -t[k]
+
+    journals = sorted(journals, key=sortf())
+    t = template.render(journals=journals, name=NAME)
     with open(prefix + 'index.html', 'w') as fp:
         fp.write(t)
     click.secho("found %d pubmeds. %d unique, %d usable" %

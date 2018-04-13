@@ -52,6 +52,7 @@
   </ol>
   {% endif %}
   <hr/>
+  {% set num = true %}
   {% for p, e in papers %}
     <div id="{{p.pmid}}" class="panel panel-default">
 
@@ -72,7 +73,7 @@
       {% if results is not none %}
           <h3>Results</h3>
           {% for txt in e.tostr(results) %}
-              <p>{{txt|prime}}</p>
+              <p>{{txt|prime(num)}}</p>
           {% endfor %}
       {% else -%}
           <h2 class="missing">Results</h2>
@@ -81,7 +82,7 @@
       {% if methods is not none %}
           <h3>Methods</h3>
           {% for txt in e.tostr(methods) %}
-              <p>{{txt|prime}}</p>
+              <p>{{txt|prime(num)}}</p>
           {% endfor %}
       {% else -%}
           <h2 class="missing">Methods</h2>
