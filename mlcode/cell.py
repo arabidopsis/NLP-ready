@@ -174,7 +174,8 @@ class CELL(Clean):
         secs = self.article.select('div.Body section')
         for sec in secs:
             if self.find_title(sec, op=lambda h2, b: h2.endswith(b),
-                               txt=['results', 'results and discussion', 'results and discussions']):
+                               txt=['results', 'results and discussion',
+                                    'results and discussions']):
                 return sec
             if self.find_title(sec,
                                txt=['experimental']):

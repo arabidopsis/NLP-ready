@@ -91,7 +91,7 @@ def cli():
     pass
 
 
-KEYMAP = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'failed': 5}
+KEYMAP = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'notok': 5, 'failed': 6}
 
 
 @cli.command()

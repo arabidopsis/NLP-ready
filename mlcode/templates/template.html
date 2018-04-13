@@ -13,10 +13,12 @@
     <link  href="http://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.2/toastr.min.css" media="all" rel="stylesheet" />
     #}
   <link  href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"  media="all" rel="stylesheet" />
+
   <style type="text/css">
     .missing { color: red; }
     b.primer { color: blue; }
     ol.failed { color: #888; }
+    
   </style>
 </head>
 <body id="top">
@@ -62,28 +64,34 @@
       Go to <a href="#top"> top<i class="fa fa-angle-up"></i></a>
       {% set abstract = e.s_abstract() %}
       {% if abstract is not none %}
-          <h3>Abstract</h3>
-          {% for txt in e.tostr(abstract) %}
-              <p>{{txt}}<p>
-          {% endfor %}
+          <div class="section abstract">
+              <h3>Abstract</h3>
+              {% for txt in e.tostr(abstract) %}
+                  <p>{{txt}}<p>
+              {% endfor %}
+          </div>
       {% else -%}
           <h2 class="missing">Abstract</h2>
       {%- endif %}
       {% set results = e.s_results() %}
       {% if results is not none %}
+        <div class="section results">
           <h3>Results</h3>
           {% for txt in e.tostr(results) %}
               <p>{{txt|prime(num)}}</p>
           {% endfor %}
+        </div>
       {% else -%}
           <h2 class="missing">Results</h2>
       {%- endif %}
       {% set methods = e.s_methods() %}
       {% if methods is not none %}
+        <div class="section methods">
           <h3>Methods</h3>
           {% for txt in e.tostr(methods) %}
               <p>{{txt|prime(num)}}</p>
           {% endfor %}
+        </div>
       {% else -%}
           <h2 class="missing">Methods</h2>
       {%- endif %}

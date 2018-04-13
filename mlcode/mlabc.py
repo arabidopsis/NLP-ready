@@ -111,8 +111,10 @@ class Clean(object):
     def find_title(self, sec, h='h2', op=lambda h, b: h == b, txt=[]):
         h = sec.find(h)
         if h:
-            h2 = h.text.lower()
+            h2 = h.text.lower().strip()
+            h2 = self.SPACE.sub(' ', h2)
             for a in txt:
+                # print('"%s"="%s" %s %s' % (h2, a, op(h2, a), h2.endswith(a)))
                 if op(h2, a):
                     return True
         return False
