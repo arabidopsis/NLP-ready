@@ -357,14 +357,14 @@ class Generate(object):
         if env is None:
             env = make_jinja_env()
 
-        def getfname(nart):
+        def getfname():
             if self.issn not in {'epmc', 'elsevier'}:
                 name = self.journal
             else:
                 name = self.issn
             name = name.replace('.', '').lower()
             name = '-'.join(name.split())
-            fname = prefix + '%s-%s-n%d.html' % (self.issn, name, nart)
+            fname = prefix + '%s-%s.html' % (self.issn, name)
             return fname
 
         template = env.get_template(template)
@@ -377,8 +377,8 @@ class Generate(object):
 
         todo = sorted(todo, key=lambda p: -p.year)
         failed = sorted(failed, key=lambda p: -p.year)
-        nart = len(todo)
-        fname = getfname(nart)
+        # nart = len(todo)
+        fname = getfname()
 
         for paper in todo:
             if verbose:
@@ -403,7 +403,7 @@ class Generate(object):
         if save:
             with open(fname, 'w') as fp:
                 fp.write(t)
-            return fname, papers
+            return fname, papers, failed
 
         return t
 

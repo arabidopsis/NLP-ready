@@ -77,7 +77,8 @@ class Springer(Clean):
             h2 = sec.find('h2')
             if h2:
                 txt = h2.text.lower().strip()
-                if txt in {'materials and methods', 'experimental procedures', 'methods'}:
+                if txt in {'materials and methods', 'methods and materials',
+                           'experimental procedures', 'methods'}:
                     return sec
         return None
 
@@ -119,23 +120,57 @@ class Springer(Clean):
         return txt
 
 
+class SpringerRice(Springer):
+
+    def __init__(self, root):
+        self.root = root
+        a = root.select('body.journal-fulltext .FulltextWrapper > section')
+        assert a
+        self.article = a[0].parent
+
+    def results(self):
+
+        for sec in self.article.select('section'):
+            h2 = sec.find('h2')
+            if h2:
+                txt = h2.text.lower().strip()
+                if txt in {'results', 'results and discussion'}:
+                    return sec
+        return None
+
+    def methods(self):
+        for sec in self.article.select('section'):
+            h2 = sec.find('h2')
+            if h2:
+                txt = h2.text.lower().strip()
+
+                if txt in {'materials and methods', 'methods and materials',
+                           'experimental procedures', 'methods'}:
+                    return sec
+        return None
+
+
 def download_springer(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = 'https://link.springer.com'
 
         def check_soup(self, paper, soup, resp):
             a = soup.select('main#main-content article.main-body__content')
+            if not a and paper.issn == '1939-8425':
+                a = soup.select('body.journal-fulltext .FulltextWrapper > section')
             if not a and paper.year < 2005:
                 dump(paper, resp.content)
                 return b'failed-only-pdf'
             else:
-                assert a and len(a) == 1, (paper.pmid, resp.url, paper.doi)
+                assert a, (paper.pmid, resp.url, paper.doi)
     o = D(issn, sleep=sleep, mx=mx)
     o.run()
 
 
 class GenerateSpringer(Generate):
     def create_clean(self, soup, pmid):
+        if self.pmid2doi[pmid].issn == '1939-8425':
+            return SpringerRice(soup)
         return Springer(soup)
 
 
@@ -150,13 +185,5 @@ def html_springer(issn):
 
 
 if __name__ == '__main__':
-    download_springer(issn='1573-5028', sleep=60. * 2, mx=0)
-    download_springer(issn='0167-4412', sleep=60. * 2, mx=0)
-    download_springer(issn='0032-0935', sleep=60. * 2, mx=0)
-    download_springer(issn='1432-2048', sleep=60. * 2, mx=0)
-    download_springer(issn='1615-6102', sleep=60. * 2, mx=0)
-    download_springer(issn='0033-183X', sleep=60. * 2, mx=0)
-    # gen_springer(issn='1573-5028')
-    # gen_springer(issn='0167-4412')
-    # html_springer(issn='1573-5028')
-    # html_springer(issn='0032-0935')
+    for issn in ISSN:
+        download_springer(issn=issn, sleep=60. * 2, mx=0)

@@ -53,7 +53,7 @@ class Wiley(Clean):
     def __init__(self, root):
         self.root = root
         a = root.select('article.journal article.issue article.article')[0]
-        assert a
+        assert a, a
         self.article = a
 
     def title(self):

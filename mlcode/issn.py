@@ -91,10 +91,13 @@ def cli():
     pass
 
 
+KEYMAP = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'failed': 5}
+
+
 @cli.command()
 @click.option('--mod', help='modules to run')
 @click.option('--issn', help='journals to run')
-@click.option('--sort', default='journal')
+@click.option('--sort', default='journal', help='sort on: ' + ','.join(KEYMAP))
 @click.option('--num', is_flag=True, help='reduce numbers to NUMBER etc.')
 @click.option('--cache', default=PKLFILE, help='cached pickle file', show_default=True)
 def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
@@ -121,7 +124,7 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
     p2i = pmid2doi()
     issns = {p.issn: p.name for p in p2i.values() if not issn or p.issn in issn}
     issnmap = {}
-    keymap = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'failed': 5}
+
     for mod in mods:
         d = getmod(mod)
         for issn in d['issn']:
@@ -131,16 +134,16 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
             print('writing', mod, issn, journal)
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:
-            fname, papers = g.tohtml(save=True, prefix=prefix + 'journals/' + mod + '_',
-                                     env=env, verbose=False, num=num)
+            fname, papers, failed = g.tohtml(save=True, prefix=prefix + 'journals/' + mod + '_',
+                                             env=env, verbose=False, num=num)
 
-            nfailed = len([p for p, s in papers if not s.has_all_sections()])
+            not_ok = len([p for p, s in papers if not s.has_all_sections()])
             apmids = [p.pmid for p, s in papers if s.has_all_sections()]
             tpmids = [p.pmid for p, s in papers]
             ndone = len(tpmids)
             i = fname.find('journals/')
             url = fname[i:]
-            t = (url, mod, issn, ndone, journal, nfailed)
+            t = (url, mod, issn, ndone, journal, not_ok, len(failed))
             # journals.append(t)
             for p in apmids:
                 total1.add(p)
@@ -169,7 +172,7 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
         s = sort
         if sort[0] == '-':
             s = sort[1:]
-        k = keymap[s]
+        k = KEYMAP[s]
         if s == sort:
             return lambda t: t[k]
         else:
@@ -233,17 +236,24 @@ def clean(mod='', nowrite=False):
 
 @cli.command()
 @click.option('--mod', help='modules to run')
+@click.option('--issn', help='journals to run')
 @click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
 @click.option('--mx', default=3, help='max documents to download 0=all')
-def download(mod='', sleep=10., mx=1):
+def download(mod='', sleep=10., mx=1, issn=''):
     """Download html/xml from websites."""
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:
         mods = MODS
+    if issn:
+        issns = {i.strip() for i in issn.split(',')}
+    else:
+        issns = None
     for m in mods:
         d = getmod(m)
         for issn in d['issn']:
+            if issns and issn not in issns:
+                continue
             print('downloading:', m, issn)
             d['download'](issn, sleep=sleep, mx=mx)
 
