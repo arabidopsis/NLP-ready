@@ -30,11 +30,15 @@ class ASCB(Clean):
         targets = []
         objs = defaultdict(list)
         a = self.article.select('div.hlFld-Fulltext')[0]
+
+        def has_class(d, cls):
+            return d.has_attr('class') and cls in d['class']
+
         for d in a.contents:
             if d.name == 'h2':
                 target = d.text.strip()
                 targets.append(target)
-            elif d.name == 'p' or d.name == 'figure':
+            elif d.name == 'p' or d.name == 'figure' or has_class(d, 'article-table-content'):
                 if target:
                     objs[target].append(d)
         return [(t, objs[t]) for t in targets]
@@ -61,21 +65,29 @@ class ASCB(Clean):
         return super().title()
 
     def tostr(self, secs):
-        # import sys
+
+        def has_class(d, cls):
+            return d.has_attr('class') and cls in d['class']
+
+        def newfig(tag, caption='figcaption p', fmt='FIGURE:'):
+            captions = [c.text for c in tag.select(caption)]
+            txt = ' '.join(captions)
+            new_tag = self.root.new_tag("p")
+            new_tag.string = "[[%s %s]]" % (fmt, txt)
+            return new_tag
+
         ss = []
         for sec in secs:
             for a in sec.select('a.tab-link'):
                 a.replace_with('CITATION')
+
             if sec.name == 'figure':
-                new_tag = self.root.new_tag("p")
-                new_tag.string = "[[FIGURE]]"
-                # sec.replace_with(new_tag)  # doesn't seem to work
-                ss.append(new_tag)
+                ss.append(newfig(sec))
+            elif has_class(sec, 'article-table-content'):
+                ss.append(newfig(sec, caption='caption', fmt='TABLE:'))
             else:
                 for s in sec.select('figure'):
-                    new_tag = self.root.new_tag("p")
-                    new_tag.string = "[[FIGURE]]"
-                    s.replace_with(new_tag)
+                    s.replace_with(newfig(s))
                 ss.append(sec)
 
         txt = [self.SPACE.sub(' ', p.text) for p in ss]

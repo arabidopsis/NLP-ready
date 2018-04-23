@@ -48,7 +48,38 @@ ISSN = {
 }
 
 
-class Wiley(Clean):
+class BaseWiley(Clean):
+
+    def tostr(self, sec):
+
+        def newfig(tag, caption='figcaption p', fmt='FIGURE:'):
+            captions = [c.text for c in tag.select(caption)]
+            txt = ' '.join(captions)
+            new_tag = self.root.new_tag("p")
+            new_tag.string = " [[%s %s]] " % (fmt, txt)
+            return new_tag
+
+        for a in sec.select('figure'):
+            # figure inside a div.Para so can't really replace
+            # with a "p"
+            a.replace_with(newfig(a, fmt='FIGURE:'))
+
+        for a in sec.select('.article-table-content'):
+            a.replace_with(newfig(a, caption='.article-table-caption', fmt='TABLE:'))
+        # for a in sec.select('figure'):
+        #    p = self.root.new_tag('p')
+        #    p.string = '[[FIGURE]]'
+        #     a.replace_with(p)
+        for a in sec.select('p a[title="Link to bibliographic citation"]'):
+            a.replace_with('CITATION')
+        for a in sec.select('p a.bibLink'):
+            a.replace_with('CITATION')
+
+        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        return txt
+
+
+class Wiley(BaseWiley):
 
     def __init__(self, root):
         self.root = root
@@ -88,19 +119,8 @@ class Wiley(Clean):
                 return s
         return None
 
-    def tostr(self, sec):
-        for a in sec.select('figure'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
-        for a in sec.select('p a[title="Link to bibliographic citation"]'):
-            a.replace_with('CITATION')
 
-        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
-        return txt
-
-
-class Wiley2(Clean):
+class Wiley2(BaseWiley):
 
     def __init__(self, root):
         self.root = root
@@ -148,20 +168,6 @@ class Wiley2(Clean):
         if s:
             return s[0].text.strip()
         return super().title()
-
-    def tostr(self, sec):
-
-        for a in sec.select('figure'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
-        for a in sec.select('p a[title="Link to bibliographic citation"]'):
-            a.replace_with('CITATION')
-        for a in sec.select('p a.bibLink'):
-            a.replace_with('CITATION')
-
-        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
-        return txt
 
 
 class GenerateWiley(Generate):
