@@ -1,3 +1,4 @@
 #!/bin/bash
+c=$1
 d=`date +"%Y-%m-%d"`
-zip -r cleaned-$d.zip data/cleaned/*
+zip -r cleaned-$c-$d.zip $c/cleaned/*
