@@ -160,14 +160,30 @@ class EPMC(Clean):
         return res[0]
 
     def tostr(self, r):
-        for p in r.xpath('.//p'):
+        def txt(p):
             res = []
             for t in para2txt3(p):
                 res.append(t)
 
             txt = ''.join(res)
             txt = self.SPACE.sub(' ', txt)
-            yield txt.strip()
+            return txt.strip()
+
+        secs = r.xpath('./sec')
+
+        if not secs:
+            for p in r.xpath('.//p'):
+                yield txt(p)
+        else:
+            for p in r.xpath('./sec/*[self::p or self::fig or self::table-wrap]'):
+                if p.tag == 'fig':
+                    t = ' '.join(txt(c) for c in p.xpath('.//p'))
+                    yield '[[FIGURE: %s]]' % t
+                elif p.tag == 'table-wrap':
+                    t = ' '.join(txt(c) for c in p.xpath('.//caption//p'))
+                    yield '[[TABLE: %s]]' % t
+                else:
+                    yield txt(p)
 
 
 # PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/

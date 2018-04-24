@@ -49,7 +49,7 @@ def ensure_dir(d):
         os.makedirs(DATADIR + d, exist_ok=True)
 
 
-def download_elsevier(issn='elsevier', sleep=0.5, mx=0, use_issn=False):
+def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
     """Download any Elsevier XML files using SUBA4 pubmed ids."""
     failed = set(readxml('failed_elsevier'))
     done = set(readxml('xml_elsevier'))  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC
@@ -147,6 +147,11 @@ class Elsevier(Clean):
         ns = root.nsmap.copy()
         ns['e'] = ns.pop(None)
         self.ns = ns
+        self.figures = {f.attrib['id']: f for f in self.root.xpath(
+            E + '/e:originalText/xocs:doc/xocs:serial-item//ce:figure[@id]', namespaces=ns)}
+
+        self.tables = {f.attrib['id']: f for f in self.root.xpath(
+            E + '/e:originalText/xocs:doc/xocs:serial-item//ce:table[@id]', namespaces=ns)}
 
     @property
     def pubmed(self):
@@ -197,14 +202,29 @@ class Elsevier(Clean):
         return secs[0]
 
     def tostr(self, r):
-        for p in r.xpath('.//*[self::ce:para or self::ce:simple-para]', namespaces=self.ns):
+
+        def txt(p):
             res = []
             for t in para2txt2(p):
                 res.append(t)
 
             txt = ''.join(res)
             txt = self.SPACE.sub(' ', txt)
-            yield txt.strip()
+            return txt.strip()
+
+        for p in r.xpath('.//*[self::ce:para or self::ce:simple-para]', namespaces=self.ns):
+            # TODO: <ce:float-anchor refid='FIG2'/>
+            yield txt(p)
+            for f in p.xpath('.//ce:float-anchor[@refid]', namespaces=self.ns):
+                fid = f.attrib['refid']
+                if fid in self.figures:
+                    fig = self.figures[fid]
+                    t = ' '.join(txt(c) for c in fig.xpath('.//ce:caption', namespaces=self.ns))
+                    yield '[[FIGURE: %s]]' % (t)
+                else:
+                    fig = self.tables[fid]
+                    t = ' '.join(txt(c) for c in fig.xpath('.//ce:caption', namespaces=self.ns))
+                    yield '[[TABLE: %s]]' % (t)
 
 
 class GenerateElsevier(Generate):
