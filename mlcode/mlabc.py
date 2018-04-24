@@ -206,7 +206,7 @@ class Clean(object):
     def has_rmm(self):
         m = self.s_methods()
         r = self.s_results()
-        return m is not None and r is not None
+        return m is not None or r is not None
 
     def missing(self):
         a = self.s_abstract()
