@@ -305,9 +305,12 @@ class Generate(object):
         return soup
 
     def run(self, overwrite=True, prefix=None):
+        gdir = 'xml_%s' % self.issn
+        papers = readxml(gdir)
+        if not papers:
+            return
         self.ensure_dir()
 
-        gdir = 'xml_%s' % self.issn
         for pmid in readxml(gdir):
             self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix)
 
