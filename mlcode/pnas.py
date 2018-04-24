@@ -50,10 +50,11 @@ class PNAS(Clean):
         return secs[0] if secs else None
 
     def tostr(self, sec):
+
         for a in sec.select('div.fig'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
+            a.replace_with(self.newfig(a, caption='.fig-caption p'))
+        for a in sec.select('div.table'):
+            a.replace_with(self.newtable(a, caption='.table-caption p', ))
             # a.replace_with('[[FIGURE]]')
         for a in sec.select('p a.xref-bibr'):
             a.replace_with('CITATION')

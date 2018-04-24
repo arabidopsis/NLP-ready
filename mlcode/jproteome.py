@@ -24,7 +24,8 @@ class JProteome(Clean):
             h2 = sec.find('h2')
             if h2:
                 txt = h2.text.lower().strip()
-                if txt in {'results', 'results and discussion', 'results and discussiom'}:  # [sic!] spelling
+                # [sic!] spelling
+                if txt in {'results', 'results and discussion', 'results and discussiom'}:
                     return sec
 
         return None
@@ -49,18 +50,13 @@ class JProteome(Clean):
         return self.article.select('h1.articleTitle')[0].text.strip()
 
     def tostr(self, sec):
+
         for a in sec.select('div.figure'):
-            p = self.root.new_tag('span')  # , **{'class': 'NLM_p'})
-
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
+            a.replace_with(self.newfig(a, caption='.caption p'))
         for a in sec.select('div.NLM_table-wrap'):
-            p = self.root.new_tag('span')
-
-            p.string = '[[TABLE]]'
-            a.replace_with(p)
+            a.replace_with(self.newtable(a, caption='.NLM_caption'))
         for a in sec.select('div.NLM_p a.ref'):
-            a.replace_with('CITATION')
+            a.replace_with(' CITATION ')
 
         def paraordiv(tag):
 

@@ -45,17 +45,16 @@ class Elife(Clean):
         return self.article.select('h1.content-header__title')[0].text.strip()
 
     def tostr(self, sec):
+
         for a in sec.select('div.asset-viewer-inline'):
             id = a.attrs.get('id')
             if not id:
                 continue
-            p = self.root.new_tag('p')
+
             if id.startswith('fig'):
-                p.string = '[[FIGURE]]'
-                a.replace_with(p)
+                a.replace_with(self.newfig(a))
             elif id.startswith('tbl'):
-                p.string = '[[TABLE]]'
-                a.replace_with(p)
+                a.replace_with(self.newtable(a))
         for a in sec.select('p a'):
             href = a.attrs.get('href')
             if not href or not href.startswith('#bib'):

@@ -61,17 +61,10 @@ class PMCPB(Clean):
 
     def tostr(self, sec):
 
-        def newfig(tag, fmt='FIGURE:'):
-            captions = [c.text for c in tag.select('figcaption p')]
-            txt = ' '.join(captions)
-            new_tag = self.root.new_tag("span")
-            new_tag.string = " [[%s %s]] " % (fmt, txt)
-            return new_tag
-
         for a in sec.select('p figure,div.Para figure'):
 
             fmt = 'TABLE:' if 'FigureTable' in a['class'] else 'FIGURE:'
-            a.replace_with(newfig(a, fmt))
+            a.replace_with(self.newfig(a, fmt=fmt, node='span'))
 
         for a in sec.select('span.CitationRef'):
             a.replace_with('CITATION')

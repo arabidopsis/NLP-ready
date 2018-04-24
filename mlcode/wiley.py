@@ -52,20 +52,13 @@ class BaseWiley(Clean):
 
     def tostr(self, sec):
 
-        def newfig(tag, caption='figcaption p', fmt='FIGURE:'):
-            captions = [c.text for c in tag.select(caption)]
-            txt = ' '.join(captions)
-            new_tag = self.root.new_tag("p")
-            new_tag.string = " [[%s %s]] " % (fmt, txt)
-            return new_tag
-
         for a in sec.select('figure'):
             # figure inside a div.Para so can't really replace
             # with a "p"
-            a.replace_with(newfig(a, fmt='FIGURE:'))
+            a.replace_with(self.newfig(a))
 
         for a in sec.select('.article-table-content'):
-            a.replace_with(newfig(a, caption='.article-table-caption', fmt='TABLE:'))
+            a.replace_with(self.newtable(a, caption='.article-table-caption'))
         # for a in sec.select('figure'):
         #    p = self.root.new_tag('p')
         #    p.string = '[[FIGURE]]'

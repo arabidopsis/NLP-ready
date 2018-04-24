@@ -25,14 +25,16 @@ ISSN = {
 }
 
 
+def has_class(d, cls):
+    return d.has_attr('class') and cls in d['class']
+
+
 def ok_elem(tag):
     if tag.name == 'p':
         return True
     if tag.name == 'div':
-        if tag.has_attr('class'):
-            cls = set(tag['class'])
-            if 'fig' in cls:
-                return True
+        if has_class(tag, 'fig-section') or has_class(tag, 'table-wrap'):
+            return True
     return False
 
 
@@ -96,16 +98,17 @@ class OUP(Clean):
         return super().title()
 
     def tostr(self, sec):
+
         for p in sec:
             for a in p.select('a.xref-bibr'):
                 a.replace_with('CITATION')
         ss = []
         for p in sec:
             if p.name == 'div':
-                a = self.root.new_tag('div')  # , **{'class': 'NLM_p'})
-
-                a.string = '[[FIGURE]]'
-                ss.append(a)
+                if has_class(p, 'fig-section'):
+                    ss.append(self.newfig(p, caption='.fig-caption p', node='div'))
+                elif has_class(p, 'table-wrap'):
+                    ss.append(self.newtable(p, caption='.caption p', node='div'))
             else:
                 ss.append(p)
 

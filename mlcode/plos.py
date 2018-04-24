@@ -40,10 +40,9 @@ class PLOS(Clean):
         return secs[0] if secs else None
 
     def tostr(self, sec):
+
         for a in sec.select('div.figure'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
+            a.replace_with(self.newfig(a, caption='.figcaption'))
         for a in sec.select('span.equation'):  # e.g. math equations
             a.replace_with('[[EQUATION]]')
         for a in sec.select('span.inline-formula'):  # e.g. math equations

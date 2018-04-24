@@ -98,19 +98,12 @@ class Springer(Clean):
 
     def tostr(self, sec):
 
-        def newfig(tag, caption='figcaption p', fmt='FIGURE:'):
-            captions = [c.text for c in tag.select(caption)]
-            txt = ' '.join(captions)
-            new_tag = self.root.new_tag("span")
-            new_tag.string = " [[%s %s]] " % (fmt, txt)
-            return new_tag
-
         for a in sec.select('figure'):
-            a.replace_with(newfig(a, fmt='FIGURE:'))
+            a.replace_with(self.newfig(a, node='span'))
             # a.replace_with('[[FIGURE]]')
 
         for a in sec.select('div.Table'):
-            a.replace_with(newfig(a, '.Caption p', fmt='TABLE:'))
+            a.replace_with(self.newtable(a, '.Caption p', node='span'))
             # a.replace_with('[[TABLE]]')
 
         for a in sec.select('span.CitationRef'):

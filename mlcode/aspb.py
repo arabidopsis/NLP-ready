@@ -77,12 +77,12 @@ class ASPB(Clean):
         return None
 
     def tostr(self, sec):
+
         for a in sec.select('a.xref-bibr'):
             a.replace_with('CITATION')
         for a in sec.select('div.fig.pos-float'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
+            a.replace_with(self.newfig(a, caption='.fig-caption p'))
+
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 

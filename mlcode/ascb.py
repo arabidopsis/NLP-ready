@@ -69,25 +69,18 @@ class ASCB(Clean):
         def has_class(d, cls):
             return d.has_attr('class') and cls in d['class']
 
-        def newfig(tag, caption='figcaption p', fmt='FIGURE:'):
-            captions = [c.text for c in tag.select(caption)]
-            txt = ' '.join(captions)
-            new_tag = self.root.new_tag("p")
-            new_tag.string = "[[%s %s]]" % (fmt, txt)
-            return new_tag
-
         ss = []
         for sec in secs:
             for a in sec.select('a.tab-link'):
                 a.replace_with('CITATION')
 
             if sec.name == 'figure':
-                ss.append(newfig(sec))
+                ss.append(self.newfig(sec))
             elif has_class(sec, 'article-table-content'):
-                ss.append(newfig(sec, caption='caption', fmt='TABLE:'))
+                ss.append(self.newtable(sec, caption='caption'))
             else:
                 for s in sec.select('figure'):
-                    s.replace_with(newfig(s))
+                    s.replace_with(self.newfig(s))
                 ss.append(sec)
 
         txt = [self.SPACE.sub(' ', p.text) for p in ss]

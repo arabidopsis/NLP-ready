@@ -18,6 +18,7 @@ class MDPI(Clean):
         a = root.select('article')
         assert a, a
         self.article = a[0]
+        self.figures = {}
 
     def results(self):
         for sec in self.article.select('.html-body section'):
@@ -53,18 +54,29 @@ class MDPI(Clean):
         return secs[0].text.strip()
 
     def tostr(self, sec):
-
-        for a in sec.select('.html-fig-wrap'):
-            # figures are placed by some javascript I think... so this doesn't work
-            p = self.root.new_tag('div', **{'class': 'html-p'})
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
+        figs = []
         for a in sec.select('div.html-p a.html-bibr'):
-            a.replace_with('CITATION')
+            a.replace_with(' CITATION ')
+
         for a in sec.select('div.html-p a.html-fig'):
-            a.replace_with('FIG-REF')
+            href = a['href']
+            if href not in self.figures:
+                n = self.root.select(href)[0]
+                self.figures[href] = n.select('.html-fig_description')[0]
+                figs.append(href)
+
+            a.replace_with(' FIG-REF ')
+
+        # for a in sec.select('.html-fig-wrap'):
+        #     # figures are placed by some javascript I think... so this doesn't work
+        #     p = self.root.new_tag('div', **{'class': 'html-p'})
+        #     p.string = '[[FIGURE]]'
+        #     a.replace_with(p)
+
+        figs = ['[[FIGURE: %s]]' % self.SPACE.sub(' ', self.figures[href].text) for href in figs]
+
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('div.html-p')]
-        return txt
+        return txt + figs
 
 
 class GenerateMDPI(Generate):

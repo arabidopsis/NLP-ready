@@ -42,8 +42,16 @@ class Science(Clean):
         secs = self.article.select('div.section.abstract')
         return secs[0] if secs else None
 
+    def full_text(self):
+
+        paper = [t for t in self.article.contents if t.name in {'p', 'figure'}]
+        node = self.root.new_tag('div')
+        for n in paper:
+            node.append(n)
+        return node
+
     def title(self):
-        s = self.root.select('header.article__headline')
+        s = self.root.select('h1.article__headline')
         if s:
             return s[0].text.strip()
         return super().title()
@@ -66,17 +74,29 @@ class Science(Clean):
                 return list(xref(s))
         return None
 
-    def tostr(self, sec):
-        # import sys
+    def old_tostr(self, sec):
+
+        for a in sec.select('div.fig.pos-float'):
+            a.replace_with(self.newfig(a, caption='.fig-caption p'))
+
         for a in sec.select('div.table.pos-float'):
-            # print(a, file=sys.stderr)
-            new_tag = self.root.new_tag("p")
-            new_tag.string = "[[TABLE]]"
-            a.replace_with(new_tag)
+            a.replace_with(self.newtable(a, caption='.table-caption p'))  # XXXX check me!!!!
         for a in sec.select('p a.xref-bibr'):
-            a.replace_with('CITATION')
-            for a in sec.select('p a.xref-fig'):
-                a.replace_with('FIG-REF')
+            a.replace_with(' CITATION ')
+        for a in sec.select('p a.xref-fig'):
+            a.replace_with(' FIG-REF ')
+        txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        return txt
+
+    def tostr(self, sec):
+
+        for a in sec.select('figure'):
+            a.replace_with(self.newfig(a))
+
+        for a in sec.select('p a.xref-bibr'):
+            a.replace_with(' CITATION ')
+        for a in sec.select('p a.xref-fig'):
+            a.replace_with(' FIG-REF ')
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 

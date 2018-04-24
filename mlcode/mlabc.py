@@ -203,6 +203,11 @@ class Clean(object):
         r = self.s_results()
         return a is not None and m is not None and r is not None
 
+    def has_rmm(self):
+        m = self.s_methods()
+        r = self.s_results()
+        return m is not None and r is not None
+
     def missing(self):
         a = self.s_abstract()
         m = self.s_methods()
@@ -215,6 +220,16 @@ class Clean(object):
         if r is None:
             ret.append('r')
         return ' '.join(ret) if ret else ''
+
+    def newfig(self, tag, caption='figcaption p', fmt='FIGURE:', node='p'):
+        captions = [c.text for c in tag.select(caption)]
+        txt = ' '.join(captions)
+        new_tag = self.root.new_tag(node)
+        new_tag.string = "[[%s %s]]" % (fmt, txt)
+        return new_tag
+
+    def newtable(self, tag, caption='figcaption p', node='p'):
+        return self.newfig(tag, caption=caption, node=node, fmt='TABLE:')
 
 
 def make_jinja_env():
@@ -373,6 +388,8 @@ class Generate(object):
         gdir = 'xml_%s' % self.issn
         fdir = 'failed_%s' % self.issn
         papers = []
+
+        # only look for pmids that we want.
         pmid2doi = self.pmid2doi
         todo = [pmid2doi[pmid] for pmid in readxml(gdir) if pmid in pmid2doi]
         failed = [pmid2doi[pmid] for pmid in readxml(fdir) if pmid in pmid2doi]

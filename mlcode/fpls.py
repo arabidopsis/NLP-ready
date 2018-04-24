@@ -18,6 +18,7 @@ class FPLS(Clean):
         self.search()
 
     def search(self):
+
         objs = defaultdict(list)
         target = None
         for d in self.article.contents:
@@ -28,8 +29,7 @@ class FPLS(Clean):
                     objs[target].append(d)
             elif d.name == 'div' and 'FigureDesc' in d['class']:
                 if target:
-                    p = self.root.new_tag('p')
-                    p.string = '[[FIGURE]]'
+                    p = self.newfig(d, caption='p')
                     d.replace_with(p)
                     objs[target].append(p)
 
@@ -55,13 +55,13 @@ class FPLS(Clean):
     def title(self):
         return self.root.select('div.article-section div.JournalAbstract h1')[0].text.strip()
 
-    def tostr(self, sec):
-        for p in sec:
+    def tostr(self, secs):
+        for p in secs:
             for a in p.select('a'):
                 href = a.attrs.get('href')
                 if href and href.startswith('#B'):
                     a.replace_with('CITATION')
-        txt = [self.SPACE.sub(' ', p.text) for p in sec]
+        txt = [self.SPACE.sub(' ', p.text) for p in secs]
         return txt
 
 

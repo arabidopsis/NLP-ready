@@ -203,9 +203,15 @@ class CELL(Clean):
         return super().title()
 
     def tostr(self, sec):
+
         for a in sec.select('p a.workspace-trigger'):
             if a.attrs['name'].startswith('bbib'):
                 a.replace_with('CITATION')
+
+        for a in sec.select('figure'):
+            a.replace_with(self.newfig(a, caption='.captions p'))
+        for a in sec.select('.tables'):
+            a.replace_with(self.newtable(a, caption='.captions p'))
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 
@@ -257,13 +263,19 @@ class CELL2(Clean):
         return super().title()
 
     def tostr(self, sec):
-        for a in sec.select('p span.bibRef'):
 
+        def newfig(tag, fmt='FIGURE:'):
+            captions = [c.text for c in tag.select('.caption p')]
+            txt = ' '.join(captions)
+            new_tag = self.root.new_tag("p")
+            new_tag.string = " [[%s %s]] " % (fmt, txt)
+            return new_tag
+
+        for a in sec.select('p span.bibRef'):
             a.replace_with('CITATION')
         for a in sec.select('div.floatDisplay'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
+            a.replace_with(newfig(a))
+
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt
 

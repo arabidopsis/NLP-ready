@@ -52,13 +52,12 @@ class Dev(Clean):
         return secs[0] if secs else None
 
     def tostr(self, sec):
-        for a in sec.select('div.fig'):
-            p = self.root.new_tag('p')
-            p.string = '[[FIGURE]]'
-            a.replace_with(p)
-            # a.replace_with('[[FIGURE]]')
+
         for a in sec.select('p a.xref-ref'):
             a.replace_with('CITATION')
+
+        for a in sec.select('div.fig'):
+            a.replace_with(self.newfig(a, caption='.fig-caption p'))
 
         def p(tag):
             return tag.name == 'p' or (tag.name == 'div' and 'fig' in tag['class'])

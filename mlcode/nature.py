@@ -71,7 +71,8 @@ class Nature(Clean):
     def tostr(self, sec):
         for fig in sec.xpath('.//div[@data-container-section="figure"]'):
             s = etree.Element('p')
-            s.text = '[[FIGURE]]'
+            txt = ' '.join(n or '' for n in fig.xpath('.//figcaption//text()'))
+            s.text = '[[FIGURE: %s]]' % txt
             s.tail = fig.tail  # important!
             fig.getparent().replace(fig, s)
         for sup in sec.xpath('.//sup'):
