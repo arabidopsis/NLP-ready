@@ -12,12 +12,12 @@ MODS = [
     "bbb",
     "bioj",
     "bmcpb",
-    # "cell",  # cell needs chromedriver... run python3 cell.py download
+    "cell",  # cell needs chromedriver... run python3 cell.py download
     "dev",
     "elife",
-    # "elsevier",
+    "elsevier",
     "emboj",
-    # "epmc",
+    "epmc",
     "fpls",
     "gad",
     "genetics",
@@ -128,9 +128,9 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
     for mod in mods:
         d = getmod(mod)
         for issn in d['issn']:
-            if issn not in issns:  # no paper from this journal
+            if issn not in issns and issn not in {'epmc', 'elsevier'}:  # no paper from this journal
                 continue
-            journal = issns[issn]
+            journal = issns.get(issn, issn)
             print('writing', mod, issn, journal)
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:

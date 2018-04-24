@@ -14,8 +14,8 @@ N = re.compile(number + r'(?:\s|-)?(°C|μM|μl|mg/l|%|mM|nM|rpm|ml|NA|h|K|M|min
 FPCT = re.compile(r'[0-9]+\.[0-9]*%')
 PCT = re.compile(pm + '%')
 PH = re.compile(r'\bpH\s*' + number)
-INT = re.compile(r'\b[0-9]+\b')  # picks up ncb-111 !!!!
-FLOAT = re.compile(r'\b[0-9]+\.[0-9]*\b')
+# INT = re.compile(r'\b[0-9]+\b')  # picks up ncb-111 !!!!
+# FLOAT = re.compile(r'\b[0-9]+\.[0-9]*\b')
 
 INT = re.compile(r'\s[0-9]+(?=\s)')  # [sic] spaces. \b picks up ncb-111 !!!!
 FLOAT = re.compile(r'\s[0-9]+\.[0-9]*(?=\s)')

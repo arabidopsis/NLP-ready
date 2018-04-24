@@ -18,7 +18,7 @@
     .missing { color: red; }
     b.primer { color: blue; }
     ol.failed { color: #888; }
-    
+
   </style>
 </head>
 <body id="top">
@@ -60,6 +60,7 @@
       <h2>PMID:{{p.pmid}} ({{p.year}})</h2>
       <h3>{{e.s_title()}}</h3>
       doi:<a href="http://doi.org/{{p.doi}}" target="pmid{{p.pmid}}">{{p.doi}}</a>.
+      html:<a href="../../xml_{{p.issn}}/{{p.pmid}}.html" target="pmid{{p.pmid}}">{{p.pmid}}</a>.
       Go to <a href="#top"> top<i class="fa fa-angle-up"></i></a>
       {% set abstract = e.s_abstract() %}
       {% if abstract is not none %}
@@ -72,28 +73,43 @@
       {% else -%}
           <h2 class="missing">Abstract</h2>
       {%- endif %}
-      {% set results = e.s_results() %}
-      {% if results is not none %}
-        <div class="section results">
-          <h3>Results</h3>
-          {% for txt in e.tostr(results) %}
-              <p>{{txt|prime(num)}}</p>
-          {% endfor %}
-        </div>
-      {% else -%}
-          <h2 class="missing">Results</h2>
-      {%- endif %}
-      {% set methods = e.s_methods() %}
-      {% if methods is not none %}
-        <div class="section methods">
-          <h3>Methods</h3>
-          {% for txt in e.tostr(methods) %}
-              <p>{{txt|prime(num)}}</p>
-          {% endfor %}
-        </div>
-      {% else -%}
-          <h2 class="missing">Methods</h2>
-      {%- endif %}
+
+      {% if e.has_rmm() %}
+        {% set results = e.s_results() %}
+        {% if results is not none %}
+          <div class="section results">
+            <h3>Results</h3>
+            {% for txt in e.tostr(results) %}
+                <p>{{txt|prime(num)}}</p>
+            {% endfor %}
+          </div>
+        {% else -%}
+            <h2 class="missing">Results</h2>
+        {%- endif %}
+        {% set methods = e.s_methods() %}
+        {% if methods is not none %}
+          <div class="section methods">
+            <h3>Methods</h3>
+            {% for txt in e.tostr(methods) %}
+                <p>{{txt|prime(num)}}</p>
+            {% endfor %}
+          </div>
+        {% else -%}
+            <h2 class="missing">Methods</h2>
+        {%- endif %}
+      {% else %}
+        {% set rmm = e.s_full_text() %}
+        {% if rmm is not none %}
+          <div class="section full_text">
+            <h3>Paper</h3>
+            {% for txt in e.tostr(rmm) %}
+                <p>{{txt|prime(num)}}</p>
+            {% endfor %}
+          </div>
+        {% else %}
+          <h2 class="missing">No Data</h2>
+        {% endif %}
+      {% endif %}
       {#
       {% set xrefs = e.s_xrefs() %}
       {% if xrefs %}
