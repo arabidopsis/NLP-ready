@@ -1,6 +1,8 @@
 import click
 import os
 from pickle import load, dump
+from collections import namedtuple
+
 from mlabc import Generate, DATADIR
 from config import PKLFILE
 
@@ -35,6 +37,12 @@ MODS = [
     "springer",
     "wiley",
 ]
+
+
+KEYMAP = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'notok': 5, 'failed': 6}
+
+
+Journal = namedtuple('Journal', ['url', 'mod', 'issn', 'ndone', 'journal', 'not_ok', 'nfailed'])
 
 
 def getmod(mod):
@@ -91,9 +99,6 @@ def cli():
     pass
 
 
-KEYMAP = {'url': 0, 'mod': 1, 'issn': 2, 'done': 3, 'journal': 4, 'notok': 5, 'failed': 6}
-
-
 @cli.command()
 @click.option('--mod', help='modules to run')
 @click.option('--issn', help='journals to run')
@@ -106,8 +111,8 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
     # from pickle import load, dump
 
     env = make_jinja_env()
-    prefix = DATADIR + 'html/'
-    os.makedirs(prefix + 'journals', exist_ok=True)
+    jdir = DATADIR + 'html/journals'
+    os.makedirs(jdir, exist_ok=True)
 
     template = env.get_template('index.html')
     if mod:
@@ -120,7 +125,8 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
 
     total1 = set()
     total2 = set()
-    tt = 0
+    total3 = set()
+
     p2i = pmid2doi()
     issns = {p.issn: p.name for p in p2i.values() if not issn or p.issn in issn}
     issnmap = {}
@@ -134,7 +140,7 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
             print('writing', mod, issn, journal)
             g = d['Generate'](issn, pmid2doi=p2i)
             # try:
-            fname, papers, failed = g.tohtml(save=True, prefix=prefix + 'journals/' + mod + '_',
+            fname, papers, failed = g.tohtml(save=True, prefix=jdir + '/' + mod + '_',
                                              env=env, verbose=False, num=num)
 
             not_ok = len([p for p, s in papers if not s.has_all_sections()])
@@ -143,13 +149,15 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
             ndone = len(tpmids)
             i = fname.find('journals/')
             url = fname[i:]
-            t = (url, mod, issn, ndone, journal, not_ok, len(failed))
+            t = Journal(url=url, mod=mod, issn=issn, ndone=ndone,
+                        journal=journal, not_ok=not_ok, nfailed=len(failed))
             # journals.append(t)
             for p in apmids:
                 total1.add(p)
             for p in tpmids:
                 total2.add(p)
-            tt += len(tpmids)
+            for p in tpmids:
+                total3.add(p)
 
             issnmap[issn] = t
 
@@ -180,10 +188,10 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
 
     journals = sorted(journals, key=sortf())
     t = template.render(journals=journals, name=NAME)
-    with open(prefix + 'index.html', 'w') as fp:
+    with open(jdir + '/index.html', 'w') as fp:
         fp.write(t)
     click.secho("found %d pubmeds. %d unique, %d usable" %
-                (tt, len(total2), len(total1)), fg='blue')
+                (len(total3), len(total2), len(total1)), fg='blue')
 
 
 @cli.command()
@@ -221,15 +229,18 @@ def tokenize(mod=''):
 @click.option('--nowrite', is_flag=True, help='don\'t overwrite')
 def clean(mod='', nowrite=False):
     """Create clean documents."""
+    from mlabc import pmid2doi
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:
         mods = MODS
+
+    p2i = pmid2doi()
     for m in mods:
         d = getmod(m)
         for i in d['issn']:
             print('writing ', m, i)
-            g = d['Generate'](i)
+            g = d['Generate'](i, pmid2doi=p2i)
             # print('overwrite', not nowrite)
             g.run(overwrite=not nowrite, prefix=m)
 

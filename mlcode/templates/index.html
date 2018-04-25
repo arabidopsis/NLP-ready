@@ -23,17 +23,17 @@
       <h2>Journals converted for {{name}}</h2>
       <table class="table">
           <tr><th>Link</th><th>ISSN</th><th>Failed/Total</th></tr>
-      {% for url, mod, issn, num, journal, not_ok, nfailed in journals %}
-        <tr><td><a href="{{url}}">{{journal}}</a></td>
-            <td>{{issn}} <small>({{mod}})</small></td>
-            <td>{% if not_ok > 0 %}<span class="failed">{{not_ok}}</span>/{%endif%}{{num}}
-                {% if nfailed > 0 %} (<span class="failed">{{nfailed}}</span>){%endif%}
+      {% for j in journals %}
+        <tr><td><a href="{{url}}">{{j.journal}}</a></td>
+            <td>{{j.issn}} <small>({{j.mod}})</small></td>
+            <td>{% if j.not_ok > 0 %}<span class="failed">{{j.not_ok}}</span>/{%endif%}{{j.ndone}}
+                {% if j.nfailed > 0 %} (<span class="failed">{{j.nfailed}}</span>){%endif%}
             </td>
         </tr>
       {% endfor %}
-      {% set tnot_ok = journals|sum(attribute=5) %}
-      {% set tfailed = journals|sum(attribute=6) %}
-      {% set total = journals|sum(attribute=3) %}
+      {% set tnot_ok = journals|sum(attribute='not_ok') %}
+      {% set tfailed = journals|sum(attribute='nfailed') %}
+      {% set total = journals|sum(attribute='ndone') %}
       <tr><td>Total</td>
           <td></td>
           <td>{% if tnot_ok > 0 %}<span class="failed">{{tnot_ok}}</span>/{%endif%}{{total}}

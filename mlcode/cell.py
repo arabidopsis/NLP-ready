@@ -264,17 +264,10 @@ class CELL2(Clean):
 
     def tostr(self, sec):
 
-        def newfig(tag, fmt='FIGURE:'):
-            captions = [c.text for c in tag.select('.caption p')]
-            txt = ' '.join(captions)
-            new_tag = self.root.new_tag("p")
-            new_tag.string = " [[%s %s]] " % (fmt, txt)
-            return new_tag
-
         for a in sec.select('p span.bibRef'):
             a.replace_with('CITATION')
         for a in sec.select('div.floatDisplay'):
-            a.replace_with(newfig(a))
+            a.replace_with(self.newfig(a, caption='.caption p'))
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
         return txt

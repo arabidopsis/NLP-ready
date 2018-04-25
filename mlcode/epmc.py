@@ -178,10 +178,10 @@ class EPMC(Clean):
             for p in r.xpath('./sec/*[self::p or self::fig or self::table-wrap]'):
                 if p.tag == 'fig':
                     t = ' '.join(txt(c) for c in p.xpath('.//p'))
-                    yield '[[FIGURE: %s]]' % t
+                    yield self.FIGURE % t
                 elif p.tag == 'table-wrap':
                     t = ' '.join(txt(c) for c in p.xpath('.//caption//p'))
-                    yield '[[TABLE: %s]]' % t
+                    yield self.TABLE % t
                 else:
                     yield txt(p)
 

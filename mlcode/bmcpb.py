@@ -63,8 +63,10 @@ class PMCPB(Clean):
 
         for a in sec.select('p figure,div.Para figure'):
 
-            fmt = 'TABLE:' if 'FigureTable' in a['class'] else 'FIGURE:'
-            a.replace_with(self.newfig(a, fmt=fmt, node='span'))
+            if 'FigureTable' in a['class']:
+                a.replace_with(self.newtable(a, node='span'))
+            else:
+                a.replace_with(self.newfig(a, node='span'))
 
         for a in sec.select('span.CitationRef'):
             a.replace_with('CITATION')

@@ -98,6 +98,8 @@ _Plug = object()
 
 class Clean(object):
     SPACE = re.compile(r'\s+', re.I)
+    FIGURE = '[[FIGURE: %s]]'
+    TABLE = '[[TABLE: %s]]'
     a = _Plug
     m = _Plug
     r = _Plug
@@ -221,15 +223,18 @@ class Clean(object):
             ret.append('r')
         return ' '.join(ret) if ret else ''
 
-    def newfig(self, tag, caption='figcaption p', fmt='FIGURE:', node='p'):
+    def _newfig(self, tag, fmt, caption='figcaption p', node='p'):
         captions = [c.text for c in tag.select(caption)]
         txt = ' '.join(captions)
         new_tag = self.root.new_tag(node)
-        new_tag.string = "[[%s %s]]" % (fmt, txt)
+        new_tag.string = fmt % txt
         return new_tag
 
+    def newfig(self, tag, caption='figcaption p', node='p'):
+        return self._newfig(tag, self.FIGURE, caption=caption, node=node)
+
     def newtable(self, tag, caption='figcaption p', node='p'):
-        return self.newfig(tag, caption=caption, node=node, fmt='TABLE:')
+        return self._newfig(tag, self.TABLE, caption=caption, node=node)
 
 
 def make_jinja_env():
@@ -245,11 +250,12 @@ def make_jinja_env():
 class Generate(object):
     parser = 'lxml'
 
-    def __init__(self, issn, onlynewer=False, pmid2doi=None, journal=None, **kwargs):
+    def __init__(self, issn, onlynewer=False, pmid2doi=None, journal=None, partial=False, **kwargs):
         self.issn = issn
         self._pmid2doi = pmid2doi
         self._journal = journal
         self._onlynewer = onlynewer
+        self.partial = partial
 
     @property
     def pmid2doi(self):
@@ -271,9 +277,11 @@ class Generate(object):
         if self.issn in {'epmc', 'elsevier'}:
             self._journal = self.issn
         else:
-            d = read_issn()
+            d = {p.issn: p.name for p in self.pmid2doi.values() if p.name}
+            # d = read_issn()
             if self.issn in d:
-                self._journal = d[self.issn][1]
+                # self._journal = d[self.issn][1]
+                self._journal = d[self.issn]
             else:
                 self._journal = self.issn
         return self._journal
@@ -309,10 +317,21 @@ class Generate(object):
         papers = readxml(gdir)
         if not papers:
             return
-        self.ensure_dir()
 
-        for pmid in readxml(gdir):
-            self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix)
+        dname = self.ensure_dir()
+
+        written = False
+
+        for pmid in papers:
+            ok = self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix)
+            written = written or ok
+
+        if not written:
+            click.secho('no data for %s' % self.issn, fg='red', file=sys.stderr)
+            try:
+                os.rmdir(dname)
+            except OSError:
+                pass
 
     def tokenize(self):
         gdir = 'xml_%s' % self.issn
@@ -341,14 +360,14 @@ class Generate(object):
         fname = self.clean_name(pmid)
         exists = os.path.exists(fname)
         if exists and not overwrite:
-            return
+            return True
         if exists and self._onlynewer:
             xname = self.get_xml_name(gdir, pmid)
             if os.path.exists(xname):
                 tgt = os.stat(fname).st_mtime
                 src = os.stat(xname).st_mtime
                 if tgt >= src:  # target newer that surc
-                    return
+                    return True
 
         soup = self.get_soup(gdir, pmid)
         e = self.create_clean(soup, pmid)
@@ -358,7 +377,7 @@ class Generate(object):
         if a is None or m is None or r is None:
             click.secho('{}: missing: abs {}, methods {}, results {} doi={}'.format(
                 pmid, a is None, m is None, r is None, self.pmid2doi[pmid].doi), fg='red')
-            return
+            return False
 
         if exists:
             click.secho('overwriting %s' % fname, fg='yellow')
@@ -372,6 +391,8 @@ class Generate(object):
             print('!~RES~! %s' % w, file=fp)
             w = ' '.join(e.tostr(m))
             print('!~MM~! %s' % w, file=fp)
+
+        return True
 
     def tohtml(self, template='template.html', save=False, prefix='', env=None, verbose=True, num=False):
         if env is None:

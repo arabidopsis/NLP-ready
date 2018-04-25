@@ -220,11 +220,11 @@ class Elsevier(Clean):
                 if fid in self.figures:
                     fig = self.figures[fid]
                     t = ' '.join(txt(c) for c in fig.xpath('.//ce:caption', namespaces=self.ns))
-                    yield '[[FIGURE: %s]]' % (t)
+                    yield self.FIGURE % t
                 else:
                     fig = self.tables[fid]
                     t = ' '.join(txt(c) for c in fig.xpath('.//ce:caption', namespaces=self.ns))
-                    yield '[[TABLE: %s]]' % (t)
+                    yield self.TABLE % t
 
 
 class GenerateElsevier(Generate):

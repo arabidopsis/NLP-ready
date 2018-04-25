@@ -73,7 +73,7 @@ class MDPI(Clean):
         #     p.string = '[[FIGURE]]'
         #     a.replace_with(p)
 
-        figs = ['[[FIGURE: %s]]' % self.SPACE.sub(' ', self.figures[href].text) for href in figs]
+        figs = [self.FIGURE % self.SPACE.sub(' ', self.figures[href].text) for href in figs]
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('div.html-p')]
         return txt + figs
