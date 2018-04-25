@@ -188,7 +188,8 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
 
     journals = sorted(journals, key=sortf())
     t = template.render(journals=journals, name=NAME)
-    with open(jdir + '/index.html', 'w') as fp:
+
+    with open(DATADIR + 'html/index.html', 'w') as fp:
         fp.write(t)
     click.secho("found %d pubmeds. %d unique, %d usable" %
                 (len(total3), len(total2), len(total1)), fg='blue')

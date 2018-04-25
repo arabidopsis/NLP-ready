@@ -24,7 +24,7 @@
       <table class="table">
           <tr><th>Link</th><th>ISSN</th><th>Failed/Total</th></tr>
       {% for j in journals %}
-        <tr><td><a href="{{url}}">{{j.journal}}</a></td>
+        <tr><td><a href="{{j.url}}">{{j.journal}}</a></td>
             <td>{{j.issn}} <small>({{j.mod}})</small></td>
             <td>{% if j.not_ok > 0 %}<span class="failed">{{j.not_ok}}</span>/{%endif%}{{j.ndone}}
                 {% if j.nfailed > 0 %} (<span class="failed">{{j.nfailed}}</span>){%endif%}
