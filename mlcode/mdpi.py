@@ -39,7 +39,7 @@ class MDPI(Clean):
             if h2:
                 txt = h2.text.lower().strip()
                 for t in ['methods', 'experimental procedures', 'materials and methods',
-                          'material and methods']:  # spelling!
+                          'material and methods', 'experimental section']:  # spelling!
                     if txt.endswith(t):
                         return sec
 
@@ -76,6 +76,11 @@ class MDPI(Clean):
         figs = [self.FIGURE % self.SPACE.sub(' ', self.figures[href].text) for href in figs]
 
         txt = [self.SPACE.sub(' ', p.text) for p in sec.select('div.html-p')]
+        if not txt:
+            txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p')]
+        if not txt:
+            txt = [' '.join([self.SPACE.sub(' ', p.string) for p in sec.contents])]
+
         return txt + figs
 
 
