@@ -155,9 +155,13 @@ class EPMC(Clean):
 
     def results(self):
         res = self.root.xpath('/article/body/sec/title[contains(' + TRANS + ',"results")]/..')
-        if not res:
-            return None
-        return res[0]
+        if res:
+            return res[0]
+        res = self.root.xpath('/article/body/sec/title[contains(' + TRANS + ',"result")]/..')
+        if res:
+            return res[0]
+
+        return None
 
     def tostr(self, r):
         def txt(p):
