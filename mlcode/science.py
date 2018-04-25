@@ -45,6 +45,10 @@ class Science(Clean):
     def full_text(self):
 
         paper = [t for t in self.article.contents if t.name in {'p', 'figure'}]
+        if not paper:
+            for sec in self.article.select('.section'):
+                if 'abstract' not in sec['class']:
+                    return sec
         node = self.root.new_tag('div')
         for n in paper:
             node.append(n)

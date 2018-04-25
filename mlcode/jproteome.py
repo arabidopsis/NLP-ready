@@ -25,8 +25,9 @@ class JProteome(Clean):
             if h2:
                 txt = h2.text.lower().strip()
                 # [sic!] spelling
-                if txt in {'results', 'results and discussion', 'results and discussiom'}:
-                    return sec
+                for t in ['results', 'results and discussion', 'results and discussiom']:
+                    if txt.endswith(t):
+                        return sec
 
         return None
 
@@ -36,9 +37,10 @@ class JProteome(Clean):
             h2 = sec.find('h2')
             if h2:
                 txt = h2.text.lower().strip()
-                if txt in {'experimental section', 'methods', 'experimental procedures', 'materials and methods',
-                           'material and methods'}:  # spelling!
-                    return sec
+                for t in ['experimental section', 'methods', 'experimental procedures', 'materials and methods',
+                          'material and methods']:  # spelling!
+                    if txt.endswith(t):
+                        return sec
 
         return None
 
