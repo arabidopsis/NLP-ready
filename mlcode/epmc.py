@@ -140,6 +140,10 @@ class EPMC(Clean):
         res = self.root.xpath('/article/front/article-meta/abstract')
         if not res:
             return None
+        for r in res:
+            if r.attrib.get('abstract-type') == 'precis':
+                continue
+            return r
         return res[0]
 
     def methods(self):
