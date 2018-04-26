@@ -46,6 +46,8 @@ ISSN = {
 
     '1869-1889': 'Sci China Life Sci',
 
+    '1573-9368': 'Transgenic Res.',
+
 }
 
 
