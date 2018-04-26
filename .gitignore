@@ -3,7 +3,7 @@ syntax: glob
 *.pyc
 *~
 .ipynb_checkpoints/
-data/*
 mlcode/PMC-ids.csv.gz
-data/*
+suba/*
 croppal/*
+croptips/*

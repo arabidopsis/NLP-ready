@@ -4,7 +4,7 @@ from pickle import load, dump
 from collections import namedtuple
 
 from mlabc import Generate, DATADIR
-from config import PKLFILE
+from config import PKLFILE, JCSV
 
 # add module name to this list...
 
@@ -57,10 +57,10 @@ def getmod(mod):
         if name.startswith(('download_', 'html_', 'gen_')):
             if name[0] == 'd':
                 ret['download'] = a
-            if name[0] == 'h':
-                ret['html'] = a
-            if name[0] == 'g':
-                ret['gen'] = a
+            # if name[0] == 'h':
+            #     ret['html'] = a
+            # if name[0] == 'g':
+            #     ret['gen'] = a
         elif isinstance(a, type) and Generate in a.__bases__:
             a = getattr(m, name)
             ret['Generate'] = a
@@ -106,6 +106,7 @@ def cli():
 @click.option('--num', is_flag=True, help='reduce numbers to NUMBER etc.')
 @click.option('--cache', default=PKLFILE, help='cached pickle file', show_default=True)
 def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
+    """Generate HTML documents from downloads."""
     from mlabc import pmid2doi, make_jinja_env
     from config import NAME
     # from pickle import load, dump
@@ -227,32 +228,12 @@ def tokenize(mod=''):
 
 @cli.command()
 @click.option('--mod', help='modules to run')
+@click.option('--issn', help='journals to run')
 @click.option('--nowrite', is_flag=True, help='don\'t overwrite')
-def clean(mod='', nowrite=False):
+@click.option('--num', is_flag=True, help='reduce numbers to NUMBER etc.')
+def clean(num=False, issn='', mod='', nowrite=False):
     """Create clean documents."""
     from mlabc import pmid2doi
-    if mod:
-        mods = [s.strip() for s in mod.split(',')]
-    else:
-        mods = MODS
-
-    p2i = pmid2doi()
-    for m in mods:
-        d = getmod(m)
-        for i in d['issn']:
-            print('writing ', m, i)
-            g = d['Generate'](i, pmid2doi=p2i)
-            # print('overwrite', not nowrite)
-            g.run(overwrite=not nowrite, prefix=m)
-
-
-@cli.command()
-@click.option('--mod', help='modules to run')
-@click.option('--issn', help='journals to run')
-@click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
-@click.option('--mx', default=3, help='max documents to download 0=all')
-def download(mod='', sleep=10., mx=1, issn=''):
-    """Download html/xml from websites."""
     if mod:
         mods = [s.strip() for s in mod.split(',')]
     else:
@@ -261,13 +242,92 @@ def download(mod='', sleep=10., mx=1, issn=''):
         issns = {i.strip() for i in issn.split(',')}
     else:
         issns = None
+    p2i = pmid2doi()
     for m in mods:
+        d = getmod(m)
+        for i in d['issn']:
+            if issns and issn not in issns:
+                continue
+            print('writing ', m, i)
+            g = d['Generate'](i, pmid2doi=p2i)
+            # print('overwrite', not nowrite)
+            g.run(overwrite=not nowrite, prefix=m, num=num)
+
+
+@cli.command()
+@click.option('--d', help='directory to scan', default=DATADIR)
+def cleandirs(d):
+    """Remove empty directories."""
+    d = d or DATADIR
+    for f in os.listdir(d):
+        d = DATADIR + f
+        if os.path.isdir(d):
+            n = len(os.listdir(d))
+            if n == 0:
+                print('removing', f)
+                os.removedirs(d)
+
+
+@cli.command()
+@click.option('--mod', help='modules to run use. Prefix with "-" to exclude')
+@click.option('--issn', help='journals to run')
+@click.option('--sleep', default=10., help='wait sleep seconds between requests', show_default=True)
+@click.option('--mx', default=3, help='max documents to download 0=all')
+def download(mod='', sleep=10., mx=1, issn=''):
+    """Download html/xml from websites."""
+    if mod:
+        mods = [s.strip() for s in mod.split(',')]
+        exclude = {m[1:] for m in mods if m[0] == '-'}
+        mods = [m for m in mods if m[0] != '-']
+        if not mods:
+            mods = MODS
+    else:
+        mods = MODS
+        exclude = set()
+    if issn:
+        issns = {i.strip() for i in issn.split(',')}
+    else:
+        issns = None
+    for m in mods:
+        if m in exclude:
+            continue
         d = getmod(m)
         for issn in d['issn']:
             if issns and issn not in issns:
                 continue
             print('downloading:', m, issn)
             d['download'](issn, sleep=sleep, mx=mx)
+
+
+@cli.command()
+def summary():
+    """Summary of current download status."""
+    from download import journal_summary
+    journal_summary()
+
+
+@cli.command()
+@click.option('--out', default=JCSV, help="output filename", show_default=True)
+@click.option('--col', default=0, help="column that contains pubmed", show_default=True)
+@click.option('--sleep', default=1., help='wait sleep seconds between requests', show_default=True)
+@click.option('--noheader', is_flag=True, help='csvfile has no header')
+@click.argument('csvfile')
+def journals(csvfile, out, noheader=False, col=0, sleep=.2):
+    """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of SUBA4 pubmed ids."""
+    from download import getmeta
+    getmeta(csvfile, sleep=sleep, pubmeds=out, header=not noheader, pcol=col)
+
+
+@cli.command()
+def issn():
+    """Print all ISSN,journals."""
+    for m in MODS:
+        if m in {'epmc', 'elsevier'}:
+            continue
+        mod = getmod(m)
+        d = mod['issn']
+        for issn in d:
+            print('%s,%s' % (issn, d[issn]))
 
 
 if __name__ == '__main__':

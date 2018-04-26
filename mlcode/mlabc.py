@@ -50,11 +50,12 @@ def readx_suba_papers_csv(csvfile):
             yield Paper(doi=doi, year=int(year), issn=issn, name=name, pmid=pmid, pmcid=pmcid, title=title)
 
 
-def read_pubmed_csv(csvfile, pcol=0):
+def read_pubmed_csv(csvfile, header=True, pcol=0):
     """File csvfile is a list of *all* pubmed ids from SUBA4."""
     with open(csvfile, 'r', encoding='utf8') as fp:
         R = csv.reader(fp)
-        next(R)  # skip header
+        if header:
+            next(R)  # skip header
         # print(header)
         for row in R:
             yield row[pcol]
@@ -312,7 +313,7 @@ class Generate(object):
             soup = BeautifulSoup(fp, self.parser)
         return soup
 
-    def run(self, overwrite=True, prefix=None):
+    def run(self, overwrite=True, prefix=None, num=False):
         gdir = 'xml_%s' % self.issn
         papers = readxml(gdir)
         if not papers:
@@ -323,7 +324,7 @@ class Generate(object):
         written = False
 
         for pmid in papers:
-            ok = self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix)
+            ok = self.generate_pmid(gdir, pmid, overwrite=overwrite, prefix=prefix, num=num)
             written = written or ok
 
         if not written:
@@ -356,7 +357,7 @@ class Generate(object):
         fname = '{}/{}_cleaned.txt'.format(dname, pmid)
         return fname
 
-    def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None):
+    def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None, num=False):
         fname = self.clean_name(pmid)
         exists = os.path.exists(fname)
         if exists and not overwrite:
@@ -371,9 +372,12 @@ class Generate(object):
 
         soup = self.get_soup(gdir, pmid)
         e = self.create_clean(soup, pmid)
+
         a = e.abstract()
         m = e.methods()
         r = e.results()
+        ft = e.full_text() if (not m and not r) else None
+
         if a is None or m is None or r is None:
             click.secho('{}: missing: abs {}, methods {}, results {} doi={}'.format(
                 pmid, a is None, m is None, r is None, self.pmid2doi[pmid].doi), fg='red')
@@ -384,13 +388,25 @@ class Generate(object):
         else:
             click.secho('generating %s' % fname, fg='magenta')
 
+        def con(sec):
+            if num:
+                return ' '.join(reduce_nums(a) for a in e.tostr(sec))
+            else:
+                return ' '.join(e.tostr(sec))
+
         with open(fname, 'w', encoding='utf-8') as fp:
-            w = ' '.join(e.tostr(a))
-            print('!~ABS~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(r))
-            print('!~RES~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(m))
-            print('!~MM~! %s' % w, file=fp)
+            if a:
+                w = con(a)
+                print('!~ABS~! %s' % w, file=fp)
+            if r:
+                w = con(r)
+                print('!~RES~! %s' % w, file=fp)
+            if m:
+                w = con(m)
+                print('!~MM~! %s' % w, file=fp)
+            if ft and (not r and not m):
+                w = con(ft)
+                print('!~FT~! %s' % w, file=fp)
 
         return True
 

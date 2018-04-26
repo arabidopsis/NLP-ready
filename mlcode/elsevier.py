@@ -77,8 +77,9 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
     # else:
     todo = [p.pmid for p in read_suba_papers_csv()
             if p.pmid not in (failed | done)]
-    print('%d failed, %d done %s todo' % (len(failed), len(done), len(todo)))
+
     todox = todo.copy()
+    print('done: %d failed: %d todo: %d' % (len(done), len(failed), len(todox)))
     if mx:
         todo = todo[:mx]
     if not todo:
@@ -103,7 +104,7 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
         with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
         todox.remove(pmid)
-        print('%d failed, %d done %s todo %s' % (len(failed), len(done), len(todox), pmid))
+        print('done: %d failed: %d todo: %d -- %s' % (len(done), len(failed), len(todox), pmid))
         time.sleep(sleep)
 
 

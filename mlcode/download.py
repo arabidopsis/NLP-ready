@@ -12,7 +12,7 @@ from io import BytesIO
 
 from bs4 import BeautifulSoup
 
-from mlabc import JCSV, read_pubmed_csv, read_suba_papers_csv
+from mlabc import read_pubmed_csv, read_suba_papers_csv
 
 
 EFETCH = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id='
@@ -93,7 +93,7 @@ def parse_xml(xml):
     }
 
 
-def getmeta(csvfile, pubmeds, sleep=.2):
+def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=.2):
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
     # return data from xml file at NIH in a pythonic dictionary
     def pubmed_meta(session, id):
@@ -110,7 +110,7 @@ def getmeta(csvfile, pubmeds, sleep=.2):
     else:
         done = set()
 
-    todo = [pmid for pmid in read_pubmed_csv(csvfile) if pmid not in done]
+    todo = [pmid for pmid in read_pubmed_csv(csvfile, header=header, pcol=pcol) if pmid not in done]
     print('%d done. %d todo' % (len(done), len(todo)))
 
     with open(pubmeds, 'a', encoding='utf8') as fp:
@@ -234,26 +234,3 @@ def wiley_issn():
             ISSN[p.issn] = p.name
             print(','.join((p.pmid, p.issn, p.name, str(p.year), p.doi)))
     print(ISSN)
-
-
-@click.group()
-def cli():
-    pass
-
-
-@cli.command()
-def summary():
-    journal_summary()
-
-
-@cli.command()
-@click.option('--out', default=JCSV, help="output filename", show_default=True)
-@click.option('--sleep', default=1., help='wait sleep seconds between requests', show_default=True)
-@click.argument('csvfile')
-def journals(csvfile, out, sleep=.2):
-    """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of SUBA4 pubmed ids."""
-    getmeta(csvfile, sleep=sleep, pubmeds=out)
-
-
-if __name__ == '__main__':
-    cli()

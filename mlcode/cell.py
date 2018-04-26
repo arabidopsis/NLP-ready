@@ -309,7 +309,7 @@ DEFAULT = ','.join(ISSN)
 @click.option('--mx', default=1, help='max documents to download 0=all')
 @click.option('--head', default=False, is_flag=True, help='don\'t run browser headless')
 @click.option('--noclose', default=False, is_flag=True, help='don\'t close browser at end')
-@click.option('--issn', default=DEFAULT, show_default=True)
+@click.option('--issn', default=DEFAULT, show_default=True, help='only download these journals')
 def download(sleep, mx, issn, head, noclose):
     from selenium import webdriver
     options = webdriver.ChromeOptions()
