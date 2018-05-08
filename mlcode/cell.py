@@ -5,7 +5,7 @@ import click
 from io import StringIO
 from bs4 import BeautifulSoup
 
-from mlabc import Clean, Generate, readxml, DownloadSelenium, DATADIR, read_suba_papers_csv, dump
+from mlabc import Clean, Generate, readxml, DownloadSelenium, Config, read_suba_papers_csv, dump
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -121,10 +121,10 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
     #           }
     fdir = 'failed_%s' % issn
     gdir = 'xml_%s' % issn
-    if not os.path.isdir(DATADIR + fdir):
-        os.mkdir(DATADIR + fdir)
-    if not os.path.isdir(DATADIR + gdir):
-        os.mkdir(DATADIR + gdir)
+    if not os.path.isdir(Config.DATADIR + fdir):
+        os.mkdir(Config.DATADIR + fdir)
+    if not os.path.isdir(Config.DATADIR + gdir):
+        os.mkdir(Config.DATADIR + gdir)
     failed = set(readxml(fdir))
     done = set(readxml(gdir))
 
@@ -148,7 +148,7 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
         d = gdir
         done.add(pmid)
 
-        with open(DATADIR + '{}/{}.html'.format(d, pmid), 'w') as fp:
+        with open(Config.DATADIR + '{}/{}.html'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -351,7 +351,7 @@ def failed(issn):
     for issn in issn.split(','):
         gdir = 'failed_%s' % issn
         for pmid in readxml(gdir):
-            fname = DATADIR + gdir + '/{}.html'.format(pmid)
+            fname = Config.DATADIR + gdir + '/{}.html'.format(pmid)
             with open(fname, 'rb') as fp:
                 err = fp.read().decode('utf-8')
                 print('%s,%s,"%s",%s' % (issn, pmid, err, fname))

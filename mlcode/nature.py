@@ -2,7 +2,7 @@ from lxml import etree
 from io import BytesIO
 from lxml.html import parse, document_fromstring
 
-from mlabc import Clean, Download, Generate, DATADIR, dump
+from mlabc import Clean, Download, Generate, Config, dump
 
 
 ISSN = {
@@ -94,7 +94,7 @@ class GenerateNature(Generate):
         return Nature(soup)
 
     def get_soup(self, gdir, pmid):
-        fname = DATADIR + gdir + '/{}.html'.format(pmid)
+        fname = Config.DATADIR + gdir + '/{}.html'.format(pmid)
         with open(fname, 'r', encoding='utf-8') as fp:
             # tree = parse(fp)
             # soup = tree.getroot()

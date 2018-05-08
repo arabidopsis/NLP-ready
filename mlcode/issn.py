@@ -3,8 +3,7 @@ import os
 from pickle import load, dump
 from collections import namedtuple
 
-from mlabc import Generate, DATADIR
-from config import PKLFILE, JCSV
+from mlabc import Generate, Config
 
 # add module name to this list...
 
@@ -104,15 +103,14 @@ def cli():
 @click.option('--issn', help='journals to run')
 @click.option('--sort', default='journal', help='sort on: ' + ','.join(KEYMAP))
 @click.option('--num', is_flag=True, help='reduce numbers to NUMBER etc.')
-@click.option('--cache', default=PKLFILE, help='cached pickle file', show_default=True)
+@click.option('--cache', default=Config.PKLFILE, help='cached pickle file', show_default=True)
 def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
     """Generate HTML documents from downloads."""
     from mlabc import pmid2doi, make_jinja_env
-    from config import NAME
     # from pickle import load, dump
 
     env = make_jinja_env()
-    jdir = DATADIR + 'html/journals'
+    jdir = Config.DATADIR + 'html/journals'
     os.makedirs(jdir, exist_ok=True)
 
     template = env.get_template('index.html')
@@ -188,9 +186,9 @@ def tohtml(cache, issn=None, mod='', num=False, sort='journal'):
             return lambda t: -t[k]
 
     journals = sorted(journals, key=sortf())
-    t = template.render(journals=journals, name=NAME)
+    t = template.render(journals=journals, name=Config.NAME)
 
-    with open(DATADIR + 'html/index.html', 'w') as fp:
+    with open(Config.DATADIR + 'html/index.html', 'w') as fp:
         fp.write(t)
     click.secho("found %d pubmeds. %d unique, %d usable" %
                 (len(total3), len(total2), len(total1)), fg='blue')
@@ -255,12 +253,12 @@ def clean(num=False, issn='', mod='', nowrite=False):
 
 
 @cli.command()
-@click.option('--d', help='directory to scan', default=DATADIR)
+@click.option('--d', help='directory to scan', default=Config.DATADIR)
 def cleandirs(d):
     """Remove empty directories."""
-    d = d or DATADIR
+    d = d or Config.DATADIR
     for f in os.listdir(d):
-        d = DATADIR + f
+        d = Config.DATADIR + f
         if os.path.isdir(d):
             n = len(os.listdir(d))
             if n == 0:
@@ -307,7 +305,7 @@ def summary():
 
 
 @cli.command()
-@click.option('--out', default=JCSV, help="output filename", show_default=True)
+@click.option('--out', default=Config.JCSV, help="output filename", show_default=True)
 @click.option('--col', default=0, help="column that contains pubmed", show_default=True)
 @click.option('--sleep', default=1., help='wait sleep seconds between requests', show_default=True)
 @click.option('--noheader', is_flag=True, help='csvfile has no header')

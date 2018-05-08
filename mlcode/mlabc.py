@@ -12,7 +12,8 @@ from requests import ConnectionError
 from bs4 import BeautifulSoup
 
 from rescantxt import reduce_nums, find_primers
-from config import DATADIR, JCSV
+
+import config as Config
 
 
 Paper = namedtuple('Paper', ['doi', 'year', 'pmid', 'issn', 'name', 'pmcid', 'title'])
@@ -30,7 +31,7 @@ def read_journals_csv():
 
 def read_suba_papers_csv():
     """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
-    return readx_suba_papers_csv(JCSV)
+    return readx_suba_papers_csv(Config.JCSV)
 
 
 def readx_suba_papers_csv(csvfile):
@@ -79,7 +80,7 @@ def read_issn():
 
 def readxml(d):
     """Scan directory d and return the pubmed ids."""
-    dd = DATADIR + d
+    dd = Config.DATADIR + d
     if not os.path.isdir(dd):
         # click.secho('readxml: no directory to scan for %s' % d, fg='red', file=sys.stderr)
         return
@@ -291,7 +292,7 @@ class Generate(object):
         raise RuntimeError('unimplemented')
 
     def ensure_dir(self):
-        dname = DATADIR + 'cleaned'
+        dname = Config.DATADIR + 'cleaned'
         if not os.path.isdir(dname):
             os.mkdir(dname)
         name = self.journal.replace('.', '').lower()
@@ -302,9 +303,9 @@ class Generate(object):
         return dname
 
     def get_xml_name(self, gdir, pmid):
-        fname = DATADIR + gdir + '/{}.html'.format(pmid)
+        fname = Config.DATADIR + gdir + '/{}.html'.format(pmid)
         if not os.path.isfile(fname):
-            fname = DATADIR + gdir + '/{}.xml'.format(pmid)
+            fname = Config.DATADIR + gdir + '/{}.xml'.format(pmid)
         return fname
 
     def get_soup(self, gdir, pmid):
@@ -479,10 +480,10 @@ class Download(object):
     def ensure_dirs(self):
         fdir = 'failed_%s' % self.issn
         gdir = 'xml_%s' % self.issn
-        if not os.path.isdir(DATADIR + fdir):
-            os.mkdir(DATADIR + fdir)
-        if not os.path.isdir(DATADIR + gdir):
-            os.mkdir(DATADIR + gdir)
+        if not os.path.isdir(Config.DATADIR + fdir):
+            os.mkdir(Config.DATADIR + fdir)
+        if not os.path.isdir(Config.DATADIR + gdir):
+            os.mkdir(Config.DATADIR + gdir)
 
     def get_response(self, paper, header):
         resp = requests.get('http://doi.org/{}'.format(paper.doi), headers=header)
@@ -552,7 +553,7 @@ class Download(object):
                 click.secho('failed %s %s %s' % (paper.pmid, paper.doi, str(e)), fg='red')
                 failed.add(paper.pmid)
 
-            with open(DATADIR + '{}/{}.html'.format(d, paper.pmid), 'wb') as fp:
+            with open(Config.DATADIR + '{}/{}.html'.format(d, paper.pmid), 'wb') as fp:
                 fp.write(xml)
 
             del todo[paper.pmid]

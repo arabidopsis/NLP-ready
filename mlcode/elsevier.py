@@ -8,7 +8,7 @@ from lxml import etree
 from io import BytesIO
 from bs4 import BeautifulSoup
 
-from mlabc import DATADIR, Clean, readxml, Generate, read_suba_papers_csv
+from mlabc import Config, Clean, readxml, Generate, read_suba_papers_csv
 
 ISSN = {'elsevier': 'elsevier'}
 
@@ -45,8 +45,8 @@ def elsevier(pmid, url=PMID_ELSEVIER):
 
 
 def ensure_dir(d):
-    if not os.path.isdir(DATADIR + d):
-        os.makedirs(DATADIR + d, exist_ok=True)
+    if not os.path.isdir(Config.DATADIR + d):
+        os.makedirs(Config.DATADIR + d, exist_ok=True)
 
 
 def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
@@ -101,7 +101,7 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
             failed.add(pmid)
 
         ensure_dir(d)
-        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
+        with open(Config.DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
         todox.remove(pmid)
         print('done: %d failed: %d todo: %d -- %s' % (len(done), len(failed), len(todox), pmid))
@@ -110,7 +110,7 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
 
 def getxmlelsevier(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(DATADIR + 'xml_elsevier/{}.xml'.format(pmid), 'rb') as fp:
+    with open(Config.DATADIR + 'xml_elsevier/{}.xml'.format(pmid), 'rb') as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -248,8 +248,8 @@ def gen_elsevier(issn='elsevier'):
 
 def gen_elsevier_old(issn='elsevier'):
     """Convert Elsevier XML files into "cleaned" text files."""
-    if not os.path.isdir(DATADIR + 'cleaned_elsevier'):
-        os.mkdir(DATADIR + 'cleaned_elsevier')
+    if not os.path.isdir(Config.DATADIR + 'cleaned_elsevier'):
+        os.mkdir(Config.DATADIR + 'cleaned_elsevier')
 
     for pmid in readxml('xml_elsevier'):
 
@@ -263,7 +263,7 @@ def gen_elsevier_old(issn='elsevier'):
             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
                 pmid, a is None, m is None, r is None), fg='red')
             continue
-        fname = DATADIR + 'cleaned_elsevier/{}_cleaned.txt'.format(pmid)
+        fname = Config.DATADIR + 'cleaned_elsevier/{}_cleaned.txt'.format(pmid)
         if os.path.exists(fname):
             click.secho('overwriting %s' % fname, fg='yellow')
 
@@ -283,7 +283,7 @@ def check_elsevier(remove=False):
         if pmid != e.pubmed:
             print('incorrect pubmed!', pmid, e.pubmed)
             if remove:
-                os.remove(DATADIR + 'xml_elsevier/%s.xml' % pmid)
+                os.remove(Config.DATADIR + 'xml_elsevier/%s.xml' % pmid)
 
 
 if __name__ == '__main__':

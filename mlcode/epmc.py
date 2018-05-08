@@ -7,7 +7,7 @@ import requests
 import click
 from lxml import etree
 
-from mlabc import DATADIR, readxml, Generate, Clean, read_suba_papers_csv
+from mlabc import Config, readxml, Generate, Clean, read_suba_papers_csv
 
 
 ISSN = {'epmc': 'epmc'}
@@ -32,8 +32,8 @@ def epmc(pmcid, session=None):
 
 
 def ensure_dir(d):
-    if not os.path.isdir(DATADIR + d):
-        os.makedirs(DATADIR + d, exist_ok=True)
+    if not os.path.isdir(Config.DATADIR + d):
+        os.makedirs(Config.DATADIR + d, exist_ok=True)
 
 
 def download_epmc(issn='epmc', sleep=0.5, mx=0):
@@ -85,7 +85,7 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
             done.add(pmid)
 
         ensure_dir(d)
-        with open(DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
+        with open(Config.DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
             fp.write(xml)
 
         print('%d failed (%s %s), %d done' % (len(failed), txt, pmcid, len(done)))
@@ -94,7 +94,7 @@ def download_epmc(issn='epmc', sleep=0.5, mx=0):
 
 def getxmlepmc(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(DATADIR + 'xml_epmc/{}.xml'.format(pmid), 'rb') as fp:
+    with open(Config.DATADIR + 'xml_epmc/{}.xml'.format(pmid), 'rb') as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -254,8 +254,8 @@ def gen_epmc(issn='epmc'):
 
 # def gen_epmc_old(issn='epmc'):
 #     """Convert EPMC XML files into "cleaned" text files."""
-#     if not os.path.isdir(DATADIR + 'cleaned_epmc'):
-#         os.mkdir(DATADIR + 'cleaned_epmc')
+#     if not os.path.isdir(Config.DATADIR + 'cleaned_epmc'):
+#         os.mkdir(Config.DATADIR + 'cleaned_epmc')
 #     for pmid in readxml('xml_epmc'):
 #
 #         root = getxmlepmc(pmid)
@@ -268,7 +268,7 @@ def gen_epmc(issn='epmc'):
 #             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
 #                 pmid, a is None, m is None, r is None), fg='red')
 #             continue
-#         fname = DATADIR + 'cleaned_epmc/{}_cleaned.txt'.format(pmid)
+#         fname = Config.DATADIR + 'cleaned_epmc/{}_cleaned.txt'.format(pmid)
 #         if os.path.exists(fname):
 #             click.secho('overwriting %s' % fname, fg='yellow')
 #
