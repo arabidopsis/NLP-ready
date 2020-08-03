@@ -18,6 +18,9 @@ such as DOI, PMCID, [ISSN](http://www.bl.uk/bibliographic/issn.html#what), TITLE
 python3 -m mlcode journals --out=[metafile] --sleep=20. [csvfile]
 ```
 
+Here `csvfile` is a CSV file that contains a list of PubMed IDs that we want.
+You can specify the column with the option `--col`.
+
 This will scrape the ncbi website so
 the `--sleep=20.` key ensures that it is not hit too rapidly. This will
 avoid you being blocked! This will take sometime (e.g. 20 x #papers secs) so go get a coffee.
@@ -41,8 +44,8 @@ python3 -m mlcode download --sleep=100. --mx=0 --mod=-cell
 This will also take some time :). Here we are excluding the `cell` module
 (see ScienceDirect section below).
 
-Documents are stored in `DATADIR/xml_<ISSN>/<PMID>.html`. If the download "fails"
-a stub file is stored in `DATADIR/failed_<ISSN>/<PMID>.html` to prevent subsequent attempts
+Documents are stored in `{DATADIR}/xml_<ISSN>/<PMID>.html`. If the download "fails"
+a stub file is stored in `{DATADIR}/failed_<ISSN>/<PMID>.html` to prevent subsequent attempts
 to redownload the document. This means that you can stop/restart the download at will.
 
 
@@ -77,7 +80,7 @@ from within the downloaded HTML/XML.
 python3 -m mlcode tohtml
 ```
 
-You can then navigate to `DATADIR/html` and click on the `index.html` file to get a summary
+You can then navigate to `{DATADIR}/html` and click on the `index.html` file to get a summary
 of your data (no webserver required).
 
 ## Creating "Cleaned" Data files
@@ -88,7 +91,7 @@ These are pure textfiles
 python3 -m mlcode clean
 ```
 
-The files are generated in `DATADIR/cleaned`. Each file is named as `cleaned_<ISSN>_<JOURNAL>/<PMID>_cleaned.txt`.
+The files are generated in `{DATADIR}/cleaned`. Each file is named as `cleaned_<ISSN>_<JOURNAL>/<PMID>_cleaned.txt`.
 [ISSN](http://www.bl.uk/bibliographic/issn.html#what) is a "number" XXXX-XXXX identifying a journal (actually journals can have multiple ISSNs indicating
 a dead tree version or a website etc.)
 
@@ -107,7 +110,7 @@ play well with the other modules.
 
 Almost all modules in `mlcode` manage a set of journals/ISSN that have a similar HTML layout.
 
-Currently we can handle 203 ISSNs from 147 journals.
+Currently we can handle 204 ISSNs from 147 journals.
 
 ```
 # ISSN

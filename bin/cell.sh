@@ -1,6 +1,6 @@
 #!/bin/bash
 arg=''
-issns=`python3.5 mlcode/cell.py issn`
+issns=`python -m mlcode.cell issn`
 d=$1
 for issn in $issns
 do

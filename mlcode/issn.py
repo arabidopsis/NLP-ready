@@ -348,7 +348,12 @@ def summary():
 
 @cli.command()
 @click.option("--out", default=Config.JCSV, help="output filename", show_default=True)
-@click.option("--col", default=0, help="column that contains pubmed", show_default=True)
+@click.option(
+    "--col",
+    default=0,
+    help="column in file that contains the pubmed ID",
+    show_default=True,
+)
 @click.option(
     "--sleep",
     default=1.0,
