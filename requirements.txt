@@ -1,7 +1,8 @@
 requests
 click
 lxml
-bs4
-tabulate
+Jinja2
 selenium
+tabulate
 regex
+beautifulsoup4
