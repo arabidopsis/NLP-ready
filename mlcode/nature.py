@@ -3,7 +3,7 @@ from io import BytesIO
 from lxml import etree
 from lxml.html import document_fromstring, parse
 
-from mlabc import Clean, Config, Download, Generate, dump
+from .mlabc import Clean, Config, Download, Generate, dump
 
 ISSN = {
     "1476-4687": "Nature",

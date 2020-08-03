@@ -1,6 +1,6 @@
 import click
 
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {
     "1040-4651": "Plant Cell",

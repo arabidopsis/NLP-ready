@@ -10,7 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
-from mlabc import Clean, Config, Generate, read_suba_papers_csv, readxml
+from .mlabc import Clean, Config, Generate, read_suba_papers_csv, readxml
 
 ISSN = {"elsevier": "elsevier"}
 
@@ -56,7 +56,7 @@ def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
         readxml("xml_elsevier")
     )  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC
 
-    todo = [p.pmid for p in read_suba_papers_csv() if p.pmid not in (failed | done)]
+    todo = [p.pmid for p in read_suba_papers_csv() if p.pmid not in failed | done]
 
     todox = todo.copy()
     print("done: %d failed: %d todo: %d" % (len(done), len(failed), len(todox)))

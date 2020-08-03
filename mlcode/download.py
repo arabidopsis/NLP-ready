@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
-from mlabc import read_pubmed_csv, read_suba_papers_csv
+from .mlabc import read_pubmed_csv, read_suba_papers_csv
 
 EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id="
 

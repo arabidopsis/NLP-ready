@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-from mlabc import (
+from .mlabc import (
     Clean,
     Config,
     DownloadSelenium,
@@ -152,7 +152,7 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
         options.add_argument("headless")
     # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
     driver = webdriver.Chrome(chrome_options=options)
-    for idx, (pmid, (doi, issn)) in enumerate(lst):
+    for idx, (pmid, (doi, iissn)) in enumerate(lst):
         print(pmid, doi)
         xml = getpage(doi, driver)
         d = gdir

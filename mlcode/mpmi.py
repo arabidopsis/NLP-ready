@@ -1,4 +1,4 @@
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {
     "0894-0282": "Mol. Plant Microbe Interact.",

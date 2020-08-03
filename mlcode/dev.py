@@ -1,4 +1,4 @@
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {"0950-1991": "Development", "1477-9129": "Development"}
 

@@ -1,6 +1,6 @@
 import requests
 
-from mlabc import Clean, Download, Generate, dump
+from .mlabc import Clean, Download, Generate, dump
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!

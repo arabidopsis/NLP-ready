@@ -4,7 +4,7 @@ from pickle import dump, load
 
 import click
 
-from mlabc import Config, Generate
+from .mlabc import Config, Generate
 
 # add module name to this list...
 
@@ -56,6 +56,7 @@ Journal = namedtuple(
 
 
 def getmod(mod):
+    mod = "mlcode." + mod
     m = __import__(mod)
     if "." in mod:
         _, mname = mod.rsplit(".", 1)
@@ -145,21 +146,21 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     issns = {p.issn: p.name for p in p2i.values() if not issn or p.issn in issn}
     issnmap = {}
 
-    for mod in mods:
-        d = getmod(mod)
-        for issn in d["issn"]:
-            if issn not in issns and issn not in {
+    for mmod in mods:
+        d = getmod(mmod)
+        for iissn in d["issn"]:
+            if iissn not in issns and iissn not in {
                 "epmc",
                 "elsevier",
             }:  # no paper from this journal
                 continue
-            journal = issns.get(issn, issn)
-            print("writing", mod, issn, journal)
-            g = d["Generate"](issn, pmid2doi=p2i)
+            journal = issns.get(iissn, iissn)
+            print("writing", mmod, iissn, journal)
+            g = d["Generate"](iissn, pmid2doi=p2i)
             # try:
             fname, papers, failed = g.tohtml(
                 save=True,
-                prefix=jdir + "/" + mod + "_",
+                prefix=jdir + "/" + mmod + "_",
                 env=env,
                 verbose=False,
                 num=num,
@@ -173,8 +174,8 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
             url = fname[i:]
             t = Journal(
                 url=url,
-                mod=mod,
-                issn=issn,
+                mod=mmod,
+                issn=iissn,
                 ndone=ndone,
                 journal=journal,
                 not_ok=not_ok,
@@ -188,7 +189,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
             for p in tpmids:
                 total3.add(p)
 
-            issnmap[issn] = t
+            issnmap[iissn] = t
 
             # except Exception as e:
             #     click.secho("failed %s %s %s" % (m, i, str(e)), fg='magenta')
@@ -330,17 +331,17 @@ def download(mod="", sleep=10.0, mx=1, issn=""):
         if m in exclude:
             continue
         d = getmod(m)
-        for issn in d["issn"]:
-            if issns and issn not in issns:
+        for iissn in d["issn"]:
+            if issns and iissn not in issns:
                 continue
-            print("downloading:", m, issn)
-            d["download"](issn, sleep=sleep, mx=mx)
+            print("downloading:", m, iissn)
+            d["download"](iissn, sleep=sleep, mx=mx)
 
 
 @cli.command()
 def summary():
     """Summary of current download status."""
-    from download import journal_summary
+    from .download import journal_summary
 
     journal_summary()
 
@@ -358,7 +359,7 @@ def summary():
 @click.argument("csvfile")
 def journals(csvfile, out, noheader=False, col=0, sleep=0.2):
     """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of SUBA4 pubmed ids."""
-    from download import getmeta
+    from .download import getmeta
 
     getmeta(csvfile, sleep=sleep, pubmeds=out, header=not noheader, pcol=col)
 

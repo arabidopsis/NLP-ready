@@ -1,6 +1,6 @@
 import requests
 
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {"0021-9258": "J. Biol. Chem.", "1083-351X": "J. Biol. Chem."}
 

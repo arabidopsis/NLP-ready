@@ -11,8 +11,8 @@ import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError
 
-import config as Config
-from rescantxt import find_primers, reduce_nums
+from .rescantxt import find_primers, reduce_nums
+from . import config as Config
 
 Paper = namedtuple("Paper", ["doi", "year", "pmid", "issn", "name", "pmcid", "title"])
 

@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import click
 
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {
     "1460-2431": "J. Exp. Bot.",

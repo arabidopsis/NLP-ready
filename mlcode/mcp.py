@@ -1,6 +1,6 @@
 import requests
 
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {
     "1535-9484": "Mol. Cell Proteomics",

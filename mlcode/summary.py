@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 import click
 from tabulate import tabulate
 
-from mlabc import USER_AGENT, Config, read_issn, read_suba_papers_csv
+from .mlabc import USER_AGENT, Config, read_issn, read_suba_papers_csv
 
 
 def get_dir(xmld, ext=".xml"):

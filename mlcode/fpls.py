@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate
 
 ISSN = {
     "1664-462X": "Front Plant Sci",

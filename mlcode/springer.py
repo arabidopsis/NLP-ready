@@ -1,4 +1,4 @@
-from mlabc import Clean, Download, Generate, dump
+from .mlabc import Clean, Download, Generate, dump
 
 ISSN = {
     "1573-5028": "Plant Mol. Biol.",

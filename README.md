@@ -15,8 +15,7 @@ that we are interested in. Then we collect some metadata
 such as DOI, PMCID, [ISSN](http://www.bl.uk/bibliographic/issn.html#what), TITLE etc. with:
 
 ```
-cd mlcode
-python3 issn.py journals --out=[metafile] --sleep=20. [csvfile]
+python3 -m mlcode journals --out=[metafile] --sleep=20. [csvfile]
 ```
 
 This will scrape the ncbi website so
@@ -36,7 +35,7 @@ we need `JCSV` to point to the newly created `metafile`.
 We can then download the fulltext with:
 
 ```
-python3 issn.py download --sleep=100. --mx=0 --mod=-cell
+python3 -m mlcode download --sleep=100. --mx=0 --mod=-cell
 ```
 
 This will also take some time :). Here we are excluding the `cell` module
@@ -64,7 +63,7 @@ All chromedriver downloads currently are managed by `cell.py` so we can download
 them separately with:
 
 ```
-python3 cell.py download --sleep=100. --mx=0 --head
+python3 -m mlcode.cell download --sleep=100. --mx=0 --head
 ```
 
 
@@ -75,7 +74,7 @@ in a simple manner. This is useful to check the code is actually finding the cor
 from within the downloaded HTML/XML.
 
 ```
-python3 issn.py tohtml
+python3 -m mlcode tohtml
 ```
 
 You can then navigate to `DATADIR/html` and click on the `index.html` file to get a summary
@@ -86,7 +85,7 @@ of your data (no webserver required).
 These are pure textfiles
 
 ```
-python3 issn.py clean
+python3 -m mlcode clean
 ```
 
 The files are generated in `DATADIR/cleaned`. Each file is named as `cleaned_<ISSN>_<JOURNAL>/<PMID>_cleaned.txt`.
@@ -112,9 +111,9 @@ Currently we can handle 203 ISSNs from 147 journals.
 
 ```
 # ISSN
-python3 issn.py issn | cut -d, -f1 | sort | uniq | wc
+python3 -m mlcode issn | cut -d, -f1 | sort | uniq | wc
 # Journals
-python3 issn.py issn | cut -d, -f2 | sort | uniq | wc
+python3 -m mlcode issn | cut -d, -f2 | sort | uniq | wc
 ```
 
 To add a journal copy the closest equivalent module.
@@ -123,7 +122,7 @@ Then alter the ISSN dictionary download_xxx, and Generate class.
 To find out what publications still need to be downloaded use:
 
 ```
-python3 summary.py todo --failed
+python3 -m mlcode.summary todo --failed
 ```
 
 This will also give you an idea as to whether an ISSN is not covered by any module.
