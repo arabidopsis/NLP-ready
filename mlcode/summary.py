@@ -1,15 +1,16 @@
-import os
 import glob
-from collections import defaultdict, Counter
-from tabulate import tabulate
+import os
+from collections import Counter, defaultdict
+
 import click
+from tabulate import tabulate
 
-from mlabc import Config, read_issn, read_suba_papers_csv, USER_AGENT
+from mlabc import USER_AGENT, Config, read_issn, read_suba_papers_csv
 
 
-def get_dir(xmld, ext='.xml'):
+def get_dir(xmld, ext=".xml"):
     res = []
-    for f in glob.glob(Config.DATADIR + '%s/*%s' % (xmld, ext)):
+    for f in glob.glob(Config.DATADIR + "%s/*%s" % (xmld, ext)):
         _, fname = os.path.split(f)
         pmid, _ = os.path.splitext(fname)
         res.append(pmid)
@@ -17,14 +18,14 @@ def get_dir(xmld, ext='.xml'):
 
 
 def getext(xmld):
-    if xmld.endswith(('epmc', 'elsevier')):
-        return '.xml'
-    return '.html'
+    if xmld.endswith(("epmc", "elsevier")):
+        return ".xml"
+    return ".html"
 
 
 def get_all_done():
-    for xmld in glob.glob(Config.DATADIR + 'xml_*'):
-        _, issn = xmld.split('_')
+    for xmld in glob.glob(Config.DATADIR + "xml_*"):
+        _, issn = xmld.split("_")
         pmids = get_dir(xmld, ext=getext(xmld))
         for pmid in pmids:
             yield issn, pmid
@@ -44,8 +45,8 @@ def _summary(showall=True, exclude=None):
             issns[p.issn].append(p)
 
     dd = {}
-    for xmld in glob.glob(Config.DATADIR + 'xml_*'):
-        _, issn = xmld.split('_')
+    for xmld in glob.glob(Config.DATADIR + "xml_*"):
+        _, issn = xmld.split("_")
         if exclude and issn in exclude:
             continue
         if issn in issns:
@@ -55,8 +56,8 @@ def _summary(showall=True, exclude=None):
         pmids = get_dir(xmld, ext=getext(xmld))
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
-    for xmld in glob.glob(Config.DATADIR + 'failed_*'):
-        _, issn = xmld.split('_')
+    for xmld in glob.glob(Config.DATADIR + "failed_*"):
+        _, issn = xmld.split("_")
         if exclude and issn in exclude:
             continue
         pmids = get_dir(xmld, ext=getext(xmld))
@@ -71,17 +72,19 @@ def _summary(showall=True, exclude=None):
                 cnt, name = len(issns[issn]), issns[issn][0].name
                 dd[issn] = (name, issn, cnt, 0, 0)
 
-    header = 'issn,count,done,failed,total,todo,tname'.split(',')
+    header = "issn,count,done,failed,total,todo,tname".split(",")
     tbl = []
     tcnt = tdone = tfailed = 0
     for name, issn, cnt, done, failed in dd.values():
-        tbl.append((issn, cnt, done, failed, done + failed, cnt - (done + failed), name))
+        tbl.append(
+            (issn, cnt, done, failed, done + failed, cnt - (done + failed), name)
+        )
         tdone += done
         tfailed += failed
         tcnt += cnt
     tbl = sorted(tbl, key=lambda t: -t[5])
-    tbl.append(['total', tcnt, tdone, tfailed, tdone + tfailed, '', ''])
-    print(tabulate(tbl, headers=header, tablefmt='rst'))
+    tbl.append(["total", tcnt, tdone, tfailed, tdone + tfailed, "", ""])
+    print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
 def _counts():
@@ -91,7 +94,16 @@ def _counts():
 
     total = sum(len(res[pmid]) for pmid in res)
     doubles = sum(1 if len(res[pmid]) > 1 else 0 for pmid in res)
-    print('pubmeds done:', len(res), 'possible', len(papers), 'total', total, 'doubles', doubles)
+    print(
+        "pubmeds done:",
+        len(res),
+        "possible",
+        len(papers),
+        "total",
+        total,
+        "doubles",
+        doubles,
+    )
 
     def d(issn):
         if issn in ISSN:
@@ -101,15 +113,15 @@ def _counts():
     for pmid in res:
         issns = res[pmid]
         if len(issns) > 1:
-            print(pmid, ','.join(sorted([d(j) for j in issns])))
+            print(pmid, ",".join(sorted([d(j) for j in issns])))
 
 
 def get_papers_todo(exclude=None, failed=False):
     # issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
-    for xmld in glob.glob(Config.DATADIR + 'xml_*'):
-        _, issn = xmld.split('_')
+    for xmld in glob.glob(Config.DATADIR + "xml_*"):
+        _, issn = xmld.split("_")
         if exclude and issn in exclude:
             continue
         # cnt, name = issns.get(issn, (0, issn))
@@ -118,11 +130,11 @@ def get_papers_todo(exclude=None, failed=False):
             if pmid in papers:
                 del papers[pmid]
     if failed:
-        for xmld in glob.glob(Config.DATADIR + 'failed_*'):
-            _, issn = xmld.split('_')
+        for xmld in glob.glob(Config.DATADIR + "failed_*"):
+            _, issn = xmld.split("_")
             if exclude and issn in exclude:
                 continue
-            if issn in {'epmc', 'elsevier'}:  # elseiver failed has all pubmeds!
+            if issn in {"epmc", "elsevier"}:  # elseiver failed has all pubmeds!
                 continue
             pmids = get_dir(xmld, ext=getext(xmld))
             for pmid in pmids:
@@ -150,13 +162,13 @@ def _todo(byname=False, exclude=None, failed=False):
         tbl = []
         total = 0
         for j in d1:
-            issn = ','.join(d2[j])
+            issn = ",".join(d2[j])
             cnt = d1[j]
             tbl.append((j, issn, cnt))
             total += cnt
         tbl = sorted(tbl, key=lambda t: -t[2])
-        tbl.append(('total', '', total))
-        print(tabulate(tbl, headers=header, tablefmt='rst'))
+        tbl.append(("total", "", total))
+        print(tabulate(tbl, headers=header, tablefmt="rst"))
     else:
         header = ["ISSN", "Journal", "ToDo"]
         tbl = []
@@ -164,27 +176,25 @@ def _todo(byname=False, exclude=None, failed=False):
         for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
             tbl.append([issn, issns[issn], cnt])
             total += cnt
-        tbl.append(('total', '', total))
+        tbl.append(("total", "", total))
         print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
 def _urls(exclude=None, failed=False):
     import requests
     import csv
+
     papers = get_papers_todo(exclude=exclude, failed=failed)
     issns = {p.issn: p.name for p in papers.values()}
-    header = {
-        'User-Agent': USER_AGENT,
-        'Referer': 'http://www.google.com'
-    }
+    header = {"User-Agent": USER_AGENT, "Referer": "http://www.google.com"}
 
-    print('todo', len(papers))
-    fname = 'paper_urls.csv'
+    print("todo", len(papers))
+    fname = "paper_urls.csv"
 
     e = os.path.exists(fname)
     redo = []
     if e:
-        with open(fname, 'r', encoding='utf8') as fp:
+        with open(fname, "r", encoding="utf8") as fp:
             R = csv.reader(fp)
             next(R)  # skip header
             done = [row for row in R]
@@ -195,42 +205,42 @@ def _urls(exclude=None, failed=False):
                     redo.append(row)
 
     papers = sorted(papers.values(), key=lambda p: (p.name, p.issn, -p.year))
-    print('%d to scrape' % len(papers))
-    with open(fname, 'w', encoding='utf8') as fp:
+    print("%d to scrape" % len(papers))
+    with open(fname, "w", encoding="utf8") as fp:
         W = csv.writer(fp)
-        W.writerow(['PubMed', 'ISSN', 'Journal', 'url'])
+        W.writerow(["PubMed", "ISSN", "Journal", "url"])
         for row in redo:
             W.writerow(row)
         for idx, p in enumerate(papers):
             try:
-                resp = requests.get('https://doi.org/{}'.format(p.doi), headers=header)
+                resp = requests.get("https://doi.org/{}".format(p.doi), headers=header)
                 url = resp.url
             except Exception as e:
-                click.secho('failed %s err=%s' % (p, str(e)), fg='red')
-                url = 'Failed! %s' % p.doi
+                click.secho("failed %s err=%s" % (p, str(e)), fg="red")
+                url = "Failed! %s" % p.doi
             W.writerow([p.pmid, p.issn, issns[p.issn], url])
             if (idx + 1) % 10 == 0:
-                print('done ', idx + 1)
+                print("done ", idx + 1)
 
 
 def parsed():
     ISSN = {}
     res = defaultdict(list)
-    for xmld in glob.glob(Config.DATADIR + 'cleaned_*'):
-        _, issn = xmld.split('_')
-        for f in glob.glob(Config.DATADIR + '%s/*.txt' % xmld):
+    for xmld in glob.glob(Config.DATADIR + "cleaned_*"):
+        _, issn = xmld.split("_")
+        for f in glob.glob(Config.DATADIR + "%s/*.txt" % xmld):
             _, fname = os.path.split(f)
             pmid, _ = os.path.splitext(fname)
-            pmid, _ = pmid.split('_')
+            pmid, _ = pmid.split("_")
             res[pmid].append(issn)
             # res[issn] = [pmid for fname in get_dir(xmld, ext='.txt')
             #              for pmid in [fname.split('_')[0]]]
 
-    print('done:', len(res))
+    print("done:", len(res))
     for pmid in res:
         issns = res[pmid]
         if len(issns) > 1:
-            print(pmid, ','.join(sorted(ISSN.get(j, j) for j in issns)))
+            print(pmid, ",".join(sorted(ISSN.get(j, j) for j in issns)))
 
 
 @click.group()
@@ -239,11 +249,11 @@ def cli():
 
 
 @cli.command()
-@click.option('--showall', is_flag=True, help='also show journals not done yet')
-@click.option('--exclude')
+@click.option("--showall", is_flag=True, help="also show journals not done yet")
+@click.option("--exclude")
 def summary(showall, exclude=None):
     if exclude:
-        exclude = set(exclude.split(','))
+        exclude = set(exclude.split(","))
     _summary(showall, exclude=exclude)
 
 
@@ -258,24 +268,24 @@ def cleaned():
 
 
 @cli.command()
-@click.option('--failed', is_flag=True, help='include failed documents')
-@click.option('--exclude')
+@click.option("--failed", is_flag=True, help="include failed documents")
+@click.option("--exclude")
 def urls(exclude=None, failed=False):
     if exclude:
-        exclude = set(exclude.split(','))
+        exclude = set(exclude.split(","))
     _urls(exclude=exclude, failed=failed)
 
 
 @cli.command()
-@click.option('--byname', is_flag=True, help='group table by journal name')
-@click.option('--failed', is_flag=True, help='include failed documents')
-@click.option('--exclude')
+@click.option("--byname", is_flag=True, help="group table by journal name")
+@click.option("--failed", is_flag=True, help="include failed documents")
+@click.option("--exclude")
 def todo(byname, exclude=None, failed=False):
     if exclude:
-        exclude = set(exclude.split(','))
+        exclude = set(exclude.split(","))
     _todo(byname, exclude, failed=failed)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()
     # counts()

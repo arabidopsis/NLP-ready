@@ -1,43 +1,43 @@
 # import csv
 import os
 import time
+from io import BytesIO
+
+import click
 # import sys
 import requests
-import click
-from lxml import etree
-from io import BytesIO
 from bs4 import BeautifulSoup
+from lxml import etree
 
-from mlabc import Config, Clean, readxml, Generate, read_suba_papers_csv
+from mlabc import Clean, Config, Generate, read_suba_papers_csv, readxml
 
-ISSN = {'elsevier': 'elsevier'}
+ISSN = {"elsevier": "elsevier"}
 
-PMID_ELSEVIER = 'http://api.elsevier.com/content/article/pubmed_id/{}'
-EKEY = '305ac4275ea475891668f6a71234efbc'
-Headers = {'X-ELS-APIKey': EKEY}
+PMID_ELSEVIER = "http://api.elsevier.com/content/article/pubmed_id/{}"
+EKEY = "305ac4275ea475891668f6a71234efbc"
+Headers = {"X-ELS-APIKey": EKEY}
 
 
 def elsevier(pmid, url=PMID_ELSEVIER):
     """Given a PUBMED id return the Elsevier XML as text."""
-    resp = requests.get(url.format(pmid),
-                        headers=Headers,
-                        params={'view': 'full'}  # Do we need this?
-                        )
+    resp = requests.get(
+        url.format(pmid), headers=Headers, params={"view": "full"}  # Do we need this?
+    )
 
     # for row in Events().parse(BytesIO(resp.content),'elsevier'):
     #    print(row)#,end=' ')
 
     soup = BeautifulSoup(BytesIO(resp.content), "lxml")
-    if soup.find('service-error'):
+    if soup.find("service-error"):
         # print('no such document:', pmid, resp.text, file=sys.stderr)
         return None
     # seems like elsevier gives back incorrect articles see e.g. 24381066 argh!
-    p = soup.find('pubmed-id')
+    p = soup.find("pubmed-id")
     if p:
         p = p.text.strip()
         assert p == pmid, (p, pmid)
     else:
-        assert p, ('no pubmed-id', pmid)
+        assert p, ("no pubmed-id", pmid)
         pass
 
     return resp.text
@@ -49,10 +49,12 @@ def ensure_dir(d):
         os.makedirs(Config.DATADIR + d, exist_ok=True)
 
 
-def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
+def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
     """Download any Elsevier XML files using SUBA4 pubmed ids."""
-    failed = set(readxml('failed_elsevier'))
-    done = set(readxml('xml_elsevier'))  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC
+    failed = set(readxml("failed_elsevier"))
+    done = set(
+        readxml("xml_elsevier")
+    )  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC
 
     # if use_issn:
     #     # find ISSN subset for Elsevier see https://www.elsevier.com/solutions/sciencedirect/content/journal-title-lists
@@ -75,11 +77,10 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
     #         done | failed)]
     #
     # else:
-    todo = [p.pmid for p in read_suba_papers_csv()
-            if p.pmid not in (failed | done)]
+    todo = [p.pmid for p in read_suba_papers_csv() if p.pmid not in (failed | done)]
 
     todox = todo.copy()
-    print('done: %d failed: %d todo: %d' % (len(done), len(failed), len(todox)))
+    print("done: %d failed: %d todo: %d" % (len(done), len(failed), len(todox)))
     if mx:
         todo = todo[:mx]
     if not todo:
@@ -88,52 +89,55 @@ def download_elsevier(issn='elsevier', sleep=0.5, mx=0):
         try:
             xml = elsevier(pmid)
             if xml is None:
-                d = 'failed_elsevier'
-                xml = 'failed'
+                d = "failed_elsevier"
+                xml = "failed"
                 failed.add(pmid)
             else:
-                d = 'xml_elsevier'
+                d = "xml_elsevier"
                 done.add(pmid)
         except AssertionError as e:
-            print('failed pubmed test', pmid, e)
-            d = 'failed_elsevier'
-            xml = 'incorrect_pmid'
+            print("failed pubmed test", pmid, e)
+            d = "failed_elsevier"
+            xml = "incorrect_pmid"
             failed.add(pmid)
 
         ensure_dir(d)
-        with open(Config.DATADIR + '{}/{}.xml'.format(d, pmid), 'w') as fp:
+        with open(Config.DATADIR + "{}/{}.xml".format(d, pmid), "w") as fp:
             fp.write(xml)
         todox.remove(pmid)
-        print('done: %d failed: %d todo: %d -- %s' % (len(done), len(failed), len(todox), pmid))
+        print(
+            "done: %d failed: %d todo: %d -- %s"
+            % (len(done), len(failed), len(todox), pmid)
+        )
         time.sleep(sleep)
 
 
 def getxmlelsevier(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(Config.DATADIR + 'xml_elsevier/{}.xml'.format(pmid), 'rb') as fp:
+    with open(Config.DATADIR + "xml_elsevier/{}.xml".format(pmid), "rb") as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
     return root
 
 
-E = '/e:full-text-retrieval-response'
-ART = '*[self::ja:converted-article or self::ja:article]'
+E = "/e:full-text-retrieval-response"
+ART = "*[self::ja:converted-article or self::ja:article]"
 
-CE = 'http://www.elsevier.com/xml/common/dtd'
-TAG = '{%s}%%s' % CE
-XREFS = {TAG % 'cross-ref', TAG % 'cross-refs'}
-ITALIC = {TAG % 'italic'}
+CE = "http://www.elsevier.com/xml/common/dtd"
+TAG = "{%s}%%s" % CE
+XREFS = {TAG % "cross-ref", TAG % "cross-refs"}
+ITALIC = {TAG % "italic"}
 
 
 def para2txt2(e):
-    for t in e.xpath('.//text()'):
+    for t in e.xpath(".//text()"):
         p = t.getparent()
         if p.tag in XREFS:
             if p.tail == t:
                 yield p.tail
             else:
-                yield 'CITATION'  # '[%s]' % p.attrib['refid']
+                yield "CITATION"  # '[%s]' % p.attrib['refid']
         elif p.tag in ITALIC and p.tail != t:
             # yield '<i>%s</i>' % t
             yield str(t)
@@ -142,89 +146,118 @@ def para2txt2(e):
 
 
 class Elsevier(Clean):
-
     def __init__(self, root):
         self.root = root
         ns = root.nsmap.copy()
-        ns['e'] = ns.pop(None)
+        ns["e"] = ns.pop(None)
         self.ns = ns
-        self.figures = {f.attrib['id']: f for f in self.root.xpath(
-            E + '/e:originalText/xocs:doc/xocs:serial-item//ce:figure[@id]', namespaces=ns)}
+        self.figures = {
+            f.attrib["id"]: f
+            for f in self.root.xpath(
+                E + "/e:originalText/xocs:doc/xocs:serial-item//ce:figure[@id]",
+                namespaces=ns,
+            )
+        }
 
-        self.tables = {f.attrib['id']: f for f in self.root.xpath(
-            E + '/e:originalText/xocs:doc/xocs:serial-item//ce:table[@id]', namespaces=ns)}
+        self.tables = {
+            f.attrib["id"]: f
+            for f in self.root.xpath(
+                E + "/e:originalText/xocs:doc/xocs:serial-item//ce:table[@id]",
+                namespaces=ns,
+            )
+        }
 
     @property
     def pubmed(self):
-        r = self.root.xpath(E + '/e:pubmed-id', namespaces=self.ns)
+        r = self.root.xpath(E + "/e:pubmed-id", namespaces=self.ns)
         if not r:
             return None
         return r[0].text.strip()
 
     def title(self):
-        r = self.root.xpath(E + '/e:coredata/dc:title', namespaces=self.ns)
+        r = self.root.xpath(E + "/e:coredata/dc:title", namespaces=self.ns)
         if not r:
             return None
         return r[0].text.strip()
 
     def results(self):
 
-        secs = self.root.xpath(E + '/e:originalText/xocs:doc/xocs:serial-item/' + ART + '/ja:body/ce:sections',
-                               namespaces=self.ns)
+        secs = self.root.xpath(
+            E
+            + "/e:originalText/xocs:doc/xocs:serial-item/"
+            + ART
+            + "/ja:body/ce:sections",
+            namespaces=self.ns,
+        )
         for sec in secs:
-            for s in sec.xpath('./ce:section', namespaces=self.ns):
-                for t in s.xpath('.//ce:section-title/text()', namespaces=self.ns):
-                    if t.lower().find('results') >= 0:
+            for s in sec.xpath("./ce:section", namespaces=self.ns):
+                for t in s.xpath(".//ce:section-title/text()", namespaces=self.ns):
+                    if t.lower().find("results") >= 0:
                         return s
 
         return None
 
     def methods(self):
 
-        secs = self.root.xpath(E + '/e:originalText/xocs:doc/xocs:serial-item/' + ART + '/ja:body/ce:sections',
-                               namespaces=self.ns)
+        secs = self.root.xpath(
+            E
+            + "/e:originalText/xocs:doc/xocs:serial-item/"
+            + ART
+            + "/ja:body/ce:sections",
+            namespaces=self.ns,
+        )
         for sec in secs:
-            for s in sec.xpath('./ce:section', namespaces=self.ns):
-                for t in s.xpath('.//ce:section-title/text()', namespaces=self.ns):
+            for s in sec.xpath("./ce:section", namespaces=self.ns):
+                for t in s.xpath(".//ce:section-title/text()", namespaces=self.ns):
                     txt = t.lower()
-                    if txt.find('methods') >= 0:
+                    if txt.find("methods") >= 0:
                         return s
-                    if txt.find('experimental procedures') >= 0:
+                    if txt.find("experimental procedures") >= 0:
                         return s
 
         return None
 
     def abstract(self):
 
-        secs = self.root.xpath(E + '/e:originalText/xocs:doc/xocs:serial-item/' + ART + '/ja:head/ce:abstract/ce:abstract-sec',
-                               namespaces=self.ns)
+        secs = self.root.xpath(
+            E
+            + "/e:originalText/xocs:doc/xocs:serial-item/"
+            + ART
+            + "/ja:head/ce:abstract/ce:abstract-sec",
+            namespaces=self.ns,
+        )
         if not secs:
             return None
         return secs[0]
 
     def tostr(self, r):
-
         def txt(p):
             res = []
             for t in para2txt2(p):
                 res.append(t)
 
-            txt = ''.join(res)
-            txt = self.SPACE.sub(' ', txt)
+            txt = "".join(res)
+            txt = self.SPACE.sub(" ", txt)
             return txt.strip()
 
-        for p in r.xpath('.//*[self::ce:para or self::ce:simple-para]', namespaces=self.ns):
+        for p in r.xpath(
+            ".//*[self::ce:para or self::ce:simple-para]", namespaces=self.ns
+        ):
             # TODO: <ce:float-anchor refid='FIG2'/>
             yield txt(p)
-            for f in p.xpath('.//ce:float-anchor[@refid]', namespaces=self.ns):
-                fid = f.attrib['refid']
+            for f in p.xpath(".//ce:float-anchor[@refid]", namespaces=self.ns):
+                fid = f.attrib["refid"]
                 if fid in self.figures:
                     fig = self.figures[fid]
-                    t = ' '.join(txt(c) for c in fig.xpath('.//ce:caption', namespaces=self.ns))
+                    t = " ".join(
+                        txt(c) for c in fig.xpath(".//ce:caption", namespaces=self.ns)
+                    )
                     yield self.FIGURE % t
                 else:
                     fig = self.tables[fid]
-                    t = ' '.join(txt(c) for c in fig.xpath('.//ce:caption', namespaces=self.ns))
+                    t = " ".join(
+                        txt(c) for c in fig.xpath(".//ce:caption", namespaces=self.ns)
+                    )
                     yield self.TABLE % t
 
 
@@ -233,7 +266,9 @@ class GenerateElsevier(Generate):
         ret = Elsevier(soup)
         # print('HERE', ret.pubmed, pmid)
         if ret.pubmed != pmid:
-            click.secho('pubmed incorrect %s expecting: %s' % (ret.pubmed, pmid), fg='red')
+            click.secho(
+                "pubmed incorrect %s expecting: %s" % (ret.pubmed, pmid), fg="red"
+            )
         assert ret.pubmed == pmid, (ret.pubmed, pmid)
         return ret
 
@@ -241,17 +276,17 @@ class GenerateElsevier(Generate):
         return getxmlelsevier(pmid)
 
 
-def gen_elsevier(issn='elsevier'):
+def gen_elsevier(issn="elsevier"):
     o = GenerateElsevier(issn)
     o.run()
 
 
-def gen_elsevier_old(issn='elsevier'):
+def gen_elsevier_old(issn="elsevier"):
     """Convert Elsevier XML files into "cleaned" text files."""
-    if not os.path.isdir(Config.DATADIR + 'cleaned_elsevier'):
-        os.mkdir(Config.DATADIR + 'cleaned_elsevier')
+    if not os.path.isdir(Config.DATADIR + "cleaned_elsevier"):
+        os.mkdir(Config.DATADIR + "cleaned_elsevier")
 
-    for pmid in readxml('xml_elsevier'):
+    for pmid in readxml("xml_elsevier"):
 
         root = getxmlelsevier(pmid)
         e = Elsevier(root)
@@ -260,33 +295,37 @@ def gen_elsevier_old(issn='elsevier'):
         m = e.methods()
         r = e.results()
         if a is None or m is None or r is None:
-            click.secho('{}: missing: abs {}, methods {}, results {}'.format(
-                pmid, a is None, m is None, r is None), fg='red')
+            click.secho(
+                "{}: missing: abs {}, methods {}, results {}".format(
+                    pmid, a is None, m is None, r is None
+                ),
+                fg="red",
+            )
             continue
-        fname = Config.DATADIR + 'cleaned_elsevier/{}_cleaned.txt'.format(pmid)
+        fname = Config.DATADIR + "cleaned_elsevier/{}_cleaned.txt".format(pmid)
         if os.path.exists(fname):
-            click.secho('overwriting %s' % fname, fg='yellow')
+            click.secho("overwriting %s" % fname, fg="yellow")
 
-        with open(fname, 'w', encoding='utf-8') as fp:
-            w = ' '.join(e.tostr(a))
-            print('!~ABS~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(r))
-            print('!~RES~! %s' % w, file=fp)
-            w = ' '.join(e.tostr(m))
-            print('!~MM~! %s' % w, file=fp)
+        with open(fname, "w", encoding="utf-8") as fp:
+            w = " ".join(e.tostr(a))
+            print("!~ABS~! %s" % w, file=fp)
+            w = " ".join(e.tostr(r))
+            print("!~RES~! %s" % w, file=fp)
+            w = " ".join(e.tostr(m))
+            print("!~MM~! %s" % w, file=fp)
 
 
 def check_elsevier(remove=False):
-    for pmid in readxml('xml_elsevier'):
+    for pmid in readxml("xml_elsevier"):
         root = getxmlelsevier(pmid)
         e = Elsevier(root)
         if pmid != e.pubmed:
-            print('incorrect pubmed!', pmid, e.pubmed)
+            print("incorrect pubmed!", pmid, e.pubmed)
             if remove:
-                os.remove(Config.DATADIR + 'xml_elsevier/%s.xml' % pmid)
+                os.remove(Config.DATADIR + "xml_elsevier/%s.xml" % pmid)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_elsevier(remove=True)
     download_elsevier(sleep=5.0, use_issn=False)
     # gen_elsevier()
