@@ -4,6 +4,7 @@ import os
 import time
 
 import click
+
 # import sys
 import requests
 from lxml import etree
@@ -126,9 +127,6 @@ def para2txt3(e):
 
 
 class EPMC(Clean):
-    def __init__(self, root):
-        self.root = root
-
     def title(self):
         res = self.root.xpath("/article/front/article-meta/title-group/article-title")
         if not res:
@@ -175,7 +173,7 @@ class EPMC(Clean):
 
         return None
 
-    def tostr(self, r):
+    def tostr(self, sec):
         def txt(p):
             res = []
             for t in para2txt3(p):
@@ -185,13 +183,13 @@ class EPMC(Clean):
             txt = self.SPACE.sub(" ", txt)
             return txt.strip()
 
-        secs = r.xpath("./sec")
+        secs = sec.xpath("./sec")
 
         if not secs:
-            for p in r.xpath(".//p"):
+            for p in sec.xpath(".//p"):
                 yield txt(p)
         else:
-            for p in r.xpath("./sec/*[self::p or self::fig or self::table-wrap]"):
+            for p in sec.xpath("./sec/*[self::p or self::fig or self::table-wrap]"):
                 if p.tag == "fig":
                     t = " ".join(txt(c) for c in p.xpath(".//p"))
                     yield self.FIGURE % t
@@ -235,7 +233,8 @@ def getpmcids(pmids, fname="PMC-ids-partial.csv"):
 
     if not os.path.exists("PMC-ids.csv.gz"):
         raise RuntimeError(
-            'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"'
+            "please download PMC-ids.csv.gz (~85MB) file with:"
+            ' "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"'
         )
     with gzip.open("PMC-ids.csv.gz", "rt") as fp:
         R = csv.reader(fp)
@@ -308,7 +307,8 @@ def subset(fname):
     """Generate subset of PMC-ids.csv.gz."""
     if not os.path.exists("PMC-ids.csv.gz"):
         raise RuntimeError(
-            'please download PMC-ids.csv.gz (~85MB) file with: "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"'
+            "please download PMC-ids.csv.gz (~85MB) file with:"
+            ' "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"'
         )
     pmc_subset(fname)
 

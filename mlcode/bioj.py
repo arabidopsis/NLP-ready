@@ -8,7 +8,7 @@ ISSN = {"1470-8728": "Biochem. J.", "0264-6021": "Biochem. J."}
 
 class BIOJ(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
@@ -99,6 +99,7 @@ def download_bioj(issn, sleep=5.0, mx=0):
                 )
                 return b"no full-text"
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

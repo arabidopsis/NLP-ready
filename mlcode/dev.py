@@ -5,9 +5,9 @@ ISSN = {"0950-1991": "Development", "1477-9129": "Development"}
 
 class Dev(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")[0]
-        assert a
+        assert a, a
         self.article = a
 
     def title(self):

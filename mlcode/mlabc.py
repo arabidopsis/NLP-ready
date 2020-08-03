@@ -150,10 +150,10 @@ class Clean(object):
         raise NotImplementedError()
 
     def xrefs(self):
-        raise NotImplementedError()
+        return None
 
     def full_text(self):
-        raise NotImplementedError()
+        return None
 
     def tostr(self, sec):
 
@@ -197,7 +197,7 @@ class Clean(object):
     def s_full_text(self):
         if self.f is not _Plug:
             return self.f
-        self.f = self.full_text()
+        self.f = self.full_text()  # pylint: disable=assignment-from-none
         return self.f
 
     def s_title(self):
@@ -209,7 +209,7 @@ class Clean(object):
     def s_xrefs(self):
         if self.x is not _Plug:
             return self.x
-        self.x = self.xrefs()
+        self.x = self.xrefs()  # pylint: disable=assignment-from-none
         return self.x
 
     def has_all_sections(self):

@@ -8,8 +8,15 @@ from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-from mlabc import (Clean, Config, DownloadSelenium, Generate, dump,
-                   read_suba_papers_csv, readxml)
+from mlabc import (
+    Clean,
+    Config,
+    DownloadSelenium,
+    Generate,
+    dump,
+    read_suba_papers_csv,
+    readxml,
+)
 
 ISSN = {
     "1097-4172": "Cell",
@@ -86,6 +93,7 @@ class DownloadCell(DownloadSelenium):
         if len(secs) <= 3:
             dump(paper, resp.content)
         assert len(secs) > 3, (paper.pmid, paper.doi, secs)
+        return None
 
 
 def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True, driver=None):
@@ -162,13 +170,14 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
             time.sleep(sleep)
     if close:
         driver.close()
+        return None
     else:
         return driver
 
 
 class CELL(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("article")
         assert a, a
         self.article = a[0]
@@ -230,7 +239,7 @@ class CELL(Clean):
 
 class CELL2(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.fullText")
 
         a = a[0]
@@ -243,7 +252,7 @@ class CELL2(Clean):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
-                if txt == "results" or txt == "results and discussion":
+                if txt in {"results", "results and discussion"}:
                     return sec
         return None
 
@@ -288,7 +297,7 @@ class GenerateCell(Generate):
     def create_clean(self, soup, pmid):
         try:
             e = CELL(soup)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             e = CELL2(soup)
         return e
 
@@ -371,13 +380,13 @@ def issn():
 @cli.command()
 @click.option("--issn", default=DEFAULT, show_default=True)
 def failed(issn):
-    for issn in issn.split(","):
-        gdir = "failed_%s" % issn
+    for iissn in issn.split(","):
+        gdir = "failed_%s" % iissn
         for pmid in readxml(gdir):
             fname = Config.DATADIR + gdir + "/{}.html".format(pmid)
             with open(fname, "rb") as fp:
                 err = fp.read().decode("utf-8")
-                print('%s,%s,"%s",%s' % (issn, pmid, err, fname))
+                print('%s,%s,"%s",%s' % (iissn, pmid, err, fname))
 
 
 if __name__ == "__main__":

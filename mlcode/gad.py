@@ -10,7 +10,7 @@ ISSN = {"0890-9369": "Genes Dev."}
 
 class GAD(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]

@@ -10,7 +10,7 @@ ISSN = {
 
 class Elife(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("main")
         assert a, a
         self.article = a[0]
@@ -50,13 +50,13 @@ class Elife(Clean):
     def tostr(self, sec):
 
         for a in sec.select("div.asset-viewer-inline"):
-            id = a.attrs.get("id")
-            if not id:
+            idattr = a.attrs.get("id")
+            if not idattr:
                 continue
 
-            if id.startswith("fig"):
+            if idattr.startswith("fig"):
                 a.replace_with(self.newfig(a))
-            elif id.startswith("tbl"):
+            elif idattr.startswith("tbl"):
                 a.replace_with(self.newtable(a))
         for a in sec.select("p a"):
             href = a.attrs.get("href")

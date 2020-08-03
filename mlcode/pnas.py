@@ -8,7 +8,7 @@ ISSN = {
 
 class PNAS(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")[0]
         assert a
         self.article = a

@@ -32,7 +32,7 @@ def download_aspb(issn, sleep=5.0, mx=0):
 
 class ASPB(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]

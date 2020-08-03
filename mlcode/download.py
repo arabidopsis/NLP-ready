@@ -1,12 +1,14 @@
 import csv
 import os
 import re
+
 # import gzip
 import time
 from collections import defaultdict
 from io import BytesIO
 
 import click
+
 # import sys
 import requests
 from bs4 import BeautifulSoup
@@ -20,9 +22,9 @@ EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&re
 ERROR = re.compile("<ERROR>([^<]*)</ERROR>")
 
 
-def fetchpubmed(session, id):
+def fetchpubmed(session, pmid):
     """Fetch article metadata from NCBI using pubmed id."""
-    resp = session.get(EFETCH + str(id))
+    resp = session.get(EFETCH + str(pmid))
     return resp.content  # need buffer for parsing
 
 
@@ -97,8 +99,8 @@ def parse_xml(xml):
 def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
     # return data from xml file at NIH in a pythonic dictionary
-    def pubmed_meta(session, id):
-        xml = fetchpubmed(session, id)
+    def pubmed_meta(session, pmid):
+        xml = fetchpubmed(session, pmid)
         return parse_xml(xml)
 
     session = requests  # .Session()

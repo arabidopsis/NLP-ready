@@ -10,7 +10,7 @@ ISSN = {
 
 class FPLS(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = self.root.select("div.article-section div.JournalFullText")
         assert a, a
         self.article = a[0]
@@ -64,13 +64,13 @@ class FPLS(Clean):
             0
         ].text.strip()
 
-    def tostr(self, secs):
-        for p in secs:
+    def tostr(self, sec):
+        for p in sec:
             for a in p.select("a"):
                 href = a.attrs.get("href")
                 if href and href.startswith("#B"):
                     a.replace_with("CITATION")
-        txt = [self.SPACE.sub(" ", p.text) for p in secs]
+        txt = [self.SPACE.sub(" ", p.text) for p in sec]
         return txt
 
 

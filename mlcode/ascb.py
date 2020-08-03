@@ -68,24 +68,22 @@ class ASCB(Clean):
         return super().title()
 
     def tostr(self, sec):
-        secs = sec
-
         def has_class(d, cls):
             return d.has_attr("class") and cls in d["class"]
 
         ss = []
-        for sec in secs:
-            for a in sec.select("a.tab-link"):
+        for section in sec:
+            for a in section.select("a.tab-link"):
                 a.replace_with("CITATION")
 
-            if sec.name == "figure":
-                ss.append(self.newfig(sec))
-            elif has_class(sec, "article-table-content"):
-                ss.append(self.newtable(sec, caption="caption"))
+            if section.name == "figure":
+                ss.append(self.newfig(section))
+            elif has_class(section, "article-table-content"):
+                ss.append(self.newtable(section, caption="caption"))
             else:
-                for s in sec.select("figure"):
+                for s in section.select("figure"):
                     s.replace_with(self.newfig(s))
-                ss.append(sec)
+                ss.append(section)
 
         txt = [self.SPACE.sub(" ", p.text) for p in ss]
         return txt

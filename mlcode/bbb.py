@@ -14,7 +14,7 @@ ISSN = {
 
 class BBB(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("article.article")
         assert a, a
         self.article = a[0]
@@ -125,6 +125,7 @@ def download_bbb(issn, sleep=5.0, mx=0):
                 click.secho("no full text %s %s" % (paper.pmid, resp.url), fg="red")
                 return b"no full text"
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

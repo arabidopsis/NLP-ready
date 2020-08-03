@@ -1,5 +1,3 @@
-import sys
-import time
 from io import StringIO
 
 from bs4 import BeautifulSoup

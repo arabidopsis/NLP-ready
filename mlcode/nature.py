@@ -28,7 +28,7 @@ class Nature(Clean):
     ]
 
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         # print(etree.tostring(root))
         a = root.xpath('.//div[@data-article-body="true"]')
         assert a and len(a) == 1, a
@@ -137,6 +137,7 @@ def download_nature(issn, sleep=5.0, mx=0):
                 dump(paper, resp.content)
                 return b"failed! no mm"
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

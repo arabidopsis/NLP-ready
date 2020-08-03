@@ -10,7 +10,7 @@ ISSN = {
 
 class PLOS(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article-text")
         assert a, a
         self.article = a[0]

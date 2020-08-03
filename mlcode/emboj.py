@@ -11,7 +11,7 @@ ISSN = {
 
 class EMBOJ(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
@@ -73,9 +73,9 @@ def download_emboj(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = "http://emboj.embopress.org"
 
-        def check_soup(self, pmid, soup, resp):
+        def check_soup(self, paper, soup, resp):
             a = soup.select("div.article.fulltext-view")
-            assert a and len(a) == 1, (pmid, resp.url)
+            assert a and len(a) == 1, (paper, resp.url)
 
     e = D(issn, sleep=sleep, mx=mx)
     e.run()

@@ -119,6 +119,7 @@ def cli():
 )
 def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     """Generate HTML documents from downloads."""
+    # pylint: disable=too-many-locals
     from mlabc import pmid2doi, make_jinja_env
 
     # from pickle import load, dump

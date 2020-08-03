@@ -12,7 +12,7 @@ ISSN = {
 
 class JProteome(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("article.article")
         assert a, a
         self.article = a[0]

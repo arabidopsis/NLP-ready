@@ -4,6 +4,7 @@ import time
 from io import BytesIO
 
 import click
+
 # import sys
 import requests
 from bs4 import BeautifulSoup
@@ -38,7 +39,6 @@ def elsevier(pmid, url=PMID_ELSEVIER):
         assert p == pmid, (p, pmid)
     else:
         assert p, ("no pubmed-id", pmid)
-        pass
 
     return resp.text
     # return soup.prettify()
@@ -56,27 +56,6 @@ def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
         readxml("xml_elsevier")
     )  # | set(readxml('xml_epmc'))  # TODO: don't duplicate EPMC
 
-    # if use_issn:
-    #     # find ISSN subset for Elsevier see https://www.elsevier.com/solutions/sciencedirect/content/journal-title-lists
-    #     if not os.path.isfile('jnlactive.csv'):
-    #         raise RuntimeError(
-    #             'please download jnlactive.csv with: "wget https://www.elsevier.com/__data/promis_misc/sd-content/journals/jnlactive.csv"')
-    #     ISSN = set()
-    #     with open('jnlactive.csv', encoding='latin1') as fp:
-    #         R = csv.reader(fp)
-    #         next(R)
-    #         for name, issn, product, history in R:
-    #             if '-' not in issn:
-    #                 assert len(issn) == 8, issn
-    #                 issn = issn[:4] + '-' + issn[4:]  # sigh!
-    #             assert len(issn) == 9, issn
-    #             ISSN.add(issn)
-    #
-    #     pmid2doi = read_journals_csv()
-    #     todo = [pmid for pmid in pmid2doi if pmid2doi[pmid].issn in ISSN and pmid not in (
-    #         done | failed)]
-    #
-    # else:
     todo = [p.pmid for p in read_suba_papers_csv() if p.pmid not in (failed | done)]
 
     todox = todo.copy()
@@ -147,7 +126,7 @@ def para2txt2(e):
 
 class Elsevier(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         ns = root.nsmap.copy()
         ns["e"] = ns.pop(None)
         self.ns = ns
@@ -230,7 +209,7 @@ class Elsevier(Clean):
             return None
         return secs[0]
 
-    def tostr(self, r):
+    def tostr(self, sec):
         def txt(p):
             res = []
             for t in para2txt2(p):
@@ -240,7 +219,7 @@ class Elsevier(Clean):
             txt = self.SPACE.sub(" ", txt)
             return txt.strip()
 
-        for p in r.xpath(
+        for p in sec.xpath(
             ".//*[self::ce:para or self::ce:simple-para]", namespaces=self.ns
         ):
             # TODO: <ce:float-anchor refid='FIG2'/>
@@ -327,5 +306,5 @@ def check_elsevier(remove=False):
 
 if __name__ == "__main__":
     check_elsevier(remove=True)
-    download_elsevier(sleep=5.0, use_issn=False)
+    download_elsevier(sleep=5.0)
     # gen_elsevier()

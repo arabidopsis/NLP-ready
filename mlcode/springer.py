@@ -45,7 +45,7 @@ ISSN = {
 
 class Springer(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("main#main-content article.main-body__content")
         assert a
         self.article = a[0]
@@ -118,7 +118,7 @@ class Springer(Clean):
 
 class SpringerRice(Springer):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("body.journal-fulltext .FulltextWrapper > section")
         assert a
         self.article = a[0].parent
@@ -162,6 +162,7 @@ def download_springer(issn, sleep=5.0, mx=0):
                 return b"failed-only-pdf"
             else:
                 assert a, (paper.pmid, resp.url, paper.doi)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

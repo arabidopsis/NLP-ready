@@ -197,8 +197,7 @@ def _urls(exclude=None, failed=False):
         with open(fname, "r", encoding="utf8") as fp:
             R = csv.reader(fp)
             next(R)  # skip header
-            done = [row for row in R]
-            for row in done:
+            for row in R:
                 pmid = row[0]
                 if pmid in papers:
                     del papers[pmid]
@@ -215,7 +214,7 @@ def _urls(exclude=None, failed=False):
             try:
                 resp = requests.get("https://doi.org/{}".format(p.doi), headers=header)
                 url = resp.url
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-except
                 click.secho("failed %s err=%s" % (p, str(e)), fg="red")
                 url = "Failed! %s" % p.doi
             W.writerow([p.pmid, p.issn, issns[p.issn], url])

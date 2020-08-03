@@ -39,7 +39,7 @@ def ok_elem(tag):
 
 class OUP(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article-body div.widget-items")
         assert a, a
         self.article = a[0]
@@ -73,6 +73,7 @@ class OUP(Clean):
         for k in self.resultsd:
             if k.endswith(K):
                 return self.resultsd[k]
+        return None
 
     def methods(self):
         K = ("materials and methods", "material and methods")
@@ -82,6 +83,7 @@ class OUP(Clean):
         for k in self.resultsd:
             if k.endswith(K):
                 return self.resultsd[k]
+        return None
 
     def abstract(self):
         s = self.article.select("section.abstract")

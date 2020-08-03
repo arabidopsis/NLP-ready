@@ -7,7 +7,7 @@ ISSN = {"0021-9258": "J. Biol. Chem.", "1083-351X": "J. Biol. Chem."}
 
 class JBC(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
@@ -74,6 +74,7 @@ def download_jbc(issn, sleep=5.0, mx=0):
                     return b"failed-only-pdf"
                 else:
                     assert a, (a, resp.url, paper.doi)
+            return None
 
     download = D(issn, sleep=sleep, mx=mx)
     download.run()

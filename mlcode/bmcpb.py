@@ -19,12 +19,10 @@ ISSN = {
 
 class PMCPB(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select(".FulltextWrapper section.Abstract")
-
         assert a, a
-        abs = a[0]
-        self.article = abs.parent
+        self.article = a[0].parent
 
     def results(self):
         secs = self.article.select("section.Section1")

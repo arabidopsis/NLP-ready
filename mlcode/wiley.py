@@ -68,7 +68,7 @@ class BaseWiley(Clean):
 
 class Wiley(BaseWiley):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("article.journal article.issue article.article")[0]
         assert a, a
         self.article = a
@@ -109,14 +109,14 @@ class Wiley(BaseWiley):
 
     def abstract(self):
         for s in self.article.select("section.article-section--abstract"):
-            if "abstract" == s.attrs["id"]:
+            if s.attrs["id"] == "abstract":
                 return s
         return None
 
 
 class Wiley2(BaseWiley):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("article div.article__body article")
         assert a, a
         self.article = a[0]
@@ -184,7 +184,7 @@ class GenerateWiley(Generate):
         #     return Wiley(soup)
         try:
             e = Wiley(soup)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             e = Wiley2(soup)
         return e
 
@@ -213,6 +213,7 @@ def download_wiley(issn, sleep=5.0, mx=0):
                 return b"failed! no article body"
 
             assert a and len(a) == 1, (paper.pmid, resp.url, paper.doi, len(a))
+            return None
 
     download = D(issn, sleep=sleep, mx=mx)
     download.run()

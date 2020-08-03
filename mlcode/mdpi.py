@@ -13,7 +13,7 @@ ISSN = {
 
 class MDPI(Clean):
     def __init__(self, root):
-        self.root = root
+        super().__init__(root)
         a = root.select("article")
         assert a, a
         self.article = a[0]
