@@ -263,7 +263,9 @@ def tokenize(mod=""):
 @click.option("--mod", help="modules to run")
 @click.option("--issn", help="journals to run")
 @click.option("--nowrite", is_flag=True, help="don't overwrite")
-@click.option("--num", is_flag=True, help="reduce numbers to NUMBER etc.")
+@click.option(
+    "--num", is_flag=True, help="replace numbers with the token NUMBER in the text"
+)
 def clean(num=False, issn="", mod="", nowrite=False):
     """Create clean documents."""
     from mlabc import pmid2doi
