@@ -7,7 +7,7 @@ subscription to give you access to the full text of these journals.
 Install required python libraries with:
 
 ```
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 First we must create a CSV file containing the pubmed IDs
@@ -23,11 +23,14 @@ You can specify the column with the option `--col`.
 
 This will scrape the ncbi website so
 the `--sleep=20.` key ensures that it is not hit too rapidly. This will
-avoid you being blocked! This will take sometime (e.g. 20 x #papers secs) so go get a coffee.
+avoid you being blocked but will take sometime (e.g. 20 x #papers secs) so go get a coffee.
 
-This _metafile_ is a CSV file that will form the basis for everything that follows. It
+This *metafile* is a CSV file that will form the basis for everything that follows. It
 contains the DOIs that will allow us to find the document on the web. Pubmed IDs
 that are either incorrect or unknown to NCBI will have an ISSN column set to "missing-issn".
+
+mlcrops uses ISSN numbers to determine which code to use to download and process
+the journal text.
 
 You can stop and restart this command as you like; it checks for pmids that are already
 done.
@@ -56,7 +59,7 @@ ScienceDirect Journals require the use of selenium and chromedriver.
 the final DOM with javascript)
 
 ```
-pip3 install selenium
+pip install selenium
 ```
 
 Download chromedriver from [here](https://sites.google.com/a/chromium.org/chromedriver/)

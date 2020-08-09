@@ -228,8 +228,8 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     )
 
 
-@cli.command()
-@click.option("--mod", help="modules to run")
+# @cli.command()
+# @click.option("--mod", help="modules to run")
 def tokenize(mod=""):
     # from nltk import word_tokenize, PorterStemmer
     from collections import Counter
@@ -373,7 +373,7 @@ def journals(csvfile, out, noheader=False, col=0, sleep=0.2):
 
 @cli.command()
 def issn():
-    """Print all ISSN,journals."""
+    """Print all known ISSN,journals."""
     for m in MODS:
         if m in {"epmc", "elsevier"}:
             continue
