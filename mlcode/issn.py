@@ -105,6 +105,20 @@ def doubles():
             papers.append((paper, e))
 
 
+def mod_option(f):
+    return click.option(
+        "--mod",
+        help="comma separated list of modules to run"
+        " (use prefix - to exclude) [default: all]",
+    )(f)
+
+
+def issn_option(f):
+    return click.option(
+        "--issn", help="comma separated list of journals (issn) to run [default: all]"
+    )(f)
+
+
 @click.group()
 def cli():
     pass
@@ -112,8 +126,8 @@ def cli():
 
 # pylint: disable=redefined-outer-name
 @cli.command()
-@click.option("--mod", help="modules to run")
-@click.option("--issn", help="journals to run")
+@mod_option
+@issn_option
 @click.option("--sort", default="journal", help="sort on: " + ",".join(KEYMAP))
 @click.option("--num", is_flag=True, help="reduce numbers to NUMBER etc.")
 @click.option(
@@ -260,8 +274,8 @@ def tokenize(mod=""):
 
 
 @cli.command()
-@click.option("--mod", help="modules to run")
-@click.option("--issn", help="journals to run")
+@mod_option
+@issn_option
 @click.option("--nowrite", is_flag=True, help="don't overwrite")
 @click.option(
     "--num", is_flag=True, help="replace numbers with the token NUMBER in the text"
@@ -307,8 +321,8 @@ def cleandirs(d):
 
 
 @cli.command()
-@click.option("--mod", help='modules to run use. Prefix with "-" to exclude')
-@click.option("--issn", help="journals to run")
+@mod_option
+@issn_option
 @click.option(
     "--sleep",
     default=10.0,
@@ -383,6 +397,19 @@ def issn():
         d = mod["issn"]
         for iissn in d:
             print("{},{}".format(iissn, d[iissn]))
+
+
+@cli.command()
+def show_modules():
+    """Print all available modules."""
+    mx = len(sorted(MODS, key=len, reverse=True)[0])
+    for m in sorted(MODS):
+        if m in {"epmc", "elsevier"}:
+            continue
+        mod = getmod(m)
+        d = mod["issn"]
+        space = " " * (mx - len(m))
+        print(f"{m}{space} issn[{len(d)}]: {','.join(sorted(d.keys()))}")
 
 
 if __name__ == "__main__":
