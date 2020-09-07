@@ -96,8 +96,7 @@ def download_ascb(issn, sleep=5.0, mx=0):
         def get_response(self, paper, header):
             if paper.issn == "1557-7430":
                 return requests.get(
-                    "https://www.liebertpub.com/doi/full/{}".format(paper.doi),
-                    headers=header,
+                    f"https://www.liebertpub.com/doi/full/{paper.doi}", headers=header,
                 )
             return super().get_response(paper, header)
 

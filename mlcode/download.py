@@ -1,15 +1,11 @@
 import csv
 import os
 import re
-
-# import gzip
 import time
 from collections import defaultdict
 from io import BytesIO
 
 import click
-
-# import sys
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
@@ -106,7 +102,7 @@ def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
     session = requests  # .Session()
     e = os.path.exists(pubmeds)
     if e:
-        with open(pubmeds, "r", encoding="utf8") as fp:
+        with open(pubmeds, encoding="utf8") as fp:
             R = csv.reader(fp)
             next(R)  # skip header
             done = {row[0] for row in R}
@@ -234,7 +230,7 @@ def get_all_cleaned():
     from glob import glob
 
     for folder in glob("cleaned_*"):
-        for f in glob("{}/*_cleaned.txt".format(folder)):
+        for f in glob(f"{folder}/*_cleaned.txt"):
             _, fname = os.path.split(f)
             fname, _ = os.path.splitext(fname)
             pmid, _ = fname.split("_")
@@ -243,7 +239,7 @@ def get_all_cleaned():
 
 def wiley_issn():
 
-    with open("wiley_journals.csv", "r") as fp:
+    with open("wiley_journals.csv") as fp:
         R = csv.reader(fp)
         next(R)
         i2n = {issn: name for name, issn in R}

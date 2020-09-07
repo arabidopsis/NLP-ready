@@ -43,6 +43,7 @@ ISSN = {
 }
 
 
+# pylint: disable=abstract-method
 class BaseWiley(Clean):
     def tostr(self, sec):
 
@@ -199,7 +200,7 @@ def download_wiley(issn, sleep=5.0, mx=0):
         Referer = "http://onlinelibrary.wiley.com"
 
         def get_response(self, paper, header):
-            url = "http://onlinelibrary.wiley.com/doi/{}/full".format(paper.doi)
+            url = f"http://onlinelibrary.wiley.com/doi/{paper.doi}/full"
             resp = requests.get(url, headers=header)
             return resp
 

@@ -61,8 +61,8 @@ def getmod(mod):
     if "." in mod:
         _, mname = mod.rsplit(".", 1)
         m = getattr(m, mname)
-    issn = m.ISSN
-    ret = dict(issn=issn)
+    iissn = m.ISSN
+    ret = dict(issn=iissn)
     for name in dir(m):
         a = getattr(m, name)
         if name.startswith(("download_", "html_", "gen_")):
@@ -83,23 +83,23 @@ def issn2mod():
     for mod in MODS:
         m = getmod(mod)
         d = m["issn"]
-        for issn in d:
-            is2mod[issn] = mod
+        for iissn in d:
+            is2mod[iissn] = mod
     return is2mod
 
 
 def doubles():
-    from summary import get_done
-    from mlabc import read_journals_csv
+    from .summary import get_done
+    from .mlabc import read_journals_csv
 
     pmid2doi = read_journals_csv()
     res = get_done()
     papers = []
     for pmid in res:
         paper = pmid2doi[pmid]
-        for issn in res[pmid]:
-            d = getmod(issn)
-            g = d["Generate"](issn)
+        for iissn in res[pmid]:
+            d = getmod(iissn)
+            g = d["Generate"](iissn)
             soup = g.get_soup(paper, pmid)
             e = g.create_clean(soup, pmid)
             papers.append((paper, e))
@@ -110,6 +110,7 @@ def cli():
     pass
 
 
+# pylint: disable=redefined-outer-name
 @cli.command()
 @click.option("--mod", help="modules to run")
 @click.option("--issn", help="journals to run")
@@ -121,7 +122,7 @@ def cli():
 def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     """Generate HTML documents from downloads."""
     # pylint: disable=too-many-locals
-    from mlabc import pmid2doi, make_jinja_env
+    from .mlabc import pmid2doi, make_jinja_env
 
     # from pickle import load, dump
 
@@ -135,7 +136,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     else:
         mods = MODS
     if issn:
-        issn = set(s.strip() for s in issn.split(","))
+        issn = {s.strip() for s in issn.split(",")}
     # journals = []
 
     total1 = set()
@@ -204,7 +205,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     with open(cache, "wb") as fp:
         dump(issnmap, fp)
 
-    journals = issnmap.values()
+    journals_ = issnmap.values()
 
     def sortf():
         s = sort
@@ -216,8 +217,8 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
         else:
             return lambda t: -t[k]
 
-    journals = sorted(journals, key=sortf())
-    t = template.render(journals=journals, name=Config.NAME)
+    journals_ = sorted(journals_, key=sortf())
+    t = template.render(journals=journals_, name=Config.NAME)
 
     with open(Config.DATADIR + "html/index.html", "w") as fp:
         fp.write(t)
@@ -246,7 +247,7 @@ def tokenize(mod=""):
             print("tokenizing ", m, i)
             g = d["Generate"](i)
             # print('overwrite', not nowrite)
-            for s, p in g.tokenize():
+            for _, p in g.tokenize():
                 for w in p.split():
                     while w.startswith(("(", "[")):
                         w = w[1:]
@@ -266,9 +267,11 @@ def tokenize(mod=""):
 @click.option(
     "--num", is_flag=True, help="replace numbers with the token NUMBER in the text"
 )
-def clean(num=False, issn="", mod="", nowrite=False):
+def clean(
+    num=False, issn="", mod="", nowrite=False
+):  # pylint: disable=redefined-outer-name
     """Create clean documents."""
-    from mlabc import pmid2doi
+    from .mlabc import pmid2doi
 
     if mod:
         mods = [s.strip() for s in mod.split(",")]
@@ -379,8 +382,8 @@ def issn():
             continue
         mod = getmod(m)
         d = mod["issn"]
-        for issn in d:
-            print("%s,%s" % (issn, d[issn]))
+        for iissn in d:
+            print("{},{}".format(iissn, d[issn]))
 
 
 if __name__ == "__main__":

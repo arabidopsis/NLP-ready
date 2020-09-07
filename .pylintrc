@@ -7,11 +7,11 @@ extension-pkg-whitelist=lxml
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS,generated
+ignore=generated
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=(parse|lex)tab.*\.py,reference_[0-9]+x[0-9]+\.py
+ignore-patterns=reference_[0-9]+x[0-9]+\.py
 
 
 # Python code to execute, usually for sys.path manipulation such as
@@ -140,21 +140,25 @@ confidence=
 #        deprecated-sys-function,
 #        exception-escape,
 #        comprehension-escape,
-disable=invalid-name,
-        missing-docstring,
-        print-statement,
-        unused-variable,
-        useless-object-inheritance,
+#        useless-object-inheritance,
+#        print-statement,
+#        len-as-condition,
+#        chained-comparison,
+#        duplicate-code,
+#        redefined-outer-name,
+#        fixme,
+#        unused-variable,
+
+
+# unused-variable: because of for _,_,f,_ in some_iter() looks stupid
+# bad-continuation: because black takes care of that
+# no-self-use: because of inheritance
+disable=missing-docstring,
         unused-argument,
         no-else-return,
-        too-few-public-methods,
         no-self-use,
-        len-as-condition,
-        duplicate-code,
-        bad-continuation,
-        redefined-outer-name,
-        chained-comparison,
-        fixme,
+        too-few-public-methods,
+        invalid-name,
         import-outside-toplevel
         
 
@@ -344,7 +348,6 @@ good-names=i,
            j,
            k,
            ex,
-           Run,
            _
 
 # Include a hint for the correct naming format with invalid-name.
@@ -402,7 +405,7 @@ logging-modules=logging
 [FORMAT]
 
 # Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
-expected-line-ending-format=
+expected-line-ending-format=LF
 
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
@@ -484,7 +487,7 @@ spelling-store-unknown-words=no
 # List of method names used to declare (i.e. assign) instance attributes.
 defining-attr-methods=__init__,
                       __new__,
-                      setUp
+                      init
 
 # List of member names, which should be excluded from the protected access
 # warning.

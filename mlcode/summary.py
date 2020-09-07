@@ -10,7 +10,7 @@ from .mlabc import USER_AGENT, Config, read_issn, read_suba_papers_csv
 
 def get_dir(xmld, ext=".xml"):
     res = []
-    for f in glob.glob(Config.DATADIR + "%s/*%s" % (xmld, ext)):
+    for f in glob.glob(Config.DATADIR + f"{xmld}/*{ext}"):
         _, fname = os.path.split(f)
         pmid, _ = os.path.splitext(fname)
         res.append(pmid)
@@ -148,7 +148,7 @@ def _todo(byname=False, exclude=None, failed=False):
     issns = {p.issn: p.name for p in papers.values()}
 
     ISSN = Counter()
-    for pmid, p in papers.items():
+    for _, p in papers.items():
         ISSN[p.issn] += 1
 
     if byname:
@@ -194,7 +194,7 @@ def _urls(exclude=None, failed=False):
     e = os.path.exists(fname)
     redo = []
     if e:
-        with open(fname, "r", encoding="utf8") as fp:
+        with open(fname, encoding="utf8") as fp:
             R = csv.reader(fp)
             next(R)  # skip header
             for row in R:
@@ -212,10 +212,10 @@ def _urls(exclude=None, failed=False):
             W.writerow(row)
         for idx, p in enumerate(papers):
             try:
-                resp = requests.get("https://doi.org/{}".format(p.doi), headers=header)
+                resp = requests.get(f"https://doi.org/{p.doi}", headers=header)
                 url = resp.url
             except Exception as e:  # pylint: disable=broad-except
-                click.secho("failed %s err=%s" % (p, str(e)), fg="red")
+                click.secho("failed {} err={}".format(p, str(e)), fg="red")
                 url = "Failed! %s" % p.doi
             W.writerow([p.pmid, p.issn, issns[p.issn], url])
             if (idx + 1) % 10 == 0:

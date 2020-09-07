@@ -59,8 +59,8 @@ class PNAS(Clean):
         for a in sec.select("p a.xref-fig"):
             a.replace_with("FIG-REF")
 
-        def p(tag):
-            return tag.name == "p" or (tag.name == "div" and ["fig"] == tag["class"])
+        # def p(tag):
+        #     return tag.name == "p" or (tag.name == "div" and ["fig"] == tag["class"])
 
         txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
         # txt = [self.SPACE.sub(' ', p.text) for p in sec.find_all(p)]

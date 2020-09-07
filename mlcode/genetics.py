@@ -93,6 +93,10 @@ def html_genetics(issn):
     print(e.tohtml())
 
 
-if __name__ == "__main__":
+def run():
     for issn in ISSN:
         download_genetics(issn, sleep=10.0, mx=1)
+
+
+if __name__ == "__main__":
+    run()

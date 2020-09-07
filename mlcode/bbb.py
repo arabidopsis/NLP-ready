@@ -111,7 +111,7 @@ def download_bbb(issn, sleep=5.0, mx=0):
         Referer = "https://www.tandfonline.com"
 
         def get_response(self, paper, header):
-            resp = requests.get("http://doi.org/{}".format(paper.doi), headers=header)
+            resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
             if resp.url.find("/doi/full/") < 0:
                 url = resp.url.replace("/doi/abs/", "/doi/full/")
                 print("redirect", url)
@@ -122,7 +122,7 @@ def download_bbb(issn, sleep=5.0, mx=0):
         def check_soup(self, paper, soup, resp):
             a = soup.select("article.article div.hlFld-Fulltext")
             if resp.url.find("/doi/full/") < 0:
-                click.secho("no full text %s %s" % (paper.pmid, resp.url), fg="red")
+                click.secho(f"no full text {paper.pmid} {resp.url}", fg="red")
                 return b"no full text"
             assert a and len(a) == 1, (paper.pmid, resp.url)
             return None

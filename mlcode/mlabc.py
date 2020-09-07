@@ -11,8 +11,8 @@ import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError
 
-from .rescantxt import find_primers, reduce_nums
 from . import config as Config
+from .rescantxt import find_primers, reduce_nums
 
 Paper = namedtuple("Paper", ["doi", "year", "pmid", "issn", "name", "pmcid", "title"])
 
@@ -36,9 +36,9 @@ def read_suba_papers_csv():
 
 
 def readx_suba_papers_csv(csvfile):
-    with open(csvfile, "r", encoding="utf8") as fp:
+    with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
-        next(R)  # skip header
+        next(R)  # skip header pylint: disable=stop-iteration-return
         # print(header)
         for row in R:
             if len(row) == 5:
@@ -62,10 +62,10 @@ def readx_suba_papers_csv(csvfile):
 
 def read_pubmed_csv(csvfile, header=True, pcol=0):
     """File csvfile is a list of *all* pubmed ids from SUBA4."""
-    with open(csvfile, "r", encoding="utf8") as fp:
+    with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
         if header:
-            next(R)  # skip header
+            next(R)  # skip header # pylint: disable=stop-iteration-return
         # print(header)
         for row in R:
             yield row[pcol]
@@ -100,14 +100,14 @@ def readxml(d):
 
 
 def dump(paper, xml):
-    with open("dump_{}.html".format(paper.pmid), "wb") as fp:
+    with open(f"dump_{paper.pmid}.html", "wb") as fp:
         fp.write(xml)
 
 
 _Plug = object()
 
 
-class Clean(object):
+class Clean:
     SPACE = re.compile(r"\s+", re.I)
     FIGURE = "[[FIGURE: %s]]"
     TABLE = "[[TABLE: %s]]"
@@ -261,17 +261,17 @@ def make_jinja_env():
     return env
 
 
-class Generate(object):
+class Generate:
     parser = "lxml"
 
     def __init__(
         self,
         issn,
         onlynewer=False,
-        pmid2doi=None,
+        pmid2doi=None,  # pylint: disable=redefined-outer-name
         journal=None,
         partial=False,
-        **kwargs
+        **kwargs,
     ):
         self.issn = issn
         self._pmid2doi = pmid2doi
@@ -317,15 +317,15 @@ class Generate(object):
             os.mkdir(dname)
         name = self.journal.replace(".", "").lower()
         name = "-".join(name.split())
-        dname = dname + "/cleaned_{}_{}".format(self.issn, name)
+        dname = dname + f"/cleaned_{self.issn}_{name}"
         if not os.path.isdir(dname):
             os.mkdir(dname)
         return dname
 
     def get_xml_name(self, gdir, pmid):
-        fname = Config.DATADIR + gdir + "/{}.html".format(pmid)
+        fname = Config.DATADIR + gdir + f"/{pmid}.html"
         if not os.path.isfile(fname):
-            fname = Config.DATADIR + gdir + "/{}.xml".format(pmid)
+            fname = Config.DATADIR + gdir + f"/{pmid}.xml"
         return fname
 
     def get_soup(self, gdir, pmid):
@@ -377,7 +377,7 @@ class Generate(object):
 
     def clean_name(self, pmid):
         dname = self.ensure_dir()
-        fname = "{}/{}_cleaned.txt".format(dname, pmid)
+        fname = f"{dname}/{pmid}_cleaned.txt"
         return fname
 
     def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None, num=False):
@@ -456,7 +456,7 @@ class Generate(object):
                 name = self.issn
             name = name.replace(".", "").lower()
             name = "-".join(name.split())
-            fname = prefix + "%s-%s.html" % (self.issn, name)
+            fname = prefix + f"{self.issn}-{name}.html"
             return fname
 
         template = env.get_template(template)
@@ -465,9 +465,9 @@ class Generate(object):
         papers = []
 
         # only look for pmids that we want.
-        pmid2doi = self.pmid2doi
-        todo = [pmid2doi[pmid] for pmid in readxml(gdir) if pmid in pmid2doi]
-        failed = [pmid2doi[pmid] for pmid in readxml(fdir) if pmid in pmid2doi]
+        pmid2doif = self.pmid2doi
+        todo = [pmid2doif[pmid] for pmid in readxml(gdir) if pmid in pmid2doif]
+        failed = [pmid2doif[pmid] for pmid in readxml(fdir) if pmid in pmid2doif]
 
         todo = sorted(todo, key=lambda p: -p.year)
         failed = sorted(failed, key=lambda p: -p.year)
@@ -516,7 +516,7 @@ class Generate(object):
         return t
 
 
-class Download(object):
+class Download:
     parser = "lxml"
     Referer = "http://google.com"
 
@@ -534,7 +534,7 @@ class Download(object):
             os.mkdir(Config.DATADIR + gdir)
 
     def get_response(self, paper, header):
-        resp = requests.get("http://doi.org/{}".format(paper.doi), headers=header)
+        resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
         return resp
 
     def check_soup(self, paper, soup, resp):
@@ -603,11 +603,11 @@ class Download(object):
                 d = fdir
                 xml = str(e).encode("utf-8")
                 click.secho(
-                    "failed %s %s %s" % (paper.pmid, paper.doi, str(e)), fg="red"
+                    "failed {} {} {}".format(paper.pmid, paper.doi, str(e)), fg="red"
                 )
                 failed.add(paper.pmid)
 
-            with open(Config.DATADIR + "{}/{}.html".format(d, paper.pmid), "wb") as fp:
+            with open(Config.DATADIR + f"{d}/{paper.pmid}.html", "wb") as fp:
                 fp.write(xml)
 
             del todo[paper.pmid]
@@ -620,7 +620,7 @@ class Download(object):
         self.end()
 
 
-class FakeResponse(object):
+class FakeResponse:
     content = None
     status_code = 200
     encoding = "UTF-8"
@@ -630,6 +630,7 @@ class FakeResponse(object):
         pass
 
 
+# pylint: disable=abstract-method
 class DownloadSelenium(Download):
 
     WAIT = 10
@@ -666,11 +667,11 @@ class DownloadSelenium(Download):
     def get_response(self, paper, header):
         from selenium.common.exceptions import TimeoutException
 
-        url = "http://doi.org/{}".format(paper.doi)
+        url = f"http://doi.org/{paper.doi}"
         self.driver.get(url)
         try:
             self.wait()
-        except TimeoutException as e:
+        except TimeoutException:
             assert False, "selenium timeout"  # trigger failure with
 
         h = self.driver.find_element_by_tag_name("html")

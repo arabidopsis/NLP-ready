@@ -96,6 +96,10 @@ def html_elife(issn):
     print(elife.tohtml())
 
 
-if __name__ == "__main__":
+def run():
     for issn in ISSN:
         download_elife(issn=issn, sleep=10.0, mx=1)
+
+
+if __name__ == "__main__":
+    run()

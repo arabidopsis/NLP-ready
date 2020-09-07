@@ -97,16 +97,16 @@ class DownloadCell(DownloadSelenium):
 
 
 def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True, driver=None):
-    download = DownloadCell(
+    downloader = DownloadCell(
         issn, sleep=sleep, mx=mx, headless=headless, close=close, driver=driver
     )
 
-    download.run()
+    downloader.run()
 
 
 def getpage(doi, driver):
 
-    driver.get("http://doi.org/{}".format(doi))
+    driver.get(f"http://doi.org/{doi}")
 
     h = driver.find_element_by_tag_name("html")
     txt = h.get_attribute("outerHTML")
@@ -135,12 +135,12 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
     failed = set(readxml(fdir))
     done = set(readxml(gdir))
 
-    ISSN = {issn}
+    ISSNS = {issn}
     allpmid = failed | done
     todo = {
         p.pmid: p
         for p in read_suba_papers_csv()
-        if p.doi and p.issn in ISSN and p.pmid not in allpmid
+        if p.doi and p.issn in ISSNS and p.pmid not in allpmid
     }
 
     print("%s: %d failed, %d done, %d todo" % (issn, len(failed), len(done), len(todo)))
@@ -152,13 +152,13 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
         options.add_argument("headless")
     # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
     driver = webdriver.Chrome(chrome_options=options)
-    for idx, (pmid, (doi, iissn)) in enumerate(lst):
+    for idx, (pmid, (doi, _)) in enumerate(lst):
         print(pmid, doi)
         xml = getpage(doi, driver)
         d = gdir
         done.add(pmid)
 
-        with open(Config.DATADIR + "{}/{}.html".format(d, pmid), "w") as fp:
+        with open(Config.DATADIR + f"{d}/{pmid}.html", "w") as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -316,81 +316,89 @@ def html_cell(issn):
     #     fp.write(e.tohtml())
 
 
-@click.group()
-def cli():
-    pass
+def cmds():
+    # pylint: disable=unused-variable
+    @click.group()
+    def cli():
+        pass
 
+    DEFAULT = ",".join(ISSN)
 
-DEFAULT = ",".join(ISSN)
+    @cli.command()
+    @click.option(
+        "--sleep",
+        default=10.0,
+        help="wait sleep seconds between requests",
+        show_default=True,
+    )
+    @click.option("--mx", default=1, help="max documents to download 0=all")
+    @click.option(
+        "--head", default=False, is_flag=True, help="don't run browser headless"
+    )
+    @click.option(
+        "--noclose", default=False, is_flag=True, help="don't close browser at end"
+    )
+    @click.option(
+        "--issn",
+        default=DEFAULT,
+        show_default=True,
+        help="only download these journals",
+    )
+    def download(sleep, mx, issn, head, noclose):
+        from selenium import webdriver
 
+        options = webdriver.ChromeOptions()
+        if not head:
+            options.add_argument("headless")
+        driver = webdriver.Chrome(chrome_options=options)
+        for i in issn.split(","):
+            download_cell(
+                issn=i,
+                sleep=sleep,
+                mx=mx,
+                headless=not head,
+                close=False,
+                driver=driver,
+            )
+        if noclose:
+            import code
 
-@cli.command()
-@click.option(
-    "--sleep",
-    default=10.0,
-    help="wait sleep seconds between requests",
-    show_default=True,
-)
-@click.option("--mx", default=1, help="max documents to download 0=all")
-@click.option("--head", default=False, is_flag=True, help="don't run browser headless")
-@click.option(
-    "--noclose", default=False, is_flag=True, help="don't close browser at end"
-)
-@click.option(
-    "--issn", default=DEFAULT, show_default=True, help="only download these journals"
-)
-def download(sleep, mx, issn, head, noclose):
-    from selenium import webdriver
+            code.interact(local=locals())
+        else:
+            driver.close()
 
-    options = webdriver.ChromeOptions()
-    if not head:
-        options.add_argument("headless")
-    driver = webdriver.Chrome(chrome_options=options)
-    for i in issn.split(","):
-        download_cell(
-            issn=i, sleep=sleep, mx=mx, headless=not head, close=False, driver=driver
-        )
-    if noclose:
-        import code
+    @cli.command()
+    @click.option("--issn", default=DEFAULT, show_default=True)
+    def clean(issn):
+        for i in issn.split(","):
+            gen_cell(issn=i)
 
-        code.interact(local=locals())
-    else:
-        driver.close()
+    @cli.command()
+    @click.option("--issn", default=DEFAULT, show_default=True)
+    def html(issn):
+        for i in issn.split(","):
+            html_cell(issn=i)
 
+    @cli.command()
+    def issn():
+        print(" ".join(ISSN))
 
-@cli.command()
-@click.option("--issn", default=DEFAULT, show_default=True)
-def clean(issn):
-    for i in issn.split(","):
-        gen_cell(issn=i)
+    @cli.command()
+    @click.option("--issn", default=DEFAULT, show_default=True)
+    def failed(issn):
+        for iissn in issn.split(","):
+            gdir = "failed_%s" % iissn
+            for pmid in readxml(gdir):
+                fname = Config.DATADIR + gdir + f"/{pmid}.html"
+                with open(fname, "rb") as fp:
+                    err = fp.read().decode("utf-8")
+                    print(f'{iissn},{pmid},"{err}",{fname}')
 
-
-@cli.command()
-@click.option("--issn", default=DEFAULT, show_default=True)
-def html(issn):
-    for i in issn.split(","):
-        html_cell(issn=i)
-
-
-@cli.command()
-def issn():
-    print(" ".join(ISSN))
-
-
-@cli.command()
-@click.option("--issn", default=DEFAULT, show_default=True)
-def failed(issn):
-    for iissn in issn.split(","):
-        gdir = "failed_%s" % iissn
-        for pmid in readxml(gdir):
-            fname = Config.DATADIR + gdir + "/{}.html".format(pmid)
-            with open(fname, "rb") as fp:
-                err = fp.read().decode("utf-8")
-                print('%s,%s,"%s",%s' % (iissn, pmid, err, fname))
+    return cli
 
 
 if __name__ == "__main__":
-    cli()
+    cmds()()
 
     # download_cell(issn='1097-4172', sleep=120., mx=0, headless=False)
     # download_cell(issn='0092-8674', sleep=120., mx=0, headless=False)

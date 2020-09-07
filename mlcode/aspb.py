@@ -21,7 +21,7 @@ def download_aspb(issn, sleep=5.0, mx=0):
             if not a:
                 xml = b"failed-no-article"  # but there might be a full PDF! sigh!
                 click.secho(
-                    "failed %s doi=%s no article!" % (paper.pmid, paper.doi), fg="red"
+                    f"failed {paper.pmid} doi={paper.doi} no article!", fg="red"
                 )
                 return xml
             return None  # OK!

@@ -11,7 +11,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("headless")
 # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
 chrome = webdriver.Chrome(chrome_options=options)
-chrome.get("http://doi.org/{}".format(doi))
+chrome.get(f"http://doi.org/{doi}")
 # time.sleep(3.)
 # chrome.save_screenshot('screen.png')
 h = chrome.find_element_by_tag_name("html")

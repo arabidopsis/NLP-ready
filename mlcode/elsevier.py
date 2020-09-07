@@ -1,11 +1,8 @@
-# import csv
 import os
 import time
 from io import BytesIO
 
 import click
-
-# import sys
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
@@ -81,7 +78,7 @@ def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
             failed.add(pmid)
 
         ensure_dir(d)
-        with open(Config.DATADIR + "{}/{}.xml".format(d, pmid), "w") as fp:
+        with open(Config.DATADIR + f"{d}/{pmid}.xml", "w") as fp:
             fp.write(xml)
         todox.remove(pmid)
         print(
@@ -93,7 +90,7 @@ def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
 
 def getxmlelsevier(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(Config.DATADIR + "xml_elsevier/{}.xml".format(pmid), "rb") as fp:
+    with open(Config.DATADIR + f"xml_elsevier/{pmid}.xml", "rb") as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -245,9 +242,7 @@ class GenerateElsevier(Generate):
         ret = Elsevier(soup)
         # print('HERE', ret.pubmed, pmid)
         if ret.pubmed != pmid:
-            click.secho(
-                "pubmed incorrect %s expecting: %s" % (ret.pubmed, pmid), fg="red"
-            )
+            click.secho(f"pubmed incorrect {ret.pubmed} expecting: {pmid}", fg="red")
         assert ret.pubmed == pmid, (ret.pubmed, pmid)
         return ret
 
@@ -281,7 +276,7 @@ def gen_elsevier_old(issn="elsevier"):
                 fg="red",
             )
             continue
-        fname = Config.DATADIR + "cleaned_elsevier/{}_cleaned.txt".format(pmid)
+        fname = Config.DATADIR + f"cleaned_elsevier/{pmid}_cleaned.txt"
         if os.path.exists(fname):
             click.secho("overwriting %s" % fname, fg="yellow")
 

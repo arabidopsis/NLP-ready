@@ -45,7 +45,7 @@ class Nature(Clean):
 
     def methods(self):
         secs1 = None
-        for t in self.MM:
+        for _ in self.MM:
             secs1 = self.article.xpath('.//section[@aria-labelledby="methods"]')
             if secs1:
                 break
@@ -98,8 +98,8 @@ class GenerateNature(Generate):
         return Nature(soup)
 
     def get_soup(self, gdir, pmid):
-        fname = Config.DATADIR + gdir + "/{}.html".format(pmid)
-        with open(fname, "r", encoding="utf-8") as fp:
+        fname = Config.DATADIR + gdir + f"/{pmid}.html"
+        with open(fname, encoding="utf-8") as fp:
             # tree = parse(fp)
             # soup = tree.getroot()
             txt = fp.read()

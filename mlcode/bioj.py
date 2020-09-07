@@ -80,7 +80,7 @@ def download_bioj(issn, sleep=5.0, mx=0):
         Referer = "http://www.biochemj.org"
 
         def get_response(self, paper, header):
-            resp = requests.get("http://doi.org/{}".format(paper.doi), headers=header)
+            resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
             if not resp.url.endswith(".full"):
                 resp = requests.get(resp.url + ".full", headers=header)
             return resp
@@ -94,8 +94,7 @@ def download_bioj(issn, sleep=5.0, mx=0):
             # else:
             if not a:
                 click.secho(
-                    "no full text %s http://doi.org/%s" % (paper.pmid, paper.doi),
-                    fg="red",
+                    f"no full text {paper.pmid} http://doi.org/{paper.doi}", fg="red",
                 )
                 return b"no full-text"
             assert a and len(a) == 1, (paper.pmid, resp.url)

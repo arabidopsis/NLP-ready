@@ -106,7 +106,7 @@ def download_mdpi(issn, sleep=5.0, mx=0):
         Referer = "http://www.mdpi.com"
 
         def get_response(self, paper, header):
-            resp = requests.get("http://doi.org/{}".format(paper.doi), headers=header)
+            resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
             if not resp.url.endswith("/htm"):
                 resp = requests.get(resp.url + "/htm", headers=header)
             return resp

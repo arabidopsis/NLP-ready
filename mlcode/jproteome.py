@@ -96,7 +96,8 @@ def download_jproteome(issn, sleep=5.0, mx=0):
         Referer = "https://pubs.acs.org"
 
         def get_response(self, paper, header):
-            resp = requests.get("http://doi.org/{}".format(paper.doi), headers=header)
+            resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
+            # pylint: disable=chained-comparison
             if resp.url.find("/doi/abs/") > 0 and resp.url.find("/doi/full/") < 0:
                 url = resp.url.replace("/doi/abs/", "/doi/full/")
                 print("redirect", url)

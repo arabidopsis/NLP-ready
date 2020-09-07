@@ -79,7 +79,7 @@ def download_gad(issn, sleep=5.0, mx=0):
         Referer = "http://genesdev.cshlp.org"
 
         def get_response(self, paper, header):
-            resp = requests.get("http://doi.org/{}".format(paper.doi), headers=header)
+            resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
             if not resp.url.endswith(".full"):
                 resp = requests.get(resp.url + ".full", headers=header)
             return resp

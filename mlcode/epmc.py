@@ -4,8 +4,6 @@ import os
 import time
 
 import click
-
-# import sys
 import requests
 from lxml import etree
 
@@ -88,7 +86,7 @@ def download_epmc(issn="epmc", sleep=0.5, mx=0):
             done.add(pmid)
 
         ensure_dir(d)
-        with open(Config.DATADIR + "{}/{}.xml".format(d, pmid), "w") as fp:
+        with open(Config.DATADIR + f"{d}/{pmid}.xml", "w") as fp:
             fp.write(xml)
 
         print("%d failed (%s %s), %d done" % (len(failed), txt, pmcid, len(done)))
@@ -97,7 +95,7 @@ def download_epmc(issn="epmc", sleep=0.5, mx=0):
 
 def getxmlepmc(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(Config.DATADIR + "xml_epmc/{}.xml".format(pmid), "rb") as fp:
+    with open(Config.DATADIR + f"xml_epmc/{pmid}.xml", "rb") as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -205,7 +203,7 @@ class EPMC(Clean):
 
 def pmc_subset(fname):
     """Create a PMCID subset from PMC-ids.csv.gz."""
-    pmids = set(p.pmid for p in read_suba_papers_csv())
+    pmids = {p.pmid for p in read_suba_papers_csv()}
     with open(fname, "w") as out:
         W = csv.writer(out)
         W.writerow(["pmid", "pmcid"])
@@ -223,7 +221,7 @@ def getpmcids(pmids, fname="PMC-ids-partial.csv"):
     ret = {}
     pmids = set(pmids)
     if os.path.exists(fname):
-        with open(fname, "r") as fp:
+        with open(fname) as fp:
             R = csv.reader(fp)
             next(R)
             for pmid, pmcid in R:

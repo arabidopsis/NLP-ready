@@ -185,6 +185,10 @@ def html_springer(issn):
     print(e.tohtml())
 
 
-if __name__ == "__main__":
+def run():
     for issn in ISSN:
         download_springer(issn=issn, sleep=60.0 * 2, mx=0)
+
+
+if __name__ == "__main__":
+    run()
