@@ -4,7 +4,7 @@
 # FullText Journals.
 
 This code download fulltext journal articles as XML
-and parses them into (title, abstract, methods) text without markup. Suitable
+and parses them into `title`, `abstract`, `methods` and `results` sections as text without markup. Suitable
 for ingestion into machine learning
 programs.
 

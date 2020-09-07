@@ -164,10 +164,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     for mmod in mods:
         d = getmod(mmod)
         for iissn in d["issn"]:
-            if iissn not in issns and iissn not in {
-                "epmc",
-                "elsevier",
-            }:  # no paper from this journal
+            if iissn not in issns or iissn in FAKE_ISSN:  # no paper from this journal
                 continue
             journal = issns.get(iissn, iissn)
             print("writing", mmod, iissn, journal)
@@ -283,7 +280,7 @@ def tokenize(mod=""):
 def clean(
     num=False, issn="", mod="", nowrite=False
 ):  # pylint: disable=redefined-outer-name
-    """Create clean documents."""
+    """Create "clean" documents suitable for input into BRAT."""
     from .mlabc import pmid2doi
 
     if mod:
@@ -365,7 +362,12 @@ def summary():
 
 
 @cli.command()
-@click.option("--out", default=Config.JCSV, help="output filename", show_default=True)
+@click.option(
+    "--out",
+    default=Config.JCSV,
+    help="output filename (will be appended to if exists)",
+    show_default=True,
+)
 @click.option(
     "--col",
     default=0,
@@ -381,17 +383,20 @@ def summary():
 @click.option("--noheader", is_flag=True, help="csvfile has no header")
 @click.argument("csvfile")
 def journals(csvfile, out, noheader=False, col=0, sleep=0.2):
-    """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of SUBA4 pubmed ids."""
+    """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of pubmed IDs."""
     from .download import getmeta
 
     getmeta(csvfile, sleep=sleep, pubmeds=out, header=not noheader, pcol=col)
+
+
+FAKE_ISSN = {"epmc", "elsevier"}
 
 
 @cli.command()
 def issn():
     """Print all known ISSN,journals."""
     for m in MODS:
-        if m in {"epmc", "elsevier"}:
+        if m in FAKE_ISSN:
             continue
         mod = getmod(m)
         d = mod["issn"]
@@ -404,7 +409,7 @@ def show_modules():
     """Print all available modules."""
     mx = len(sorted(MODS, key=len, reverse=True)[0])
     for m in sorted(MODS):
-        if m in {"epmc", "elsevier"}:
+        if m in FAKE_ISSN:
             continue
         mod = getmod(m)
         d = mod["issn"]

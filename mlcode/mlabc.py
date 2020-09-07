@@ -31,11 +31,14 @@ def read_journals_csv():
 
 
 def read_suba_papers_csv():
-    """suba_papers.csv is a list of *all* pubmed ids from SUBA4."""
+    """suba_papers.csv is a list of *all* pubmed IDs."""
     return readx_suba_papers_csv(Config.JCSV)
 
 
 def readx_suba_papers_csv(csvfile):
+    if not os.path.isfile(csvfile):
+        click.secho(f"No such file: {csvfile}!", fg="red", bold="True", err=True)
+        return
     with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
         next(R)  # skip header pylint: disable=stop-iteration-return
@@ -61,7 +64,7 @@ def readx_suba_papers_csv(csvfile):
 
 
 def read_pubmed_csv(csvfile, header=True, pcol=0):
-    """File csvfile is a list of *all* pubmed ids from SUBA4."""
+    """File csvfile is a list of *all* pubmed IDs."""
     with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
         if header:
