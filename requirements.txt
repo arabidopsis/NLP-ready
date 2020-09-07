@@ -1,8 +1,8 @@
-requests
-click
-lxml
-Jinja2
-selenium
-tabulate
-regex
-beautifulsoup4
+Jinja2>=2.11.2
+tabulate>=0.8.3
+click>=7.1.2
+regex>=2020.7.14
+requests>=2.24.0
+lxml>=4.3.3
+selenium>=3.141.0
+beautifulsoup4>=4.9.1

@@ -387,7 +387,7 @@ def cmds():
     @click.option("--issn", default=DEFAULT, show_default=True)
     def failed(issn):
         for iissn in issn.split(","):
-            gdir = "failed_%s" % iissn
+            gdir = f"failed_{iissn}"
             for pmid in readxml(gdir):
                 fname = Config.DATADIR + gdir + f"/{pmid}.html"
                 with open(fname, "rb") as fp:

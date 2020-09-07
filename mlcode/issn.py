@@ -1,5 +1,5 @@
 import os
-from collections import namedtuple
+from collections import Counter, namedtuple
 from pickle import dump, load
 
 import click
@@ -233,7 +233,6 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
 # @click.option("--mod", help="modules to run")
 def tokenize(mod=""):
     # from nltk import word_tokenize, PorterStemmer
-    from collections import Counter
 
     if mod:
         mods = [s.strip() for s in mod.split(",")]
@@ -383,7 +382,7 @@ def issn():
         mod = getmod(m)
         d = mod["issn"]
         for iissn in d:
-            print("{},{}".format(iissn, d[issn]))
+            print("{},{}".format(iissn, d[iissn]))
 
 
 if __name__ == "__main__":

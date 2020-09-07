@@ -3,6 +3,7 @@ import os
 import re
 import time
 from collections import defaultdict
+from glob import glob
 from io import BytesIO
 
 import click
@@ -146,7 +147,7 @@ def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
 
 def journal_summary():
     """Summarize journal statistics."""
-    from issn import issn2mod
+    from .issn import issn2mod
 
     d = defaultdict(list)
     for p in read_suba_papers_csv():
@@ -227,7 +228,6 @@ def get_wiley():
 
 
 def get_all_cleaned():
-    from glob import glob
 
     for folder in glob("cleaned_*"):
         for f in glob(f"{folder}/*_cleaned.txt"):

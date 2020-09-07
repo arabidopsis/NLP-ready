@@ -15,7 +15,8 @@ that we are interested in. Then we collect some metadata
 such as DOI, PMCID, [ISSN](http://www.bl.uk/bibliographic/issn.html#what), TITLE etc. with:
 
 ```
-python3 -m mlcode journals --out=[metafile] --sleep=20. [csvfile]
+# use 'python -m mlcode --help' for help
+python -m mlcode journals --sleep=20. {csvfile}
 ```
 
 Here `csvfile` is a CSV file that contains a list of PubMed IDs that we want.
@@ -25,7 +26,7 @@ This will scrape the ncbi website so
 the `--sleep=20.` key ensures that it is not hit too rapidly. This will
 avoid you being blocked but will take sometime (e.g. 20 x #papers secs) so go get a coffee.
 
-This *metafile* is a CSV file that will form the basis for everything that follows. It
+This generates a *metafile* `mlcode-journals.csv` (see the `--out` option). It is a CSV file that will form the basis for everything that follows. It
 contains the DOIs that will allow us to find the document on the web. Pubmed IDs
 that are either incorrect or unknown to NCBI will have an ISSN column set to "missing-issn".
 
@@ -35,13 +36,13 @@ the journal text.
 You can stop and restart this command as you like; it checks for pmids that are already
 done.
 
-Next edit the `mlcode/config.py` and alter the variables there. Specifically
+Next (*optionally*) edit the `mlcode/config.py` and alter the variables there. Specifically
 we need `JCSV` to point to the newly created `metafile`.
 
 We can then download the fulltext with:
 
 ```
-python3 -m mlcode download --sleep=100. --mx=0 --mod=-cell
+python -m mlcode download --sleep=100. --mx=0 --mod=-cell
 ```
 
 This will also take some time :). Here we are excluding the `cell` module
@@ -69,7 +70,8 @@ All chromedriver downloads currently are managed by `cell.py` so we can download
 them separately with:
 
 ```
-python3 -m mlcode.cell download --sleep=100. --mx=0 --head
+# use option '--head' to see the browser
+python -m mlcode.cell download --sleep=100. --head
 ```
 
 
@@ -80,7 +82,7 @@ in a simple manner. This is useful to check the code is actually finding the cor
 from within the downloaded HTML/XML.
 
 ```
-python3 -m mlcode tohtml
+python -m mlcode tohtml
 ```
 
 You can then navigate to `{DATADIR}/html` and click on the `index.html` file to get a summary
@@ -91,7 +93,7 @@ of your data (no webserver required).
 These are pure textfiles
 
 ```
-python3 -m mlcode clean
+python -m mlcode clean
 ```
 
 The files are generated in `{DATADIR}/cleaned`. Each file is named as `cleaned_<ISSN>_<JOURNAL>/<PMID>_cleaned.txt`.
@@ -117,9 +119,9 @@ Currently we can handle 204 ISSNs from 147 journals.
 
 ```
 # ISSN
-python3 -m mlcode issn | cut -d, -f1 | sort | uniq | wc
+python -m mlcode issn | cut -d, -f1 | sort | uniq | wc
 # Journals
-python3 -m mlcode issn | cut -d, -f2 | sort | uniq | wc
+python -m mlcode issn | cut -d, -f2 | sort | uniq | wc
 ```
 
 To add a journal copy the closest equivalent module.
@@ -128,7 +130,7 @@ Then alter the ISSN dictionary download_xxx, and Generate class.
 To find out what publications still need to be downloaded use:
 
 ```
-python3 -m mlcode.summary todo --failed
+python -m mlcode.summary todo --failed
 ```
 
 This will also give you an idea as to whether an ISSN is not covered by any module.
