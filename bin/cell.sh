@@ -1,6 +1,12 @@
 #!/bin/bash
+if [ "$#" -ne 1 ] ; then
+        echo "expecting data directory as argument" >&2
+        exit 1
+fi
+DIRNAME="$(dirname $0)"
+code="$DIRNAME/../"
 arg=''
-issns=`python -m mlcode.cell issn`
+issns=`(cd $code; python -m mlcode.cell issn)`
 d=$1
 for issn in $issns
 do

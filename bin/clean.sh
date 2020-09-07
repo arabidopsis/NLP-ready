@@ -1,5 +1,9 @@
 #!/bin/bash
-for d in `ls data`
+if [ "$#" -ne 1 ] ; then
+        echo "expecting data directory as argument" >&2
+        exit 1
+fi
+for d in `ls $1`
 do
     if [ $d == 'xml_epmc' ] || [ $d == 'xml_elsevier' ]  || \
        [ $d == 'failed_epmc' ] || [ $d == 'failed_elsevier' ] ; then
