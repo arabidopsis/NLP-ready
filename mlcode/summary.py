@@ -249,8 +249,9 @@ def cli():
 
 @cli.command()
 @click.option("--showall", is_flag=True, help="also show journals not done yet")
-@click.option("--exclude")
+@click.option("--exclude", help="comma separated list of ISSN to exclude")
 def summary(showall, exclude=None):
+    """Show a summary as a CSV."""
     if exclude:
         exclude = set(exclude.split(","))
     _summary(showall, exclude=exclude)
@@ -258,18 +259,21 @@ def summary(showall, exclude=None):
 
 @cli.command()
 def counts():
+    """Count journals."""
     _counts()
 
 
 @cli.command()
 def cleaned():
+    """Show stats on cleaned data."""
     parsed()
 
 
 @cli.command()
 @click.option("--failed", is_flag=True, help="include failed documents")
-@click.option("--exclude")
+@click.option("--exclude", help="comma separated list of ISSN to exclude")
 def urls(exclude=None, failed=False):
+    """Generate a CSV (to stdout) of URL of journals."""
     if exclude:
         exclude = set(exclude.split(","))
     _urls(exclude=exclude, failed=failed)
@@ -278,8 +282,9 @@ def urls(exclude=None, failed=False):
 @cli.command()
 @click.option("--byname", is_flag=True, help="group table by journal name")
 @click.option("--failed", is_flag=True, help="include failed documents")
-@click.option("--exclude")
+@click.option("--exclude", help="comma separated list of ISSN to exclude")
 def todo(byname, exclude=None, failed=False):
+    """Generate a CSV (to stdout) of Papers remaining to be downloaded."""
     if exclude:
         exclude = set(exclude.split(","))
     _todo(byname, exclude, failed=failed)

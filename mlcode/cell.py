@@ -289,8 +289,7 @@ class CELL2(Clean):
         for a in sec.select("div.floatDisplay"):
             a.replace_with(self.newfig(a, caption=".caption p"))
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 class GenerateCell(Generate):
@@ -345,6 +344,7 @@ def cmds():
         help="only download these journals",
     )
     def download(sleep, mx, issn, head, noclose):
+        """Download XML for CELL Journals."""
         from selenium import webdriver
 
         options = webdriver.ChromeOptions()
@@ -367,32 +367,32 @@ def cmds():
         else:
             driver.close()
 
-    @cli.command()
-    @click.option("--issn", default=DEFAULT, show_default=True)
-    def clean(issn):
-        for i in issn.split(","):
-            gen_cell(issn=i)
+    # @cli.command()
+    # @click.option("--issn", default=DEFAULT, show_default=True)
+    # def clean(issn):
+    #     for i in issn.split(","):
+    #         gen_cell(issn=i)
 
-    @cli.command()
-    @click.option("--issn", default=DEFAULT, show_default=True)
-    def html(issn):
-        for i in issn.split(","):
-            html_cell(issn=i)
+    # @cli.command()
+    # @click.option("--issn", default=DEFAULT, show_default=True)
+    # def html(issn):
+    #     for i in issn.split(","):
+    #         html_cell(issn=i)
 
-    @cli.command()
-    def issn():
-        print(" ".join(ISSN))
+    # @cli.command()
+    # def issn():
+    #     print(" ".join(ISSN))
 
-    @cli.command()
-    @click.option("--issn", default=DEFAULT, show_default=True)
-    def failed(issn):
-        for iissn in issn.split(","):
-            gdir = f"failed_{iissn}"
-            for pmid in readxml(gdir):
-                fname = Config.DATADIR + gdir + f"/{pmid}.html"
-                with open(fname, "rb") as fp:
-                    err = fp.read().decode("utf-8")
-                    print(f'{iissn},{pmid},"{err}",{fname}')
+    # @cli.command()
+    # @click.option("--issn", default=DEFAULT, show_default=True)
+    # def failed(issn):
+    #     for iissn in issn.split(","):
+    #         gdir = f"failed_{iissn}"
+    #         for pmid in readxml(gdir):
+    #             fname = Config.DATADIR + gdir + f"/{pmid}.html"
+    #             with open(fname, "rb") as fp:
+    #                 err = fp.read().decode("utf-8")
+    #                 print(f'{iissn},{pmid},"{err}",{fname}')
 
     return cli
 

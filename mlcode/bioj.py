@@ -60,8 +60,7 @@ class BIOJ(Clean):
         for a in sec.select("div.table.pos-float"):
             a.replace_with(self.newtable(a, caption=".table-caption p"))
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 class GenerateBIOJ(Generate):

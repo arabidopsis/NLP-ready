@@ -56,8 +56,7 @@ class PLOS(Clean):
         for a in sec.select("p a.ref-tip"):
             a.replace_with("CITATION")
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 def download_plos(issn, sleep=5.0, mx=0):

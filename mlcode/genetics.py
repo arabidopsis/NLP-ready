@@ -55,8 +55,7 @@ class Genetics(Clean):
             a.replace_with(self.newfig(a))
         for a in sec.select("p a.xref-bibr"):
             a.replace_with("CITATION")
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 def download_genetics(issn, sleep=5.0, mx=0):

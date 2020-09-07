@@ -91,8 +91,7 @@ class BBB(Clean):
         for a in sec.select("div.hidden"):
             a.decompose()
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 class GenerateBBB(Generate):

@@ -73,8 +73,7 @@ class MPMI(Clean):
         for a in sec.select("p a.ref.bibr"):
             a.replace_with("CITATION")
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 class GenerateMPMI(Generate):

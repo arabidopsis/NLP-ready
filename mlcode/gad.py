@@ -59,8 +59,7 @@ class GAD(Clean):
             a.replace_with(self.newfig(a, caption=".fig-caption p"))
         for a in sec.select("p a.xref-bibr"):
             a.replace_with("CITATION")
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
 
 class GenerateGAD(Generate):

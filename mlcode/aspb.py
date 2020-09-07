@@ -83,8 +83,7 @@ class ASPB(Clean):
         for a in sec.select("div.fig.pos-float"):
             a.replace_with(self.newfig(a, caption=".fig-caption p"))
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
-        return txt
+        return super().tostr(sec)
 
     def title(self):
         s = self.root.select("#page-title")
