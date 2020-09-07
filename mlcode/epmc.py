@@ -38,7 +38,7 @@ def ensure_dir(d):
 
 
 def download_epmc(issn="epmc", sleep=0.5, mx=0):
-    """Download any EuroPMC XML files using SUBA4 pubmed ids."""
+    """Download any EuroPMC XML files using pubmed IDs."""
     failed = set(readxml("failed_epmc"))
     done = set(readxml("xml_epmc"))
     session = requests.Session()

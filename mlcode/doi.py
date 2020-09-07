@@ -1,5 +1,13 @@
-import sys
 import webbrowser
+import click
 
-doi = sys.argv[1]
-webbrowser.open_new_tab("http://doi.org/" + doi)
+# pytlint: disable=redefined-outer-name
+@click.command()
+@click.argument("doi")
+def run(doi):
+    """Show a DOI in a browser."""
+    webbrowser.open_new_tab("http://doi.org/" + doi)
+
+
+if __name__ == "__main__":
+    run()  # pylint: disable=no-value-for-parameter

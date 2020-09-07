@@ -94,7 +94,7 @@ def parse_xml(xml):
 
 
 def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
-    """Create a CSV of (pmid, issn, name, year, doi, title) from list of SUBA4 pubmed ids."""
+    """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
     # return data from xml file at NIH in a pythonic dictionary
     def pubmed_meta(session, pmid):
         xml = fetchpubmed(session, pmid)
@@ -121,6 +121,7 @@ def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
         W = csv.writer(fp)
         if not e:
             W.writerow(["pmid", "issn", "name", "year", "doi", "pmcid", "title"])
+            fp.flush()
         for pmid in todo:
             m = pubmed_meta(session, pmid)
             if m is None:
@@ -139,6 +140,7 @@ def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
                     m["title"],
                 ]
             )
+            fp.flush()  # in case of interrupt.
             done.add(pmid)
             print("%s: %d done" % (pmid, len(done)))
             if sleep:

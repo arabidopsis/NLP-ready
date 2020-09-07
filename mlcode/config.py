@@ -18,4 +18,4 @@ JCSV = "mlcode-journals.csv"
 # for `python3 -m mlcode tohtml --cache={PKLFILE}`
 # saves state so we can reproduce html
 # on a per module basis
-PKLFILE = DATADIR + "croptips.pkl"
+PKLFILE = DATADIR + "mlcode.pkl"

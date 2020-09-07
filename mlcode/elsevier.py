@@ -47,7 +47,7 @@ def ensure_dir(d):
 
 
 def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
-    """Download any Elsevier XML files using SUBA4 pubmed ids."""
+    """Download any Elsevier XML files using pubmed IDs."""
     failed = set(readxml("failed_elsevier"))
     done = set(
         readxml("xml_elsevier")
