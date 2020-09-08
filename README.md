@@ -25,15 +25,15 @@ such as DOI, PMCID, [ISSN](http://www.bl.uk/bibliographic/issn.html#what), TITLE
 
 ```sh
 # use 'python -m nlpready --help' for help
-python -m nlpready journals --sleep=20. --email={your@email} {csvfile}
+python -m nlpready journals --sleep=2. --email={your@email} {csvfile}
 ```
 
 Here `csvfile` is a CSV file that contains a list of PubMed IDs that we want.
 You can specify the column with the option `--col` (default is the first column 0).
 
 This will query the ["https://ncbi.nlm.nih.gov/pubmed]("https://ncbi.nlm.nih.gov/pubmed) website so
-the `--sleep=20.` key ensures that it is not hit too rapidly. This will
-avoid you being blocked but will take sometime (e.g. 20 x #papers secs) so go get a coffee.
+the `--sleep=2.` key ensures that it is not hit too rapidly. This will
+avoid you being blocked but will take sometime (e.g. 2 x #papers secs) so go get a coffee.
 
 This generates a *metafile* `nlpready-journals.csv` (see the `--out` option). It is a CSV file that will form the basis for everything that follows. It
 contains the DOIs that will allow us to find the document on the web. Pubmed IDs
@@ -51,7 +51,7 @@ we need `JCSV` to point to the newly created `metafile`.
 We can then download the fulltext with:
 
 ```sh
-python -m nlpready download --sleep=100. --mx=0 --mod=-cell
+python -m nlpready download --sleep=10. --mx=0 --mod=-cell
 ```
 
 This will also take some time :). Here we are excluding the `cell` module
@@ -80,7 +80,7 @@ them separately with:
 
 ```sh
 # use option '--head' to see the browser
-python -m nlpready.cell download --sleep=100. --head
+python -m nlpready.cell download --sleep=10. --head
 ```
 
 
@@ -97,7 +97,7 @@ python -m nlpready tohtml
 You can then navigate to `{DATADIR}/html` and click on the `index.html` file to get a summary
 of your data (no webserver required).
 
-## Creating "Cleaned" BRAT Data files
+## Creating "Cleaned" Data files
 
 These are pure textfiles suitable for ingestion
 by BRAT (Stenetorp, P. et al. in *Proceedings of the Demonstrations at the 13th Conference of the European Chapter of the Association for Computational Linguistics*.  102-107) [Ref](https://dl.acm.org/doi/10.5555/2380921.2380942).
