@@ -4,6 +4,7 @@ import sys
 import time
 from collections import defaultdict, namedtuple
 from io import BytesIO
+from os.path import join
 
 import click
 import regex as re
@@ -92,9 +93,8 @@ def read_issn():
 
 def readxml(d):
     """Scan directory d and return the pubmed ids."""
-    dd = Config.DATADIR + d
+    dd = join(Config.DATADIR, d)
     if not os.path.isdir(dd):
-        # click.secho('readxml: no directory to scan for %s' % d, fg='red', file=sys.stderr)
         return
     for f in os.listdir(dd):
         f, ext = os.path.splitext(f)
@@ -129,6 +129,7 @@ class Clean:
             txt = []
         h = sec.find(h)
         if h:
+            # pylint: disable=no-member
             h2 = h.text.lower().strip()
             h2 = self.SPACE.sub(" ", h2)
             for a in txt:
@@ -153,9 +154,11 @@ class Clean:
         raise NotImplementedError()
 
     def xrefs(self):
+        # pylint: disable=no-self-use
         return None
 
     def full_text(self):
+        # pylint: disable=no-self-use
         return None
 
     def tostr(self, sec):
@@ -254,6 +257,7 @@ class Clean:
 
 
 def make_jinja_env():
+    # pylint: disable=import-outside-toplevel
     from jinja2 import Environment, FileSystemLoader, select_autoescape
 
     env = Environment(
@@ -315,20 +319,21 @@ class Generate:
         raise NotImplementedError()
 
     def ensure_dir(self):
-        dname = Config.DATADIR + "cleaned"
+        dname = join(Config.DATADIR, "cleaned")
         if not os.path.isdir(dname):
             os.mkdir(dname)
         name = self.journal.replace(".", "").lower()
         name = "-".join(name.split())
-        dname = dname + f"/cleaned_{self.issn}_{name}"
+        dname = join(dname, f"cleaned_{self.issn}_{name}")
         if not os.path.isdir(dname):
             os.mkdir(dname)
         return dname
 
     def get_xml_name(self, gdir, pmid):
-        fname = Config.DATADIR + gdir + f"/{pmid}.html"
+        # pylint: disable=no-self-use
+        fname = join(Config.DATADIR, gdir, f"{pmid}.html")
         if not os.path.isfile(fname):
-            fname = Config.DATADIR + gdir + f"/{pmid}.xml"
+            fname = join(Config.DATADIR, gdir, f"{pmid}.xml")
         return fname
 
     def get_soup(self, gdir, pmid):
@@ -380,7 +385,7 @@ class Generate:
 
     def clean_name(self, pmid):
         dname = self.ensure_dir()
-        fname = f"{dname}/{pmid}_cleaned.txt"
+        fname = join(f"{dname},{pmid}_cleaned.txt")
         return fname
 
     def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None, num=False):
@@ -421,8 +426,7 @@ class Generate:
         def con(sec):
             if num:
                 return " ".join(reduce_nums(a) for a in e.tostr(sec))
-            else:
-                return " ".join(e.tostr(sec))
+            return " ".join(e.tostr(sec))
 
         with open(fname, "w", encoding="utf-8") as fp:
             if a:
@@ -487,22 +491,20 @@ class Generate:
                 missing = e.missing()
                 if missing:
                     click.secho(
-                        "missing %s for %s http://doi.org/%s"
-                        % (missing, paper.pmid, paper.doi),
+                        f"missing {missing} for {paper.pmid} http://doi.org/{paper.doi}",
                         fg="magenta",
-                        file=sys.stderr,
+                        err=True,
                     )
                 papers.append((paper, e))
             except Exception as err:
                 click.secho(
-                    "failed for %s http://doi.org/%s %s"
-                    % (paper.pmid, paper.doi, str(err)),
+                    f"failed for {paper.pmid} http://doi.org/{paper.doi} {err}",
                     fg="red",
-                    file=sys.stderr,
+                    err=True,
                 )
                 raise err
                 # papers.append((paper, Clean(soup)))
-
+        # pylint: disable=no-member
         t = template.render(
             papers=papers,
             issn=self.issn,
@@ -529,14 +531,16 @@ class Download:
         self.mx = mx
 
     def ensure_dirs(self):
-        fdir = "failed_%s" % self.issn
-        gdir = "xml_%s" % self.issn
-        if not os.path.isdir(Config.DATADIR + fdir):
-            os.mkdir(Config.DATADIR + fdir)
-        if not os.path.isdir(Config.DATADIR + gdir):
-            os.mkdir(Config.DATADIR + gdir)
+        # pylint: disable=no-self-use
+        fdir = f"failed_{self.issn}"
+        gdir = f"xml_{self.issn}"
+        for t in [fdir, gdir]:
+            target = join(Config.DATADIR, t)
+            if not os.path.isdir(target):
+                os.makedirs(target, exist_ok=True)
 
     def get_response(self, paper, header):
+        # pylint: disable=no-self-use
         resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
         return resp
 
@@ -570,10 +574,7 @@ class Download:
             if p.doi and p.issn == self.issn and p.pmid not in allpmid
         }
 
-        print(
-            "%s: %d failed, %d done, %d todo"
-            % (self.issn, len(failed), len(done), len(todo))
-        )
+        print(f"{self.issn}: {len(failed)} failed, {len(done)} done, {len(todo)} todo")
         lst = sorted(todo.values(), key=lambda p: -p.year)
         if self.mx > 0:
             lst = lst[: self.mx]
@@ -586,7 +587,7 @@ class Download:
                 resp = self.get_response(paper, header)
                 if resp.status_code == 404:
                     xml = b"failed404"
-                    d = fdir
+                    targetd = fdir
                     failed.add(paper.pmid)
                 else:
                     resp.raise_for_status()
@@ -596,33 +597,33 @@ class Download:
                     err = self.check_soup(paper, soup, resp)
                     if err:
                         xml = err
-                        d = fdir
+                        targetd = fdir
                         failed.add(paper.pmid)
                     else:
-                        d = gdir
+                        targetd = gdir
                         done.add(paper.pmid)
 
             except (RequestConnectionError, AssertionError) as e:
-                d = fdir
+                targetd = fdir
                 xml = str(e).encode("utf-8")
                 click.secho(
                     "failed {} {} {}".format(paper.pmid, paper.doi, str(e)), fg="red"
                 )
                 failed.add(paper.pmid)
 
-            with open(Config.DATADIR + f"{d}/{paper.pmid}.html", "wb") as fp:
+            with open(join(Config.DATADIR, targetd, f"{paper.pmid}.html"), "wb") as fp:
                 fp.write(xml)
 
             del todo[paper.pmid]
             print(
-                "%d failed, %d done, %d todo: %s"
-                % (len(failed), len(done), len(todo), paper.pmid)
+                f"{len(failed)} failed, {len(done)} done, {len(todo)} todo: {paper.pmid}"
             )
             if self.sleep > 0 and idx < len(lst) - 1:
                 time.sleep(self.sleep)
         self.end()
 
 
+# pylint: disable=too-few-public-methods
 class FakeResponse:
     content = None
     status_code = 200
@@ -647,6 +648,7 @@ class DownloadSelenium(Download):
         self.driver = driver
 
     def start(self):
+        # pylint: disable=import-outside-toplevel
         if self.driver is not None:
             return
         from selenium import webdriver
@@ -663,11 +665,13 @@ class DownloadSelenium(Download):
             self.driver.close()
 
     def wait(self):
+        # pylint: disable=import-outside-toplevel
         from selenium.webdriver.support.ui import WebDriverWait
 
         return WebDriverWait(self.driver, self.WAIT)
 
     def get_response(self, paper, header):
+        # pylint: disable=import-outside-toplevel
         from selenium.common.exceptions import TimeoutException
 
         url = f"http://doi.org/{paper.doi}"

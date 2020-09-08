@@ -2,6 +2,7 @@ import csv
 import gzip
 import os
 import time
+from os.path import join
 
 import click
 import requests
@@ -33,8 +34,9 @@ def epmc(pmcid, session=None):
 
 
 def ensure_dir(d):
-    if not os.path.isdir(Config.DATADIR + d):
-        os.makedirs(Config.DATADIR + d, exist_ok=True)
+    td = join(Config.DATADIR, d)
+    if not os.path.isdir(td):
+        os.makedirs(td, exist_ok=True)
 
 
 def download_epmc(issn="epmc", sleep=0.5, mx=0):
@@ -86,7 +88,7 @@ def download_epmc(issn="epmc", sleep=0.5, mx=0):
             done.add(pmid)
 
         ensure_dir(d)
-        with open(Config.DATADIR + f"{d}/{pmid}.xml", "w") as fp:
+        with open(join(Config.DATADIR, d, "{pmid}.xml"), "w") as fp:
             fp.write(xml)
 
         print("%d failed (%s %s), %d done" % (len(failed), txt, pmcid, len(done)))
@@ -95,7 +97,7 @@ def download_epmc(issn="epmc", sleep=0.5, mx=0):
 
 def getxmlepmc(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(Config.DATADIR + f"xml_epmc/{pmid}.xml", "rb") as fp:
+    with open(join(Config.DATADIR, "xml_epmc", f"{pmid}.xml"), "rb") as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -257,35 +259,6 @@ class GenerateEPMC(Generate):
 def gen_epmc(issn="epmc"):
     o = GenerateEPMC(issn)
     o.run()
-
-
-# def gen_epmc_old(issn='epmc'):
-#     """Convert EPMC XML files into "cleaned" text files."""
-#     if not os.path.isdir(Config.DATADIR + 'cleaned_epmc'):
-#         os.mkdir(Config.DATADIR + 'cleaned_epmc')
-#     for pmid in readxml('xml_epmc'):
-#
-#         root = getxmlepmc(pmid)
-#         e = EPMC(root)
-#
-#         a = e.abstract()
-#         m = e.methods()
-#         r = e.results()
-#         if a is None or m is None or r is None:
-#             click.secho('{}: missing: abs {}, methods {}, results {}'.format(
-#                 pmid, a is None, m is None, r is None), fg='red')
-#             continue
-#         fname = Config.DATADIR + 'cleaned_epmc/{}_cleaned.txt'.format(pmid)
-#         if os.path.exists(fname):
-#             click.secho('overwriting %s' % fname, fg='yellow')
-#
-#         with open(fname, 'w', encoding='utf-8') as fp:
-#             w = ' '.join(e.tostr(a))
-#             print('!~ABS~! %s' % w, file=fp)
-#             w = ' '.join(e.tostr(r))
-#             print('!~RES~! %s' % w, file=fp)
-#             w = ' '.join(e.tostr(m))
-#             print('!~MM~! %s' % w, file=fp)
 
 
 def html_epmc(issn="epmc"):

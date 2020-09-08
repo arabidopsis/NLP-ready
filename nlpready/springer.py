@@ -160,8 +160,7 @@ def download_springer(issn, sleep=5.0, mx=0):
             if not a and paper.year < 2005:
                 dump(paper, resp.content)
                 return b"failed-only-pdf"
-            else:
-                assert a, (paper.pmid, resp.url, paper.doi)
+            assert a, (paper.pmid, resp.url, paper.doi)
             return None
 
     o = D(issn, sleep=sleep, mx=mx)

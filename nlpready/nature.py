@@ -1,4 +1,5 @@
 from io import BytesIO
+from os.path import join
 
 from lxml import etree
 from lxml.html import document_fromstring, parse
@@ -98,7 +99,7 @@ class GenerateNature(Generate):
         return Nature(soup)
 
     def get_soup(self, gdir, pmid):
-        fname = Config.DATADIR + gdir + f"/{pmid}.html"
+        fname = join(Config.DATADIR, gdir, f"{pmid}.html")
         with open(fname, encoding="utf-8") as fp:
             # tree = parse(fp)
             # soup = tree.getroot()

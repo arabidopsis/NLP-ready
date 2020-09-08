@@ -1,5 +1,7 @@
 import os
+import warnings
 from collections import Counter, namedtuple
+from importlib import import_module
 from pickle import dump, load
 
 import click
@@ -56,22 +58,13 @@ Journal = namedtuple(
 
 
 def getmod(mod):
-    mod = "nlpready." + mod
-    m = __import__(mod)
-    if "." in mod:
-        _, mname = mod.rsplit(".", 1)
-        m = getattr(m, mname)
-    iissn = m.ISSN
-    ret = dict(issn=iissn)
+    mod = "." + mod
+    m = import_module(mod, "nlpready")
+    ret = dict(issn=m.ISSN)
     for name in dir(m):
         a = getattr(m, name)
-        if name.startswith(("download_", "html_", "gen_")):
-            if name[0] == "d":
-                ret["download"] = a
-            # if name[0] == 'h':
-            #     ret['html'] = a
-            # if name[0] == 'g':
-            #     ret['gen'] = a
+        if name.startswith("download_"):
+            ret["download"] = a
         elif isinstance(a, type) and Generate in a.__bases__:
             a = getattr(m, name)
             ret["Generate"] = a
@@ -89,6 +82,7 @@ def issn2mod():
 
 
 def doubles():
+    # pylint: disable=import-outside-toplevel
     from .summary import get_done
     from .mlabc import read_journals_csv
 
@@ -136,12 +130,13 @@ def cli():
 def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     """Generate HTML documents from downloads."""
     # pylint: disable=too-many-locals
+    # pylint: disable=import-outside-toplevel
     from .mlabc import pmid2doi, make_jinja_env
 
     # from pickle import load, dump
 
     env = make_jinja_env()
-    jdir = Config.DATADIR + "html/journals"
+    jdir = os.path.join(Config.DATADIR, "html", "journals")
     os.makedirs(jdir, exist_ok=True)
 
     template = env.get_template("index.html")
@@ -172,7 +167,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
             # try:
             fname, papers, failed = g.tohtml(
                 save=True,
-                prefix=jdir + "/" + mmod + "_",
+                prefix=os.path.join(jdir, mmod + "_"),
                 env=env,
                 verbose=False,
                 num=num,
@@ -225,14 +220,14 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
         k = KEYMAP[s]
         if s == sort:
             return lambda t: t[k]
-        else:
-            return lambda t: -t[k]
+        return lambda t: -t[k]
 
     journals_ = sorted(journals_, key=sortf())
-    t = template.render(journals=journals_, name=Config.NAME)
+    # pylint: disable=no-member
+    res = template.render(journals=journals_, name=Config.NAME)
 
-    with open(Config.DATADIR + "html/index.html", "w") as fp:
-        fp.write(t)
+    with open(os.path.join(Config.DATADIR, "html", "index.html"), "w") as fp:
+        fp.write(res)
     click.secho(
         "found %d pubmeds. %d unique, %d usable"
         % (len(total3), len(total2), len(total1)),
@@ -280,7 +275,8 @@ def tokenize(mod=""):
 def clean(
     num=False, issn="", mod="", nowrite=False
 ):  # pylint: disable=redefined-outer-name
-    """Create "clean" documents suitable for input into BRAT."""
+    """Create "clean" documents suitable for input into ML programs."""
+    # pylint: disable=import-outside-toplevel
     from .mlabc import pmid2doi
 
     if mod:
@@ -309,7 +305,7 @@ def cleandirs(d):
     """Remove empty directories."""
     d = d or Config.DATADIR
     for f in os.listdir(d):
-        d = Config.DATADIR + f
+        d = os.path.join(d, f)
         if os.path.isdir(d):
             n = len(os.listdir(d))
             if n == 0:
@@ -356,12 +352,15 @@ def download(mod="", sleep=10.0, mx=1, issn=""):
 @cli.command()
 def summary():
     """Summary of current download status."""
+    # pylint: disable=import-outside-toplevel
     from .download import journal_summary
 
     journal_summary()
 
 
 @cli.command()
+@click.option("--email", help="your email address for NCBI E-Utilities")
+@click.option("--api-key", help="your NCBI API_KEY")
 @click.option(
     "--out",
     default=Config.JCSV,
@@ -382,11 +381,40 @@ def summary():
 )
 @click.option("--noheader", is_flag=True, help="csvfile has no header")
 @click.argument("csvfile")
-def journals(csvfile, out, noheader=False, col=0, sleep=0.2):
+def journals(csvfile, out, email, api_key, noheader=False, col=0, sleep=0.37):
     """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of pubmed IDs."""
+    # pylint: disable=import-outside-toplevel
     from .download import getmeta
 
-    getmeta(csvfile, sleep=sleep, pubmeds=out, header=not noheader, pcol=col)
+    if not email:
+        warnings.warn(
+            """
+Email address is not specified.
+
+To make use of NCBI's E-utilities, NCBI requires you to specify your
+email address with each request.
+
+In case of excessive usage of the E-utilities, NCBI will attempt to contact
+a user at the email address provided before blocking access to the
+E-utilities.""",
+            UserWarning,
+        )
+    if not api_key and sleep < 0.37:
+        warnings.warn(
+            """
+More than 3 hits per second without an --api-key may get you
+blocked from the NCBI site.""",
+            UserWarning,
+        )
+    getmeta(
+        csvfile,
+        sleep=sleep,
+        pubmeds=out,
+        header=not noheader,
+        pcol=col,
+        email=email,
+        api_key=api_key,
+    )
 
 
 FAKE_ISSN = {"epmc", "elsevier"}

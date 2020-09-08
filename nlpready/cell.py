@@ -2,6 +2,7 @@
 import os
 import time
 from io import StringIO
+from os.path import join
 
 import click
 from bs4 import BeautifulSoup
@@ -120,18 +121,21 @@ def getpage(doi, driver):
 
 
 def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
+    # pylint: disable=import-outside-toplevel
     from selenium import webdriver
 
     # header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
     #           ' (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
     #           'Referer': 'http://www.sciencedirect.com'
     #           }
-    fdir = "failed_%s" % issn
-    gdir = "xml_%s" % issn
-    if not os.path.isdir(Config.DATADIR + fdir):
-        os.mkdir(Config.DATADIR + fdir)
-    if not os.path.isdir(Config.DATADIR + gdir):
-        os.mkdir(Config.DATADIR + gdir)
+    fdir = f"failed_{issn}"
+    gdir = f"xml_{issn}"
+    target = join(Config.DATADIR, fdir)
+    if not os.path.isdir(target):
+        os.mkdir(target)
+    target = join(Config.DATADIR, gdir)
+    if not os.path.isdir(target):
+        os.mkdir(target)
     failed = set(readxml(fdir))
     done = set(readxml(gdir))
 
@@ -158,7 +162,7 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
         d = gdir
         done.add(pmid)
 
-        with open(Config.DATADIR + f"{d}/{pmid}.html", "w") as fp:
+        with open(join(Config.DATADIR, d, f"{pmid}.html"), "w") as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -171,8 +175,7 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
     if close:
         driver.close()
         return None
-    else:
-        return driver
+    return driver
 
 
 class CELL(Clean):
@@ -309,10 +312,6 @@ def gen_cell(issn):
 def html_cell(issn):
     e = GenerateCell(issn)
     print(e.tohtml())
-    # fname = issn + '.html'
-    # print('writing', fname)
-    # with open(fname, 'w') as fp:
-    #     fp.write(e.tohtml())
 
 
 def cmds():
@@ -345,6 +344,7 @@ def cmds():
     )
     def download(sleep, mx, issn, head, noclose):
         """Download XML for CELL Journals."""
+        # pylint: disable=import-outside-toplevel
         from selenium import webdriver
 
         options = webdriver.ChromeOptions()
@@ -361,6 +361,7 @@ def cmds():
                 driver=driver,
             )
         if noclose:
+            # pylint: disable=import-outside-toplevel
             import code
 
             code.interact(local=locals())

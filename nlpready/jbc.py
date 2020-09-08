@@ -71,8 +71,7 @@ def download_jbc(issn, sleep=5.0, mx=0):
             if not a:
                 if paper.year <= 2001:  # probably only a (scanned?) PDF version
                     return b"failed-only-pdf"
-                else:
-                    assert a, (a, resp.url, paper.doi)
+                assert a, (a, resp.url, paper.doi)
             return None
 
     download = D(issn, sleep=sleep, mx=mx)

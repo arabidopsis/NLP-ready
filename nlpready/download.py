@@ -13,15 +13,20 @@ from lxml import etree
 
 from .mlabc import read_pubmed_csv, read_suba_papers_csv
 
-EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&retmode=xml&id="
+EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
 # html that is sent back by NIH
 ERROR = re.compile("<ERROR>([^<]*)</ERROR>")
 
 
-def fetchpubmed(session, pmid):
+def fetchpubmed(session, pmid, email=None, api_key=None):
     """Fetch article metadata from NCBI using pubmed id."""
-    resp = session.get(EFETCH + str(pmid))
+    params = dict(db="pubmed", retmode="xml", id=pmid)
+    if email is not None:
+        params["email"] = email
+    if api_key is not None:
+        params["api_key"] = api_key
+    resp = session.get(EFETCH, params=params)
     return resp.content  # need buffer for parsing
 
 
@@ -93,11 +98,11 @@ def parse_xml(xml):
     }
 
 
-def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
+def getmeta(csvfile, pubmeds, email=None, api_key=None, header=True, pcol=0, sleep=0.2):
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
     # return data from xml file at NIH in a pythonic dictionary
     def pubmed_meta(session, pmid):
-        xml = fetchpubmed(session, pmid)
+        xml = fetchpubmed(session, pmid, email=email, api_key=api_key)
         return parse_xml(xml)
 
     session = requests  # .Session()
@@ -149,6 +154,7 @@ def getmeta(csvfile, pubmeds, header=True, pcol=0, sleep=0.2):
 
 def journal_summary():
     """Summarize journal statistics."""
+    # pylint: disable=import-outside-toplevel
     from .issn import issn2mod
 
     d = defaultdict(list)

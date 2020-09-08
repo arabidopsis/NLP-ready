@@ -1,6 +1,7 @@
 import os
 import time
 from io import BytesIO
+from os.path import join
 
 import click
 import requests
@@ -42,8 +43,9 @@ def elsevier(pmid, url=PMID_ELSEVIER):
 
 
 def ensure_dir(d):
-    if not os.path.isdir(Config.DATADIR + d):
-        os.makedirs(Config.DATADIR + d, exist_ok=True)
+    t = join(Config.DATADIR, d)
+    if not os.path.isdir(t):
+        os.makedirs(t, exist_ok=True)
 
 
 def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
@@ -78,7 +80,7 @@ def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
             failed.add(pmid)
 
         ensure_dir(d)
-        with open(Config.DATADIR + f"{d}/{pmid}.xml", "w") as fp:
+        with open(join(Config.DATADIR, d, f"{pmid}.xml"), "w") as fp:
             fp.write(xml)
         todox.remove(pmid)
         print(
@@ -90,7 +92,7 @@ def download_elsevier(issn="elsevier", sleep=0.5, mx=0):
 
 def getxmlelsevier(pmid):
     parser = etree.XMLParser(ns_clean=True)
-    with open(Config.DATADIR + f"xml_elsevier/{pmid}.xml", "rb") as fp:
+    with open(join(Config.DATADIR, "xml_elsevier", f"{pmid}.xml"), "rb") as fp:
         tree = etree.parse(fp, parser)
 
     root = tree.getroot()
@@ -257,8 +259,9 @@ def gen_elsevier(issn="elsevier"):
 
 def gen_elsevier_old(issn="elsevier"):
     """Convert Elsevier XML files into "cleaned" text files."""
-    if not os.path.isdir(Config.DATADIR + "cleaned_elsevier"):
-        os.mkdir(Config.DATADIR + "cleaned_elsevier")
+    td = join(Config.DATADIR, "cleaned_elsevier")
+    if not os.path.isdir(td):
+        os.mkdir(td)
 
     for pmid in readxml("xml_elsevier"):
 
@@ -276,7 +279,7 @@ def gen_elsevier_old(issn="elsevier"):
                 fg="red",
             )
             continue
-        fname = Config.DATADIR + f"cleaned_elsevier/{pmid}_cleaned.txt"
+        fname = join(Config.DATADIR, "cleaned_elsevier", f"{pmid}_cleaned.txt")
         if os.path.exists(fname):
             click.secho("overwriting %s" % fname, fg="yellow")
 
@@ -296,7 +299,7 @@ def check_elsevier(remove=False):
         if pmid != e.pubmed:
             print("incorrect pubmed!", pmid, e.pubmed)
             if remove:
-                os.remove(Config.DATADIR + "xml_elsevier/%s.xml" % pmid)
+                os.remove(join(Config.DATADIR, "xml_elsevier", "{pmid}.xml"))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,7 @@
 import webbrowser
+
 import click
+
 
 # pytlint: disable=redefined-outer-name
 @click.command()
