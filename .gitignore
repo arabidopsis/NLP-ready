@@ -3,4 +3,4 @@ syntax: glob
 *.pyc
 *~
 .ipynb_checkpoints/
-mlcode-data/*
+nlpready-data/*

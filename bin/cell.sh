@@ -6,7 +6,7 @@ fi
 DIRNAME="$(dirname $0)"
 code="$DIRNAME/../"
 arg=''
-issns=`(cd $code; python -m mlcode.cell issn)`
+issns=`(cd $code; python -m nlpready.cell issn)`
 d=$1
 for issn in $issns
 do

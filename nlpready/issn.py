@@ -56,7 +56,7 @@ Journal = namedtuple(
 
 
 def getmod(mod):
-    mod = "mlcode." + mod
+    mod = "nlpready." + mod
     m = __import__(mod)
     if "." in mod:
         _, mname = mod.rsplit(".", 1)

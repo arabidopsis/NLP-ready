@@ -1,3 +1,3 @@
 
 requirements:
-	@pipreqs --print mlcode | sed 's/==/>=/' > requirements.txt
+	@pipreqs --print nlpready | sed 's/==/>=/' > requirements.txt
