@@ -39,7 +39,7 @@ This generates a *metafile* `nlpready-journals.csv` (see the `--out` option). It
 contains the DOIs that will allow us to find the document on the web. Pubmed IDs
 that are either incorrect or unknown to NCBI will have an ISSN column set to "missing-issn".
 
-mlcrops uses ISSN numbers to determine which code to use to download and process
+NLP-ready uses ISSN numbers to determine which code to use to download and process
 the journal text.
 
 You can stop and restart this command as you like; it checks for pmids that are already
