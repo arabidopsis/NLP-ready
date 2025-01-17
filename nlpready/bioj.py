@@ -93,7 +93,8 @@ def download_bioj(issn, sleep=5.0, mx=0):
             # else:
             if not a:
                 click.secho(
-                    f"no full text {paper.pmid} http://doi.org/{paper.doi}", fg="red",
+                    f"no full text {paper.pmid} http://doi.org/{paper.doi}",
+                    fg="red",
                 )
                 return b"no full-text"
             assert a and len(a) == 1, (paper.pmid, resp.url)

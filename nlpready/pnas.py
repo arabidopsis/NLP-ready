@@ -52,7 +52,12 @@ class PNAS(Clean):
         for a in sec.select("div.fig"):
             a.replace_with(self.newfig(a, caption=".fig-caption p"))
         for a in sec.select("div.table"):
-            a.replace_with(self.newtable(a, caption=".table-caption p",))
+            a.replace_with(
+                self.newtable(
+                    a,
+                    caption=".table-caption p",
+                )
+            )
             # a.replace_with('[[FIGURE]]')
         for a in sec.select("p a.xref-bibr"):
             a.replace_with("CITATION")

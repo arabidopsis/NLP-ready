@@ -100,6 +100,7 @@ def parse_xml(xml):
 
 def getmeta(csvfile, pubmeds, email=None, api_key=None, header=True, pcol=0, sleep=0.2):
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
+
     # return data from xml file at NIH in a pythonic dictionary
     def pubmed_meta(session, pmid):
         xml = fetchpubmed(session, pmid, email=email, api_key=api_key)
