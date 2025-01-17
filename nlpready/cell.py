@@ -1,23 +1,30 @@
 # import csv
+from __future__ import annotations
+
 import os
 import time
 from io import StringIO
 from os.path import join
+from typing import Any
+from typing import TYPE_CHECKING
 
 import click
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
-from .mlabc import (
-    Clean,
-    Config,
-    DownloadSelenium,
-    Generate,
-    dump,
-    read_suba_papers_csv,
-    readxml,
-)
+from .mlabc import Clean
+from .mlabc import Config
+from .mlabc import DownloadSelenium
+from .mlabc import dump
+from .mlabc import Generate
+from .mlabc import read_suba_papers_csv
+from .mlabc import readxml
+
+if TYPE_CHECKING:
+    from bs4 import Tag
+    from .mlabc import Paper
+    from requests import Response
 
 ISSN = {
     "1097-4172": "Cell",
@@ -76,12 +83,17 @@ class DownloadCell(DownloadSelenium):
         w = super().wait()
         w.until(
             EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "article div.Body section,div.fullText section")
-            )
+                (By.CSS_SELECTOR, "article div.Body section,div.fullText section"),
+            ),
         )
         return w
 
-    def check_soup(self, paper, soup, resp):
+    def check_soup(
+        self,
+        paper: Paper,
+        soup: BeautifulSoup,
+        resp: Response,
+    ) -> bytes | None:
         secs = soup.select("article div.Body section")
         if not secs:
             secs = soup.select("div.fullText section")
@@ -97,15 +109,27 @@ class DownloadCell(DownloadSelenium):
         return None
 
 
-def download_cell(issn, sleep=5.0, mx=0, headless=True, close=True, driver=None):
+def download_cell(
+    issn: str,
+    sleep: float = 5.0,
+    mx: int = 0,
+    headless: bool = True,
+    close: bool = True,
+    driver=None,
+) -> None:
     downloader = DownloadCell(
-        issn, sleep=sleep, mx=mx, headless=headless, close=close, driver=driver
+        issn,
+        sleep=sleep,
+        mx=mx,
+        headless=headless,
+        close=close,
+        driver=driver,
     )
 
     downloader.run()
 
 
-def getpage(doi, driver):
+def getpage(doi: str, driver: Any) -> str:
 
     driver.get(f"http://doi.org/{doi}")
 
@@ -120,7 +144,13 @@ def getpage(doi, driver):
     return txt
 
 
-def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
+def old_download_cell(
+    issn: str,
+    sleep: float = 5.0,
+    mx: int = 0,
+    headless: bool = True,
+    close: bool = True,
+):
     # pylint: disable=import-outside-toplevel
     from selenium import webdriver
 
@@ -156,9 +186,9 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
         options.add_argument("headless")
     # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
     driver = webdriver.Chrome(chrome_options=options)
-    for idx, (pmid, (doi, _)) in enumerate(lst):
-        print(pmid, doi)
-        xml = getpage(doi, driver)
+    for idx, (pmid, p) in enumerate(lst):
+        print(pmid, p.doi)
+        xml = getpage(p.doi, driver)
         d = gdir
         done.add(pmid)
 
@@ -168,7 +198,7 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
         del todo[pmid]
         print(
             "%d failed, %d done, %d todo: %s"
-            % (len(failed), len(done), len(todo), pmid)
+            % (len(failed), len(done), len(todo), pmid),
         )
         if sleep > 0 and idx < len(lst) - 1:
             time.sleep(sleep)
@@ -179,13 +209,13 @@ def old_download_cell(issn, sleep=5.0, mx=0, headless=True, close=True):
 
 
 class CELL(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup):
         super().__init__(root)
         a = root.select("article")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
 
         secs = self.article.select("div.Body section")
         for sec in secs:
@@ -194,12 +224,12 @@ class CELL(Clean):
                 op=lambda h2, b: h2.endswith(b),
                 txt=["results", "results and discussion", "results and discussions"],
             ):
-                return sec
+                return [sec]
             if self.find_title(sec, txt=["experimental"]):
-                return sec
-        return None
+                return [sec]
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select("div.Body section")
         for sec in secs:
             if self.find_title(
@@ -212,91 +242,92 @@ class CELL(Clean):
                     "methods",
                 ],
             ):
-                return sec
+                return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select(".Abstracts")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def title(self):
+    def title(self) -> str | None:
         t = self.article.select(".Head .title-text")
         if t:
             return t[0].text.strip()
         return super().title()
 
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("p a.workspace-trigger"):
+                if a.attrs["name"].startswith("bbib"):
+                    a.replace_with("CITATION")
 
-        for a in sec.select("p a.workspace-trigger"):
-            if a.attrs["name"].startswith("bbib"):
-                a.replace_with("CITATION")
-
-        for a in sec.select("figure"):
-            a.replace_with(self.newfig(a, caption=".captions p"))
-        for a in sec.select(".tables"):
-            a.replace_with(self.newtable(a, caption=".captions p"))
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+            for a in sec.select("figure"):
+                a.replace_with(self.newfig(a, caption=".captions p"))
+            for a in sec.select(".tables"):
+                a.replace_with(self.newtable(a, caption=".captions p"))
+        txt = [self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")]
         return txt
 
 
 class CELL2(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.fullText")
 
-        a = a[0]
-        assert a, a
-        self.article = a
+        a0 = a[0]
+        assert a0, a0
+        self.article = a0
 
-    def results(self):
+    def results(self) -> list[Tag]:
         secs = self.article.select("section")
         for sec in secs:
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select("section")
         for sec in secs:
             if sec.has_attr("class"):
                 if "materials-methods" in sec["class"]:
-                    return sec
+                    return [sec]
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower()
                 if txt in {"experimental procedures", "materials and methods"}:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select("section.abstract")
         for sec in secs:
-            return sec
-        return None
+            return [sec]
+        return []
 
-    def title(self):
+    def title(self) -> str | None:
         for t in self.root.select("h1.articleTitle"):
             txt = t.text.strip()
             if txt:
                 return txt
         return super().title()
 
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("p span.bibRef"):
+                a.replace_with("CITATION")
+            for a in sec.select("div.floatDisplay"):
+                a.replace_with(self.newfig(a, caption=".caption p"))
 
-        for a in sec.select("p span.bibRef"):
-            a.replace_with("CITATION")
-        for a in sec.select("div.floatDisplay"):
-            a.replace_with(self.newfig(a, caption=".caption p"))
-
-        return super().tostr(sec)
+        return super().tostr(seclist)
 
 
 class GenerateCell(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
+        e: Clean
         try:
             e = CELL(soup)
         except Exception:  # pylint: disable=broad-except
@@ -304,12 +335,12 @@ class GenerateCell(Generate):
         return e
 
 
-def gen_cell(issn):
+def gen_cell(issn: str) -> None:
     e = GenerateCell(issn)
     e.run()
 
 
-def html_cell(issn):
+def html_cell(issn: str) -> None:
     e = GenerateCell(issn)
     print(e.tohtml())
 
@@ -331,10 +362,16 @@ def cmds():
     )
     @click.option("--mx", default=1, help="max documents to download 0=all")
     @click.option(
-        "--head", default=False, is_flag=True, help="don't run browser headless"
+        "--head",
+        default=False,
+        is_flag=True,
+        help="don't run browser headless",
     )
     @click.option(
-        "--noclose", default=False, is_flag=True, help="don't close browser at end"
+        "--noclose",
+        default=False,
+        is_flag=True,
+        help="don't close browser at end",
     )
     @click.option(
         "--issn",
