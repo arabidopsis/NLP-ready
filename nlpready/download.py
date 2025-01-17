@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import os
 import re
@@ -5,13 +7,20 @@ import time
 from collections import defaultdict
 from glob import glob
 from io import BytesIO
+from typing import Any
+from typing import Iterator
+from typing import TYPE_CHECKING
 
 import click
 import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
-from .mlabc import read_pubmed_csv, read_suba_papers_csv
+from .mlabc import read_pubmed_csv
+from .mlabc import read_suba_papers_csv
+
+if TYPE_CHECKING:
+    from requests import Session
 
 EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
@@ -19,7 +28,12 @@ EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 ERROR = re.compile("<ERROR>([^<]*)</ERROR>")
 
 
-def fetchpubmed(session, pmid, email=None, api_key=None):
+def fetchpubmed(
+    session: Session,
+    pmid: str,
+    email: str | None = None,
+    api_key: str | None = None,
+) -> bytes | None:
     """Fetch article metadata from NCBI using pubmed id."""
     params = dict(db="pubmed", retmode="xml", id=pmid)
     if email is not None:
@@ -30,7 +44,7 @@ def fetchpubmed(session, pmid, email=None, api_key=None):
     return resp.content  # need buffer for parsing
 
 
-def parse_xml(xml):
+def parse_xml(xml: bytes) -> dict[str, Any] | None:
     """Parse NCBI Journal metadata into a dictionary."""
     ipt = BytesIO(xml)
     tree = etree.parse(ipt)
@@ -40,39 +54,55 @@ def parse_xml(xml):
     article = tree.find("PubmedArticle/MedlineCitation/Article")
     if article is None:
         return None
-
-    pmid = tree.findtext("PubmedArticle/MedlineCitation/PMID").strip()
+    t = tree.findtext("PubmedArticle/MedlineCitation/PMID")
+    pmid = t.strip() if t else None
     title = article.findtext("ArticleTitle")
     abstract = article.findtext("Abstract/AbstractText")
     authors = article.findall("AuthorList/Author")
     pages = article.findtext("Pagination/MedlinePgn")
     journal = article.find("Journal")
+    if journal:
 
-    name = journal.findtext("ISOAbbreviation", None) or journal.findtext("Title", "")
-    volume = journal.findtext("JournalIssue/Volume")
-    issue = journal.findtext("JournalIssue/Issue")
-    year = journal.findtext("JournalIssue/PubDate/Year")
-    year = year or journal.findtext("JournalIssue/PubDate/MedlineDate")
-    year = year.strip()[:4]
+        name = journal.findtext("ISOAbbreviation", None) or journal.findtext(
+            "Title",
+            "",
+        )
+        volume = journal.findtext("JournalIssue/Volume")
+        issue = journal.findtext("JournalIssue/Issue")
+        yearx = journal.findtext("JournalIssue/PubDate/Year")
+        yearx = yearx or journal.findtext("JournalIssue/PubDate/MedlineDate")
+        if yearx:
+            yearx = yearx.strip()[:4]
 
-    year = int(year)
+            year = int(yearx)
 
-    issn = journal.findtext("ISSN")
-    issn = issn.strip() if issn else None
+        issn = journal.findtext("ISSN")
+        issn = issn.strip() if issn else None
+    else:
+        name = volume = issue = issn = None
+        year = -1
 
     data = tree.find("PubmedArticle/PubmedData")
-    ids = data.findall("ArticleIdList/ArticleId")
-    doi = [i.text.strip() for i in ids if i.get("IdType") == "doi"]
-    if doi:
-        doi = doi[0]
+    if data:
+        ids = data.findall("ArticleIdList/ArticleId")
+        if ids:
+            doil = [i.text.strip() for i in ids if i.get("IdType") == "doi" and i.text]
+            doi: str | None
+            if doil:
+                doi = doil[0]
+            else:
+                doi = None
+            pmcidl = [
+                i.text.strip() for i in ids if i.get("IdType") == "pmc" and i.text
+            ]
+            if pmcidl:
+                pmcid = pmcidl[0]
+            else:
+                pmcid = None
+        else:
+            doi = pmcid = None
     else:
-        doi = None
-
-    pmcid = [i.text.strip() for i in ids if i.get("IdType") == "pmc"]
-    if pmcid:
-        pmcid = pmcid[0]
-    else:
-        pmcid = None
+        doi = pmcid = None
 
     # elementtree tries to encode everything as ascii
     # or if that fails it leaves the string alone
@@ -98,7 +128,15 @@ def parse_xml(xml):
     }
 
 
-def getmeta(csvfile, pubmeds, email=None, api_key=None, header=True, pcol=0, sleep=0.2):
+def getmeta(
+    csvfile: str,
+    pubmeds: str,
+    email: str | None = None,
+    api_key: str | None = None,
+    header: bool = True,
+    pcol: int = 0,
+    sleep: float = 0.2,
+) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
 
     # return data from xml file at NIH in a pythonic dictionary
@@ -144,7 +182,7 @@ def getmeta(csvfile, pubmeds, email=None, api_key=None, header=True, pcol=0, sle
                     m["doi"] or "",
                     m["pmcid"] or "",
                     m["title"],
-                ]
+                ],
             )
             fp.flush()  # in case of interrupt.
             done.add(pmid)
@@ -153,7 +191,7 @@ def getmeta(csvfile, pubmeds, email=None, api_key=None, header=True, pcol=0, sle
                 time.sleep(sleep)  # be nice :)
 
 
-def journal_summary():
+def journal_summary() -> None:
     """Summarize journal statistics."""
     # pylint: disable=import-outside-toplevel
     from .issn import issn2mod
@@ -169,7 +207,7 @@ def journal_summary():
         (issn, name) = k
         prefix = os.path.commonprefix(d[k])
         ret.append(
-            (issn, i2mod.get(issn, "missing!"), len(d[k]), name, prefix, d[k][-1])
+            (issn, i2mod.get(issn, "missing!"), len(d[k]), name, prefix, d[k][-1]),
         )
 
     ret = sorted(ret, key=lambda t: (-t[2], t[3]))
@@ -181,8 +219,10 @@ def journal_summary():
 HREF = re.compile(r"^/journal/.*/\(ISSN\)(.{4}-.{4})$")
 
 
-def fetch_issn(href, session=None):
-    session = session or requests
+def fetch_issn(href: str, session: Session | None = None) -> str | None:
+    if session is None:
+        session = Session()
+
     resp = session.get("http://onlinelibrary.wiley.com" + href)
     soup = BeautifulSoup(BytesIO(resp.content), "lxml")
     issn = soup.select("#issn")
@@ -191,8 +231,13 @@ def fetch_issn(href, session=None):
     return issn[0].text.strip()
 
 
-def wiley_journals(start=0, session=None):
-    session = session or requests
+def wiley_journals(
+    start=0,
+    session: Session | None = None,
+) -> tuple[int, list[tuple[str, str]]]:
+    if session is None:
+        session = Session()
+
     resp = session.get(
         "http://onlinelibrary.wiley.com/browse/publications",
         params=dict(type="journal", start=start),
@@ -214,7 +259,7 @@ def wiley_journals(start=0, session=None):
     return len(journals), ret
 
 
-def get_wiley():
+def get_wiley() -> dict[str, Any]:
     start = 0
     res = {}
     session = requests.Session()
@@ -236,7 +281,7 @@ def get_wiley():
     return res
 
 
-def get_all_cleaned():
+def get_all_cleaned() -> Iterator[tuple[str, str]]:
 
     for folder in glob("cleaned_*"):
         for f in glob(f"{folder}/*_cleaned.txt"):
@@ -246,7 +291,7 @@ def get_all_cleaned():
             yield folder, pmid
 
 
-def wiley_issn():
+def wiley_issn() -> None:
 
     with open("wiley_journals.csv") as fp:
         R = csv.reader(fp)

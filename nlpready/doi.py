@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import webbrowser
 
 import click
@@ -6,7 +8,7 @@ import click
 # pytlint: disable=redefined-outer-name
 @click.command()
 @click.argument("doi")
-def run(doi):
+def run(doi: str) -> None:
     """Show a DOI in a browser."""
     webbrowser.open_new_tab("http://doi.org/" + doi)
 

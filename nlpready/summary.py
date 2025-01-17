@@ -1,14 +1,20 @@
+from __future__ import annotations
+
 import csv
 import glob
 import os
-from collections import Counter, defaultdict
+from collections import Counter
+from collections import defaultdict
 from os.path import join
 
 import click
 import requests
-from tabulate import tabulate
+from tabulate import tabulate  # type: ignore
 
-from .mlabc import USER_AGENT, Config, read_issn, read_suba_papers_csv
+from .mlabc import Config
+from .mlabc import read_issn
+from .mlabc import read_suba_papers_csv
+from .mlabc import USER_AGENT
 
 
 def _glob(d, g):
@@ -84,7 +90,7 @@ def _summary(showall=True, exclude=None):
     tcnt = tdone = tfailed = 0
     for name, issn, cnt, done, failed in dd.values():
         tbl.append(
-            (issn, cnt, done, failed, done + failed, cnt - (done + failed), name)
+            (issn, cnt, done, failed, done + failed, cnt - (done + failed), name),
         )
         tdone += done
         tfailed += failed
@@ -220,7 +226,7 @@ def _urls(exclude=None, failed=False):
                 resp = requests.get(f"https://doi.org/{p.doi}", headers=header)
                 url = resp.url
             except Exception as e:  # pylint: disable=broad-except
-                click.secho("failed {} err={}".format(p, str(e)), fg="red")
+                click.secho(f"failed {p} err={str(e)}", fg="red")
                 url = "Failed! %s" % p.doi
             W.writerow([p.pmid, p.issn, issns[p.issn], url])
             if (idx + 1) % 10 == 0:
