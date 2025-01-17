@@ -146,7 +146,7 @@ def download_bbb(issn: str, sleep: float = 5.0, mx: int = 0):
     o.run()
 
 
-def html_bbb(issn):
+def html_bbb(issn: str) -> None:
 
     g = GenerateBBB(issn)
     print(g.tohtml())
