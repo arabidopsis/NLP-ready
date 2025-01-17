@@ -7,7 +7,7 @@ from io import BytesIO
 from os.path import join
 
 import click
-import regex as re
+import re
 import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError

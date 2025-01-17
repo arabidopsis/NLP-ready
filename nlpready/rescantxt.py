@@ -1,6 +1,6 @@
 import re
 
-from jinja2 import Markup
+from markupsafe import Markup
 
 # [SIC!] unicode dashes utf-8 b'\xe2\x80\x90' 0x2010
 PRIMER = re.compile(
