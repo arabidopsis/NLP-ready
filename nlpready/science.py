@@ -1,46 +1,57 @@
 import requests
+from typing import TYPE_CHECKING, cast
 
-from .mlabc import Clean, Download, Generate
+from .mlabc import Clean, Download, Generate, Paper, XRef
+
+if TYPE_CHECKING:
+    from typing import Iterator
+    from bs4 import BeautifulSoup, Tag
+    from requests import Response
+
 
 ISSN = {"1095-9203": "Science", "0036-8075": "Science"}
 
 
 class Science(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> Tag | None:
         secs = self.article.select("div.section.results")
         if secs:
             return secs[0]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
-            if h2 and h2.text.lower() == "results":
+            if h2 and h2.text and h2.text.lower() == "results":
                 return sec
 
         return None
 
-    def methods(self):
+    def methods(self) -> Tag | None:
         secs = self.article.select("div.section.methods")
         if secs:
             return secs[0]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
-            if h2 and h2.text.lower() == "methods":
+            if h2 and h2.text and h2.text.lower() == "methods":
                 return sec
 
         return None
 
-    def abstract(self):
+    def abstract(self) -> Tag | None:
         secs = self.article.select("div.section.abstract")
         return secs[0] if secs else None
 
-    def full_text(self):
+    def full_text(self) -> Tag | None:
 
-        paper = [t for t in self.article.contents if t.name in {"p", "figure"}]
+        paper = [
+            t
+            for t in self.article.contents
+            if isinstance(t, Tag) and t.name in {"p", "figure"}
+        ]
         if not paper:
             for sec in self.article.select(".section"):
                 if "abstract" not in sec["class"]:
@@ -50,31 +61,38 @@ class Science(Clean):
             node.append(n)
         return node
 
-    def title(self):
+    def title(self) -> str | None:
         s = self.root.select("h1.article__headline")
         if s:
             return s[0].text.strip()
         return super().title()
 
-    def xrefs(self):
-        def xref(s):
+    def xrefs(self) -> list[XRef] | None:
+        def xref(s: Tag) -> Iterator[XRef]:
             for c in s.select("li div[data-doi]"):
                 cite = c.find("cite")
+                if not isinstance(cite, Tag):
+                    continue
                 title = cite.select(".cit-article-title")
-                title = title[0].text if title else None
-                yield dict(doi=c.attrs["data-doi"], title=title)
+                stitle = title[0].text if title else None
+                yield XRef(doi=c.attrs["data-doi"], title=stitle)
 
         for s in self.article.select("div.section"):
             if "ref-list" in s.attrs["class"]:
                 return list(xref(s))
 
         for s in self.article.select("div.section"):
-            txt = s.find("h2").string.lower()
+
+            ss = s.find("h2")
+            if not ss or not hasattr(ss, "string") or not ss.string:
+                continue
+
+            txt = str(ss.string.lower())
             if txt.find("references") >= 0:
                 return list(xref(s))
         return None
 
-    def old_tostr(self, sec):
+    def old_tostr(self, sec: Tag) -> list[str]:
 
         for a in sec.select("div.fig.pos-float"):
             a.replace_with(self.newfig(a, caption=".fig-caption p"))
@@ -90,7 +108,7 @@ class Science(Clean):
         txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
         return txt
 
-    def tostr(self, sec):
+    def tostr(self, sec: Tag) -> list[str]:
 
         for a in sec.select("figure"):
             a.replace_with(self.newfig(a))
@@ -103,11 +121,11 @@ class Science(Clean):
         return txt
 
 
-def download_science(issn, sleep=5.0, mx=0):
+def download_science(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://science.sciencemag.org"
 
-        def get_response(self, paper, header):
+        def get_response(self, paper: Paper, header: dict[str, str]) -> Response:
             resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
             if not resp.url.endswith(".full"):
                 resp = requests.get(resp.url + ".full", headers=header)
@@ -122,7 +140,7 @@ def download_science(issn, sleep=5.0, mx=0):
 
 
 class GenerateScience(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return Science(soup)
 
 

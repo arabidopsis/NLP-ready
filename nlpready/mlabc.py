@@ -2,7 +2,7 @@ import csv
 import os
 import sys
 import time
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from io import BytesIO
 from os.path import join
 
@@ -11,11 +11,32 @@ import re
 import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError
+from typing import NamedTuple, Iterator, TYPE_CHECKING, Literal, TypedDict, cast
 
 from . import config as Config
 from .rescantxt import find_primers, reduce_nums
 
-Paper = namedtuple("Paper", ["doi", "year", "pmid", "issn", "name", "pmcid", "title"])
+if TYPE_CHECKING:
+    from jinja2 import Environment, Template
+    from requests import Response
+    from bs4 import Tag
+
+
+class XRef(TypedDict):
+    doi: str
+    title: str | None
+
+
+# Paper = namedtuple("Paper", ["doi", "year", "pmid", "issn", "name", "pmcid", "title"])
+class Paper(NamedTuple):
+    doi: str
+    year: int
+    pmid: str
+    issn: str
+    name: str
+    pmcid: str | None
+    title: str | None
+
 
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
@@ -23,20 +44,24 @@ USER_AGENT = (
 )
 
 
-def pmid2doi(check=lambda doi, issn: True):
+def ok(doi: str, issn: str) -> bool:
+    return True
+
+
+def pmid2doi(check=ok) -> dict[str, Paper]:
     return {p.pmid: p for p in read_suba_papers_csv() if check(p.doi, p.issn)}
 
 
-def read_journals_csv():
+def read_journals_csv() -> dict[str, Paper]:
     return pmid2doi()
 
 
-def read_suba_papers_csv():
+def read_suba_papers_csv() -> Iterator[Paper]:
     """suba_papers.csv is a list of *all* pubmed IDs."""
     return readx_suba_papers_csv(Config.JCSV)
 
 
-def readx_suba_papers_csv(csvfile):
+def readx_suba_papers_csv(csvfile: str) -> Iterator[Paper]:
     if not os.path.isfile(csvfile):
         click.secho(f"No such file: {csvfile}!", fg="red", bold="True", err=True)
         return
@@ -64,7 +89,7 @@ def readx_suba_papers_csv(csvfile):
             )
 
 
-def read_pubmed_csv(csvfile, header=True, pcol=0):
+def read_pubmed_csv(csvfile: str, header: bool = True, pcol: int = 0) -> Iterator[str]:
     """File csvfile is a list of *all* pubmed IDs."""
     with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
@@ -75,7 +100,7 @@ def read_pubmed_csv(csvfile, header=True, pcol=0):
             yield row[pcol]
 
 
-def read_issn():
+def read_issn() -> dict[str, tuple[int, str]]:
 
     ISSN = defaultdict(list)
     for p in read_suba_papers_csv():
@@ -91,7 +116,7 @@ def read_issn():
     # return ISSN
 
 
-def readxml(d):
+def readxml(d: str) -> Iterator[str]:
     """Scan directory d and return the pubmed ids."""
     dd = join(Config.DATADIR, d)
     if not os.path.isdir(dd):
@@ -102,7 +127,7 @@ def readxml(d):
             yield f
 
 
-def dump(paper, xml):
+def dump(paper: Paper, xml: bytes) -> None:
     with open(f"dump_{paper.pmid}.html", "wb") as fp:
         fp.write(xml)
 
@@ -111,26 +136,32 @@ _Plug = object()
 
 
 class Clean:
-    SPACE = re.compile(r"\s+", re.I)
-    FIGURE = "[[FIGURE: %s]]"
-    TABLE = "[[TABLE: %s]]"
+    SPACE: re.Pattern = re.compile(r"\s+", re.I)
+    FIGURE: str = "[[FIGURE: %s]]"
+    TABLE: str = "[[TABLE: %s]]"
     a = _Plug
     m = _Plug
-    r = _Plug
-    t = _Plug
+    r: object | Tag | None = _Plug
+    t: object | str | None = _Plug
     f = _Plug
     x = _Plug
 
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         self.root = root
 
-    def find_title(self, sec, h="h2", op=lambda h, b: h == b, txt=None):
+    def find_title(
+        self,
+        sec: Tag,
+        h: str = "h2",
+        op=lambda h, b: h == b,
+        txt: list[str] | None = None,
+    ) -> bool:
         if txt is None:
             txt = []
-        h = sec.find(h)
-        if h:
+        hs = sec.find(h)
+        if hs and hs.text:
             # pylint: disable=no-member
-            h2 = h.text.lower().strip()
+            h2 = hs.text.lower().strip()
             h2 = self.SPACE.sub(" ", h2)
             for a in txt:
                 # print('"%s"="%s" %s %s' % (h2, a, op(h2, a), h2.endswith(a)))
@@ -138,22 +169,22 @@ class Clean:
                     return True
         return False
 
-    def title(self):
+    def title(self) -> str | None:
         t = self.root.find("title")
-        if t:
+        if t and t.text:
             return t.text.strip()
         return None
 
-    def abstract(self):
+    def abstract(self) -> Tag | None:
         raise NotImplementedError()
 
-    def results(self):
+    def results(self) -> Tag | None:
         raise NotImplementedError()
 
-    def methods(self):
+    def methods(self) -> Tag | None:
         raise NotImplementedError()
 
-    def xrefs(self):
+    def xrefs(self) -> list[XRef] | None:
         # pylint: disable=no-self-use
         return None
 
@@ -161,12 +192,12 @@ class Clean:
         # pylint: disable=no-self-use
         return None
 
-    def tostr(self, sec):
+    def tostr(self, sec: Tag) -> list[str]:
 
         txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
         return txt
 
-    def tostr2(self, sec):
+    def tostr2(self, sec: Tag) -> list[str]:
         def to_p(s):
             a = self.root.new_tag("p")
             a.string = s.text
@@ -206,15 +237,15 @@ class Clean:
         self.f = self.full_text()  # pylint: disable=assignment-from-none
         return self.f
 
-    def s_title(self):
+    def s_title(self) -> str | None:
         if self.t is not _Plug:
-            return self.t
+            return cast(str | None, self.t)
         self.t = self.title()
         return self.t
 
-    def s_xrefs(self):
+    def s_xrefs(self) -> list[XRef] | None:
         if self.x is not _Plug:
-            return self.x
+            return cast(list[XRef] | None, self.x)
         self.x = self.xrefs()  # pylint: disable=assignment-from-none
         return self.x
 
@@ -256,7 +287,7 @@ class Clean:
         return self._newfig(tag, self.TABLE, caption=caption, node=node)
 
 
-def make_jinja_env():
+def make_jinja_env() -> Environment:
     # pylint: disable=import-outside-toplevel
     from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -275,7 +306,9 @@ class Generate:
         self,
         issn,
         onlynewer=False,
-        pmid2doi=None,  # pylint: disable=redefined-outer-name
+        pmid2doi: (
+            dict[str, Paper] | None
+        ) = None,  # pylint: disable=redefined-outer-name
         journal=None,
         partial=False,
         **kwargs,
@@ -287,7 +320,7 @@ class Generate:
         self.partial = partial
 
     @property
-    def pmid2doi(self):
+    def pmid2doi(self) -> dict[str, Paper]:
         if self._pmid2doi:
             return self._pmid2doi
 
@@ -300,7 +333,7 @@ class Generate:
         return self._pmid2doi
 
     @property
-    def journal(self):
+    def journal(self) -> str:
         if self._journal:
             return self._journal
         if self.issn in {"epmc", "elsevier"}:
@@ -315,10 +348,10 @@ class Generate:
                 self._journal = self.issn
         return self._journal
 
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         raise NotImplementedError()
 
-    def ensure_dir(self):
+    def ensure_dir(self) -> str:
         dname = join(Config.DATADIR, "cleaned")
         if not os.path.isdir(dname):
             os.mkdir(dname)
@@ -329,20 +362,22 @@ class Generate:
             os.mkdir(dname)
         return dname
 
-    def get_xml_name(self, gdir, pmid):
+    def get_xml_name(self, gdir: str, pmid: str) -> str:
         # pylint: disable=no-self-use
         fname = join(Config.DATADIR, gdir, f"{pmid}.html")
         if not os.path.isfile(fname):
             fname = join(Config.DATADIR, gdir, f"{pmid}.xml")
         return fname
 
-    def get_soup(self, gdir, pmid):
+    def get_soup(self, gdir: str, pmid: str) -> BeautifulSoup:
         fname = self.get_xml_name(gdir, pmid)
         with open(fname, "rb") as fp:
             soup = BeautifulSoup(fp, self.parser)
         return soup
 
-    def run(self, overwrite=True, prefix=None, num=False):
+    def run(
+        self, overwrite: bool = True, prefix: str | None = None, num: bool = False
+    ) -> None:
         gdir = "xml_%s" % self.issn
         papers = readxml(gdir)
         if not papers:
@@ -365,7 +400,7 @@ class Generate:
             except OSError:
                 pass
 
-    def tokenize(self):
+    def tokenize(self) -> Iterator[tuple[Literal["m", "a", "r"], str]]:
         gdir = "xml_%s" % self.issn
         for pmid in readxml(gdir):
             soup = self.get_soup(gdir, pmid)
@@ -383,12 +418,19 @@ class Generate:
                 for p in e.tostr(r):
                     yield "r", reduce_nums(p)
 
-    def clean_name(self, pmid):
+    def clean_name(self, pmid: str) -> str:
         dname = self.ensure_dir()
         fname = join(f"{dname},{pmid}_cleaned.txt")
         return fname
 
-    def generate_pmid(self, gdir, pmid, overwrite=True, prefix=None, num=False):
+    def generate_pmid(
+        self,
+        gdir: str,
+        pmid: str,
+        overwrite: bool = True,
+        prefix: str | None = None,
+        num: bool = False,
+    ) -> bool:
         fname = self.clean_name(pmid)
         exists = os.path.exists(fname)
         if exists and not overwrite:
@@ -446,17 +488,17 @@ class Generate:
 
     def tohtml(
         self,
-        template="template.html",
-        save=False,
-        prefix="",
-        env=None,
-        verbose=True,
-        num=False,
-    ):
+        template: str = "template.html",
+        save: bool = False,
+        prefix: str = "",
+        env: Environment | None = None,
+        verbose: bool = True,
+        num: bool = False,
+    ) -> str | tuple[str, list[tuple[Paper, Clean]], list[Paper]]:
         if env is None:
             env = make_jinja_env()
 
-        def getfname():
+        def getfname() -> str:
             if self.issn not in {"epmc", "elsevier"}:
                 name = self.journal
             else:
@@ -466,7 +508,7 @@ class Generate:
             fname = prefix + f"{self.issn}-{name}.html"
             return fname
 
-        template = env.get_template(template)
+        templatet = env.get_template(template)
         gdir = "xml_%s" % self.issn
         fdir = "failed_%s" % self.issn
         papers = []
@@ -505,7 +547,7 @@ class Generate:
                 raise err
                 # papers.append((paper, Clean(soup)))
         # pylint: disable=no-member
-        t = template.render(
+        t: str = templatet.render(
             papers=papers,
             issn=self.issn,
             failed=failed,
@@ -525,12 +567,12 @@ class Download:
     parser = "lxml"
     Referer = "http://google.com"
 
-    def __init__(self, issn, mx=0, sleep=10.0, **kwargs):
+    def __init__(self, issn: str, mx: int = 0, sleep: float = 10.0, **kwargs) -> None:
         self.issn = issn
         self.sleep = sleep
         self.mx = mx
 
-    def ensure_dirs(self):
+    def ensure_dirs(self) -> None:
         # pylint: disable=no-self-use
         fdir = f"failed_{self.issn}"
         gdir = f"xml_{self.issn}"
@@ -539,12 +581,12 @@ class Download:
             if not os.path.isdir(target):
                 os.makedirs(target, exist_ok=True)
 
-    def get_response(self, paper, header):
+    def get_response(self, paper: Paper, header: dict[str, str]) -> Response:
         # pylint: disable=no-self-use
         resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
         return resp
 
-    def check_soup(self, paper, soup, resp):
+    def check_soup(self, paper: Paper, soup: BeautifulSoup, resp: Response):
         raise NotImplementedError()
 
     def start(self):
@@ -553,12 +595,12 @@ class Download:
     def end(self):
         pass
 
-    def create_soup(self, paper, resp):
+    def create_soup(self, paper: Paper, resp: Response) -> BeautifulSoup:
         xml = resp.content
         soup = BeautifulSoup(BytesIO(xml), self.parser)
         return soup
 
-    def run(self):
+    def run(self) -> None:
         header = {"User-Agent": USER_AGENT, "Referer": self.Referer}
         # self.ensure_dirs()
         fdir = "failed_%s" % self.issn

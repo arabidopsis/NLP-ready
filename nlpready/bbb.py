@@ -1,7 +1,11 @@
 import click
 import requests
+from typing import TYPE_CHECKING
 
 from .mlabc import Clean, Download, Generate
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
 
 ISSN = {
     "0916-8451": "Biosci. Biotechnol. Biochem.",
@@ -13,13 +17,13 @@ ISSN = {
 
 
 class BBB(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("article.article")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> Tag | None:
         secs = self.article.select(
             ".hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1"
         )
@@ -35,7 +39,7 @@ class BBB(Clean):
 
         return None
 
-    def methods(self):
+    def methods(self) -> Tag | None:
         secs = self.article.select(
             ".hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1"
         )
@@ -62,13 +66,13 @@ class BBB(Clean):
 
         return None
 
-    def abstract(self):
+    def abstract(self) -> Tag | None:
         secs = self.article.select(".hlFld-Abstract .abstractInFull")
         if not secs:
             secs = self.article.select(".hlFld-Abstract #abstractBox")
         return secs[0] if secs else None
 
-    def title(self):
+    def title(self) -> str | None:
         t = self.root.select(".NLM_article-title.hlFld-title")
         if not t:
             t = self.article.select(".hlFld-title")
@@ -77,7 +81,7 @@ class BBB(Clean):
         print("no title")
         return super().title()
 
-    def tostr(self, sec):
+    def tostr(self, sec: Tag) -> list[str]:
 
         for a in sec.select("p span.ref-lnk"):
             a.replace_with(" (CITATION)")
@@ -95,7 +99,7 @@ class BBB(Clean):
 
 
 class GenerateBBB(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup, pmid: str) -> Clean:
         return BBB(soup)
 
 

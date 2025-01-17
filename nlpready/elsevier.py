@@ -2,6 +2,7 @@ import os
 import time
 from io import BytesIO
 from os.path import join
+from typing import TYPE_CHECKING
 
 import click
 import requests
@@ -9,6 +10,10 @@ from bs4 import BeautifulSoup
 from lxml import etree
 
 from .mlabc import Clean, Config, Generate, read_suba_papers_csv, readxml
+
+
+if TYPE_CHECKING:
+    from bs4 import BeautifulSoup
 
 ISSN = {"elsevier": "elsevier"}
 
@@ -248,11 +253,11 @@ class GenerateElsevier(Generate):
         assert ret.pubmed == pmid, (ret.pubmed, pmid)
         return ret
 
-    def get_soup(self, gdir, pmid):
+    def get_soup(self, gdir: str, pmid: str) -> BeautifulSoup:
         return getxmlelsevier(pmid)
 
 
-def gen_elsevier(issn="elsevier"):
+def gen_elsevier(issn: str = "elsevier") -> None:
     o = GenerateElsevier(issn)
     o.run()
 

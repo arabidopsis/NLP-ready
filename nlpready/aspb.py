@@ -116,7 +116,7 @@ class ASPB(Clean):
 
 
 class GenerateASPB(Generate):
-    cc = set()
+    cc: set[str] = set()
 
     def create_clean(self, soup, pmid):
         aspb = ASPB(soup)

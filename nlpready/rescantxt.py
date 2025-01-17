@@ -30,7 +30,7 @@ EXP = re.compile(r"\b[0-9]+(?:\.[0-9]*)?\s*×\s*(e|E|10)[+−-]?[0-9]+\b")
 EXP2 = re.compile(r"\b[0-9]+\.[0-9]*(?:e|E|10)[+−-]?[0-9]+\b")
 
 
-def reduce_nums(txt):
+def reduce_nums(txt: str) -> str:
     txt = N.sub(r"NUMBER_\1", txt)
     txt = PH.sub(r"NUMBER_pH", txt)
     txt = FPCT.sub(r"NUMBER_%", txt)
