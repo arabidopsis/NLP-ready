@@ -1,8 +1,18 @@
+from __future__ import annotations
+
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import requests
 
-from .mlabc import Clean, Download, Generate
+from .mlabc import Clean
+from .mlabc import Download
+from .mlabc import Generate
+
+if TYPE_CHECKING:
+    from bs4 import BeautifulSoup, Tag
+    from .mlabc import Paper
+    from requests import Response
 
 ISSN = {
     "1059-1524": "Mol. Biol. Cell",
@@ -12,7 +22,7 @@ ISSN = {
 
 
 class ASCB(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.article__body")[0]
         assert a
@@ -24,7 +34,7 @@ class ASCB(Clean):
         assert set(res) & sections
         self.resultsd = res
 
-    def _full_text(self):
+    def _full_text(self) -> list[tuple[str, list[Tag]]]:
         target = None
         targets = []
         objs = defaultdict(list)
@@ -34,6 +44,8 @@ class ASCB(Clean):
             return d.has_attr("class") and cls in d["class"]
 
         for d in a.contents:
+            if not isinstance(d, Tag):
+                continue
             if d.name == "h2":
                 target = d.text.strip()
                 targets.append(target)
@@ -46,54 +58,58 @@ class ASCB(Clean):
                     objs[target].append(d)
         return [(t, objs[t]) for t in targets]
 
-    def results(self):
-        return self.resultsd.get("results")
+    def results(self) -> list[Tag]:
+        return self.resultsd.get("results") or []
 
-    def methods(self):
-        return self.resultsd.get("materials and methods")
+    def methods(self) -> list[Tag]:
+        return self.resultsd.get("materials and methods") or []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         s = self.article.select("div.abstractSection.abstractInFull")
         if s:
-            return s[0].select("p") or s
-        return None
+            v = s[0]
+            return v.select("p") or [v]
+        return []
 
-    def full_text(self):
-        return self._full_text()
+    def full_text(self) -> list[Tag]:
+        return [tag for _, lt in self._full_text() for tag in lt]
 
-    def title(self):
+    def title(self) -> str | None:
         s = self.root.select("h1.citation__title")
         if s:
             return s[0].text.strip()
         return super().title()
 
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
         def has_class(d, cls):
             return d.has_attr("class") and cls in d["class"]
 
         ss = []
-        for section in sec:
-            for a in section.select("a.tab-link"):
-                a.replace_with("CITATION")
+        for sec in seclist:
+            for section in sec:
+                if not isinstance(section, Tag):
+                    continue
+                for a in section.select("a.tab-link"):
+                    a.replace_with("CITATION")
 
-            if section.name == "figure":
-                ss.append(self.newfig(section))
-            elif has_class(section, "article-table-content"):
-                ss.append(self.newtable(section, caption="caption"))
-            else:
-                for s in section.select("figure"):
-                    s.replace_with(self.newfig(s))
-                ss.append(section)
+                if section.name == "figure":
+                    ss.append(self.newfig(section))
+                elif has_class(section, "article-table-content"):
+                    ss.append(self.newtable(section, caption="caption"))
+                else:
+                    for s in section.select("figure"):
+                        s.replace_with(self.newfig(s))
+                    ss.append(section)
 
         txt = [self.SPACE.sub(" ", p.text) for p in ss]
         return txt
 
 
-def download_ascb(issn, sleep=5.0, mx=0):
+def download_ascb(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://www.molbiolcell.org"
 
-        def get_response(self, paper, header):
+        def get_response(self, paper: Paper, header: dict[str, str]) -> Response:
             if paper.issn == "1557-7430":
                 return requests.get(
                     f"https://www.liebertpub.com/doi/full/{paper.doi}",
@@ -101,7 +117,7 @@ def download_ascb(issn, sleep=5.0, mx=0):
                 )
             return super().get_response(paper, header)
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(self, paper: Paper, soup: BeautifulSoup, resp: Response) -> None:
             a = soup.select("div.article__body div.abstractSection.abstractInFull")
             assert a, (paper.pmid, resp.url)
 
@@ -110,17 +126,17 @@ def download_ascb(issn, sleep=5.0, mx=0):
 
 
 class GenerateASCB(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return ASCB(soup)
 
 
-def gen_ascb(issn):
+def gen_ascb(issn: str) -> None:
 
     e = GenerateASCB(issn)
     e.run()
 
 
-def html_ascb(issn):
+def html_ascb(issn: str) -> None:
 
     e = GenerateASCB(issn)
     print(e.tohtml())

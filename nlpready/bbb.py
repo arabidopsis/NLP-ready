@@ -1,11 +1,18 @@
-import click
-import requests
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from .mlabc import Clean, Download, Generate
+import click
+import requests
+
+from .mlabc import Clean
+from .mlabc import Download
+from .mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
+    from requests import Response
+    from .mlabc import Paper
 
 ISSN = {
     "0916-8451": "Biosci. Biotechnol. Biochem.",
@@ -23,33 +30,33 @@ class BBB(Clean):
         assert a, a
         self.article = a[0]
 
-    def results(self) -> Tag | None:
+    def results(self) -> list[Tag]:
         secs = self.article.select(
-            ".hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1"
+            ".hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1",
         )
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select(".hlFld-Fulltext .NLM_sec_level_1")
         for sec in secs:
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def methods(self) -> Tag | None:
+    def methods(self) -> list[Tag]:
         secs = self.article.select(
-            ".hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1"
+            ".hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1",
         )
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select(
-            ".hlFld-Fulltext .MaterialsAndMethods.NLM_sec_level_1"
+            ".hlFld-Fulltext .MaterialsAndMethods.NLM_sec_level_1",
         )
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select(".hlFld-Fulltext .NLM_sec_level_1")
         for sec in secs:
             h2 = sec.find("h2")
@@ -62,15 +69,15 @@ class BBB(Clean):
                     "materials and methods",
                     "material and methods",
                 }:  # spelling!
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def abstract(self) -> Tag | None:
+    def abstract(self) -> list[Tag]:
         secs = self.article.select(".hlFld-Abstract .abstractInFull")
         if not secs:
             secs = self.article.select(".hlFld-Abstract #abstractBox")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
     def title(self) -> str | None:
         t = self.root.select(".NLM_article-title.hlFld-title")
@@ -81,21 +88,21 @@ class BBB(Clean):
         print("no title")
         return super().title()
 
-    def tostr(self, sec: Tag) -> list[str]:
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("p span.ref-lnk"):
+                a.replace_with(" (CITATION)")
 
-        for a in sec.select("p span.ref-lnk"):
-            a.replace_with(" (CITATION)")
+            for a in sec.select("div.figure"):
+                a.replace_with(self.newfig(a, caption=".figureInfo p"))
 
-        for a in sec.select("div.figure"):
-            a.replace_with(self.newfig(a, caption=".figureInfo p"))
+            for a in sec.select("div.tableView"):
+                a.replace_with(self.newtable(a, caption=".tableCaption p"))
 
-        for a in sec.select("div.tableView"):
-            a.replace_with(self.newtable(a, caption=".tableCaption p"))
+            for a in sec.select("div.hidden"):
+                a.decompose()
 
-        for a in sec.select("div.hidden"):
-            a.decompose()
-
-        return super().tostr(sec)
+        return super().tostr(seclist)
 
 
 class GenerateBBB(Generate):
@@ -109,7 +116,7 @@ def gen_bbb(issn):
     g.run()
 
 
-def download_bbb(issn, sleep=5.0, mx=0):
+def download_bbb(issn: str, sleep: float = 5.0, mx: int = 0):
     class D(Download):
         Referer = "https://www.tandfonline.com"
 
@@ -122,7 +129,12 @@ def download_bbb(issn, sleep=5.0, mx=0):
                 resp = requests.get(url, headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> None | bytes:
             a = soup.select("article.article div.hlFld-Fulltext")
             if resp.url.find("/doi/full/") < 0:
                 click.secho(f"no full text {paper.pmid} {resp.url}", fg="red")

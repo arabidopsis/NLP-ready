@@ -1,23 +1,31 @@
+from __future__ import annotations
+
 import csv
 import os
+import re
 import sys
 import time
 from collections import defaultdict
 from io import BytesIO
 from os.path import join
+from typing import cast
+from typing import Iterator
+from typing import Literal
+from typing import NamedTuple
+from typing import TYPE_CHECKING
+from typing import TypedDict
 
 import click
-import re
 import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError
-from typing import NamedTuple, Iterator, TYPE_CHECKING, Literal, TypedDict, cast
 
 from . import config as Config
-from .rescantxt import find_primers, reduce_nums
+from .rescantxt import find_primers
+from .rescantxt import reduce_nums
 
 if TYPE_CHECKING:
-    from jinja2 import Environment, Template
+    from jinja2 import Environment
     from requests import Response
     from bs4 import Tag
 
@@ -139,11 +147,11 @@ class Clean:
     SPACE: re.Pattern = re.compile(r"\s+", re.I)
     FIGURE: str = "[[FIGURE: %s]]"
     TABLE: str = "[[TABLE: %s]]"
-    a = _Plug
-    m = _Plug
-    r: object | Tag | None = _Plug
+    a: object | list[Tag] = _Plug
+    m: object | list[Tag] = _Plug
+    r: object | list[Tag] = _Plug
     t: object | str | None = _Plug
-    f = _Plug
+    f: object | list[Tag] = _Plug
     x = _Plug
 
     def __init__(self, root: BeautifulSoup) -> None:
@@ -175,65 +183,61 @@ class Clean:
             return t.text.strip()
         return None
 
-    def abstract(self) -> Tag | None:
+    def abstract(self) -> list[Tag]:
         raise NotImplementedError()
 
-    def results(self) -> Tag | None:
+    def results(self) -> list[Tag]:
         raise NotImplementedError()
 
-    def methods(self) -> Tag | None:
+    def methods(self) -> list[Tag]:
         raise NotImplementedError()
 
-    def xrefs(self) -> list[XRef] | None:
+    def xrefs(self) -> list[XRef]:
         # pylint: disable=no-self-use
-        return None
+        return []
 
-    def full_text(self):
+    def full_text(self) -> list[Tag]:
         # pylint: disable=no-self-use
-        return None
+        return []
 
-    def tostr(self, sec: Tag) -> list[str]:
+    def tostr(self, sec: list[Tag]) -> list[str]:
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+        txt = [self.SPACE.sub(" ", p.text) for s in sec for p in s.select("p")]
         return txt
 
-    def tostr2(self, sec: Tag) -> list[str]:
-        def to_p(s):
+    def tostr2(self, sec: list[Tag]) -> list[str]:
+        def to_p(s: Tag) -> None:
             a = self.root.new_tag("p")
             a.string = s.text
             s.replace_with(a)
 
-        if isinstance(sec, list):
-            for s in sec:
-                for p in s.select("h2,h3,h4"):
-                    to_p(p)
-
-        else:
-            for p in sec.select("h2,h3,h4"):
+        for s in sec:
+            for p in s.select("h2,h3,h4"):
                 to_p(p)
+
         return self.tostr(sec)
 
-    def s_abstract(self):
+    def s_abstract(self) -> list[Tag]:
         if self.a is not _Plug:
-            return self.a
+            return cast(list[Tag], self.a)
         self.a = self.abstract()
         return self.a
 
-    def s_methods(self):
+    def s_methods(self) -> list[Tag]:
         if self.m is not _Plug:
-            return self.m
+            return cast(list[Tag], self.m)
         self.m = self.methods()
         return self.m
 
-    def s_results(self):
+    def s_results(self) -> list[Tag]:
         if self.r is not _Plug:
-            return self.r
+            return cast(list[Tag], self.r)
         self.r = self.results()
         return self.r
 
-    def s_full_text(self):
+    def s_full_text(self) -> list[Tag]:
         if self.f is not _Plug:
-            return self.f
+            return cast(list[Tag], self.f)
         self.f = self.full_text()  # pylint: disable=assignment-from-none
         return self.f
 
@@ -243,9 +247,9 @@ class Clean:
         self.t = self.title()
         return self.t
 
-    def s_xrefs(self) -> list[XRef] | None:
+    def s_xrefs(self) -> list[XRef]:
         if self.x is not _Plug:
-            return cast(list[XRef] | None, self.x)
+            return cast(list[XRef], self.x)
         self.x = self.xrefs()  # pylint: disable=assignment-from-none
         return self.x
 
@@ -376,7 +380,10 @@ class Generate:
         return soup
 
     def run(
-        self, overwrite: bool = True, prefix: str | None = None, num: bool = False
+        self,
+        overwrite: bool = True,
+        prefix: str | None = None,
+        num: bool = False,
     ) -> None:
         gdir = "xml_%s" % self.issn
         papers = readxml(gdir)
@@ -389,7 +396,11 @@ class Generate:
 
         for pmid in papers:
             ok = self.generate_pmid(
-                gdir, pmid, overwrite=overwrite, prefix=prefix, num=num
+                gdir,
+                pmid,
+                overwrite=overwrite,
+                prefix=prefix,
+                num=num,
             )
             written = written or ok
 
@@ -454,7 +465,11 @@ class Generate:
         if a is None or m is None or r is None:
             click.secho(
                 "{}: missing: abs {}, methods {}, results {} doi={}".format(
-                    pmid, a is None, m is None, r is None, self.pmid2doi[pmid].doi
+                    pmid,
+                    a is None,
+                    m is None,
+                    r is None,
+                    self.pmid2doi[pmid].doi,
                 ),
                 fg="red",
             )
@@ -465,7 +480,7 @@ class Generate:
         else:
             click.secho("generating %s" % fname, fg="magenta")
 
-        def con(sec):
+        def con(sec: list[Tag]) -> str:
             if num:
                 return " ".join(reduce_nums(a) for a in e.tostr(sec))
             return " ".join(e.tostr(sec))
@@ -586,7 +601,12 @@ class Download:
         resp = requests.get(f"http://doi.org/{paper.doi}", headers=header)
         return resp
 
-    def check_soup(self, paper: Paper, soup: BeautifulSoup, resp: Response):
+    def check_soup(
+        self,
+        paper: Paper,
+        soup: BeautifulSoup,
+        resp: Response,
+    ) -> bytes | None:
         raise NotImplementedError()
 
     def start(self):
@@ -649,7 +669,8 @@ class Download:
                 targetd = fdir
                 xml = str(e).encode("utf-8")
                 click.secho(
-                    "failed {} {} {}".format(paper.pmid, paper.doi, str(e)), fg="red"
+                    f"failed {paper.pmid} {paper.doi} {str(e)}",
+                    fg="red",
                 )
                 failed.add(paper.pmid)
 
@@ -658,7 +679,7 @@ class Download:
 
             del todo[paper.pmid]
             print(
-                f"{len(failed)} failed, {len(done)} done, {len(todo)} todo: {paper.pmid}"
+                f"{len(failed)} failed, {len(done)} done, {len(todo)} todo: {paper.pmid}",
             )
             if self.sleep > 0 and idx < len(lst) - 1:
                 time.sleep(self.sleep)
@@ -682,7 +703,14 @@ class DownloadSelenium(Download):
     WAIT = 10
 
     def __init__(
-        self, issn, mx=0, sleep=10.0, headless=True, close=True, driver=None, **kwargs
+        self,
+        issn,
+        mx=0,
+        sleep=10.0,
+        headless=True,
+        close=True,
+        driver=None,
+        **kwargs,
     ):
         super().__init__(issn, mx=mx, sleep=sleep, **kwargs)
         self.headless = headless

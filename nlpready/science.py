@@ -1,7 +1,14 @@
-import requests
-from typing import TYPE_CHECKING, cast
+from __future__ import annotations
 
-from .mlabc import Clean, Download, Generate, Paper, XRef
+from typing import TYPE_CHECKING
+
+import requests
+
+from .mlabc import Clean
+from .mlabc import Download
+from .mlabc import Generate
+from .mlabc import Paper
+from .mlabc import XRef
 
 if TYPE_CHECKING:
     from typing import Iterator
@@ -19,33 +26,33 @@ class Science(Clean):
         assert a, a
         self.article = a[0]
 
-    def results(self) -> Tag | None:
+    def results(self) -> list[Tag]:
         secs = self.article.select("div.section.results")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2 and h2.text and h2.text.lower() == "results":
-                return sec
+                return [sec]
 
-        return None
+        return []
 
-    def methods(self) -> Tag | None:
+    def methods(self) -> list[Tag]:
         secs = self.article.select("div.section.methods")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2 and h2.text and h2.text.lower() == "methods":
-                return sec
+                return [sec]
 
-        return None
+        return []
 
-    def abstract(self) -> Tag | None:
+    def abstract(self) -> list[Tag]:
         secs = self.article.select("div.section.abstract")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def full_text(self) -> Tag | None:
+    def full_text(self) -> list[Tag]:
 
         paper = [
             t
@@ -55,11 +62,11 @@ class Science(Clean):
         if not paper:
             for sec in self.article.select(".section"):
                 if "abstract" not in sec["class"]:
-                    return sec
+                    return [sec]
         node = self.root.new_tag("div")
         for n in paper:
             node.append(n)
-        return node
+        return [node]
 
     def title(self) -> str | None:
         s = self.root.select("h1.article__headline")
@@ -67,7 +74,7 @@ class Science(Clean):
             return s[0].text.strip()
         return super().title()
 
-    def xrefs(self) -> list[XRef] | None:
+    def xrefs(self) -> list[XRef]:
         def xref(s: Tag) -> Iterator[XRef]:
             for c in s.select("li div[data-doi]"):
                 cite = c.find("cite")
@@ -90,34 +97,34 @@ class Science(Clean):
             txt = str(ss.string.lower())
             if txt.find("references") >= 0:
                 return list(xref(s))
-        return None
+        return []
 
-    def old_tostr(self, sec: Tag) -> list[str]:
+    def old_tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("div.fig.pos-float"):
+                a.replace_with(self.newfig(a, caption=".fig-caption p"))
 
-        for a in sec.select("div.fig.pos-float"):
-            a.replace_with(self.newfig(a, caption=".fig-caption p"))
-
-        for a in sec.select("div.table.pos-float"):
-            a.replace_with(
-                self.newtable(a, caption=".table-caption p")
-            )  # XXXX check me!!!!
-        for a in sec.select("p a.xref-bibr"):
-            a.replace_with(" CITATION ")
-        for a in sec.select("p a.xref-fig"):
-            a.replace_with(" FIG-REF ")
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+            for a in sec.select("div.table.pos-float"):
+                a.replace_with(
+                    self.newtable(a, caption=".table-caption p"),
+                )  # XXXX check me!!!!
+            for a in sec.select("p a.xref-bibr"):
+                a.replace_with(" CITATION ")
+            for a in sec.select("p a.xref-fig"):
+                a.replace_with(" FIG-REF ")
+        txt = [self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")]
         return txt
 
-    def tostr(self, sec: Tag) -> list[str]:
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("figure"):
+                a.replace_with(self.newfig(a))
 
-        for a in sec.select("figure"):
-            a.replace_with(self.newfig(a))
-
-        for a in sec.select("p a.xref-bibr"):
-            a.replace_with(" CITATION ")
-        for a in sec.select("p a.xref-fig"):
-            a.replace_with(" FIG-REF ")
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+            for a in sec.select("p a.xref-bibr"):
+                a.replace_with(" CITATION ")
+            for a in sec.select("p a.xref-fig"):
+                a.replace_with(" FIG-REF ")
+        txt = [self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")]
         return txt
 
 
@@ -131,9 +138,15 @@ def download_science(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
                 resp = requests.get(resp.url + ".full", headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article.fulltext-view")
             assert a, (a, resp.url, paper.doi)
+            return None
 
     download = D(issn, sleep=sleep, mx=mx)
     download.run()

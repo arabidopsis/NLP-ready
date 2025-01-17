@@ -1,9 +1,20 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import requests
 
-from .mlabc import Clean, Download, Generate
+from .mlabc import Clean
+from .mlabc import Download
+from .mlabc import Generate
 
 # http://genesdev.cshlp.org
 
+if TYPE_CHECKING:
+
+    from requests import Response
+    from bs4 import BeautifulSoup
+    from .mlabc import Paper
 
 ISSN = {
     "1422-0067": "Int J Mol Sci",
@@ -111,14 +122,20 @@ def download_mdpi(issn, sleep=5.0, mx=0):
                 resp = requests.get(resp.url + "/htm", headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
-            a = soup.select("article div.html-body")
-            # if not a and year <= 2001:  # probably only a (scanned?) PDF version
-            #    xml = b'failed-only-pdf'
-            #     d = fdir
-            #    failed.add(pmid)
-            # else:
-            assert a and len(a) == 1, (paper.pmid, resp.url)
+    def check_soup(
+        self,
+        paper: Paper,
+        soup: BeautifulSoup,
+        resp: Response,
+    ) -> bytes | None:
+        a = soup.select("article div.html-body")
+        # if not a and year <= 2001:  # probably only a (scanned?) PDF version
+        #    xml = b'failed-only-pdf'
+        #     d = fdir
+        #    failed.add(pmid)
+        # else:
+        assert a and len(a) == 1, (paper.pmid, resp.url)
+        return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()
