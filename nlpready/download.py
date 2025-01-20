@@ -79,7 +79,7 @@ def parse_xml(xml: bytes) -> NCBIPaper | None:
     authors = article.findall("AuthorList/Author")
     pages = article.findtext("Pagination/MedlinePgn")
     journal = article.find("Journal")
-    if journal:
+    if journal is not None:
 
         name = journal.findtext("ISOAbbreviation", None) or journal.findtext(
             "Title",
@@ -101,7 +101,7 @@ def parse_xml(xml: bytes) -> NCBIPaper | None:
         year = -1
 
     data = tree.find("PubmedArticle/PubmedData")
-    if data:
+    if data is not None:
         ids = data.findall("ArticleIdList/ArticleId")
         if ids:
             doil = [i.text.strip() for i in ids if i.get("IdType") == "doi" and i.text]
@@ -164,7 +164,7 @@ def getmeta(
             return None
         return parse_xml(xml)
 
-    session = Session()
+    session = requests.Session()
     e = os.path.exists(pubmeds)
     if e:
         with open(pubmeds, encoding="utf8") as fp:

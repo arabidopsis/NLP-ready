@@ -699,7 +699,11 @@ class Download:
                         targetd = gdir
                         done.add(paper.pmid)
 
-            except (RequestConnectionError, AssertionError) as e:
+            except (
+                RequestConnectionError,
+                AssertionError,
+                requests.exceptions.HTTPError,
+            ) as e:
                 targetd = fdir
                 xml = str(e).encode("utf-8")
                 click.secho(

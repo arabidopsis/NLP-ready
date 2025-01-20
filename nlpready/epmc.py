@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import csv
 import gzip
 import os
@@ -8,7 +10,11 @@ import click
 import requests
 from lxml import etree
 
-from .mlabc import Clean, Config, Generate, read_suba_papers_csv, readxml
+from .mlabc import Clean
+from .mlabc import Config
+from .mlabc import Generate
+from .mlabc import read_suba_papers_csv
+from .mlabc import readxml
 
 ISSN = {"epmc": "epmc"}
 
@@ -88,7 +94,7 @@ def download_epmc(issn="epmc", sleep=0.5, mx=0):
             done.add(pmid)
 
         ensure_dir(d)
-        with open(join(Config.DATADIR, d, "{pmid}.xml"), "w") as fp:
+        with open(join(Config.DATADIR, d, f"{pmid}.xml"), "w") as fp:
             fp.write(xml)
 
         print("%d failed (%s %s), %d done" % (len(failed), txt, pmcid, len(done)))
@@ -149,11 +155,11 @@ class EPMC(Clean):
         mm = self.root.xpath('/article/body/sec[@sec-type="methods"]')
         if not mm:
             mm = self.root.xpath(
-                "/article/body/sec/title[contains(" + TRANS + ',"methods")]/..'
+                "/article/body/sec/title[contains(" + TRANS + ',"methods")]/..',
             )
         if not mm:
             mm = self.root.xpath(
-                "/article/body/sec/title[contains(" + TRANS + ',"experimental")]/..'
+                "/article/body/sec/title[contains(" + TRANS + ',"experimental")]/..',
             )
         if not mm:
             return None
@@ -161,12 +167,12 @@ class EPMC(Clean):
 
     def results(self):
         res = self.root.xpath(
-            "/article/body/sec/title[contains(" + TRANS + ',"results")]/..'
+            "/article/body/sec/title[contains(" + TRANS + ',"results")]/..',
         )
         if res:
             return res[0]
         res = self.root.xpath(
-            "/article/body/sec/title[contains(" + TRANS + ',"result")]/..'
+            "/article/body/sec/title[contains(" + TRANS + ',"result")]/..',
         )
         if res:
             return res[0]
@@ -234,7 +240,7 @@ def getpmcids(pmids, fname="PMC-ids-partial.csv"):
     if not os.path.exists("PMC-ids.csv.gz"):
         raise RuntimeError(
             "please download PMC-ids.csv.gz (~85MB) file with:"
-            ' "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"'
+            ' "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"',
         )
     with gzip.open("PMC-ids.csv.gz", "rt") as fp:
         R = csv.reader(fp)
@@ -279,7 +285,7 @@ def subset(fname):
     if not os.path.exists("PMC-ids.csv.gz"):
         raise RuntimeError(
             "please download PMC-ids.csv.gz (~85MB) file with:"
-            ' "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"'
+            ' "wget ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/PMC-ids.csv.gz"',
         )
     pmc_subset(fname)
 
