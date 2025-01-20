@@ -6,6 +6,8 @@ import os
 from collections import Counter
 from collections import defaultdict
 from os.path import join
+from typing import Iterator
+from typing import TYPE_CHECKING
 
 import click
 import requests
@@ -16,12 +18,15 @@ from .mlabc import read_issn
 from .mlabc import read_suba_papers_csv
 from .mlabc import USER_AGENT
 
+if TYPE_CHECKING:
+    from .mlabc import Paper
+
 
 def _glob(d, g):
     return join(Config.DATADIR, d, g)
 
 
-def get_dir(xmld, ext=".xml"):
+def get_dir(xmld: str, ext: str = ".xml") -> list[str]:
     res = []
     for f in glob.glob(_glob(f"{xmld}", f"*{ext}")):
         _, fname = os.path.split(f)
@@ -30,13 +35,13 @@ def get_dir(xmld, ext=".xml"):
     return res
 
 
-def getext(xmld):
+def getext(xmld: str) -> str:
     if xmld.endswith(("epmc", "elsevier")):
         return ".xml"
     return ".html"
 
 
-def get_all_done():
+def get_all_done() -> Iterator[tuple[str, str]]:
     for xmld in glob.glob(join(Config.DATADIR, "xml_*")):
         _, issn = xmld.split("_")
         pmids = get_dir(xmld, ext=getext(xmld))
@@ -44,14 +49,14 @@ def get_all_done():
             yield issn, pmid
 
 
-def get_done():
+def get_done() -> dict[str, list[str]]:
     res = defaultdict(list)
     for issn, pmid in get_all_done():
         res[pmid].append(issn)
     return res
 
 
-def _summary(showall=True, exclude=None):
+def _summary(showall: bool = True, exclude: set[str] | None = None) -> None:
     issns = defaultdict(list)
     for p in read_suba_papers_csv():
         if p.doi:
@@ -96,11 +101,11 @@ def _summary(showall=True, exclude=None):
         tfailed += failed
         tcnt += cnt
     tbl = sorted(tbl, key=lambda t: -t[5])
-    tbl.append(["total", tcnt, tdone, tfailed, tdone + tfailed, "", ""])
+    tbl.append(("total", tcnt, tdone, tfailed, tdone + tfailed, "", ""))  # type: ignore
     print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
-def _counts():
+def _counts() -> None:
     ISSN = read_issn()
     papers = {p.pmid for p in read_suba_papers_csv() if p.doi}  # papers with doi
     res = get_done()
@@ -129,7 +134,10 @@ def _counts():
             print(pmid, ",".join(sorted([d(j) for j in issns])))
 
 
-def get_papers_todo(exclude=None, failed=False):
+def get_papers_todo(
+    exclude: set[str] | None = None,
+    failed: bool = False,
+) -> dict[str, Paper]:
     # issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
@@ -156,16 +164,21 @@ def get_papers_todo(exclude=None, failed=False):
     return papers
 
 
-def _todo(byname=False, exclude=None, failed=False):
+def _todo(
+    byname: bool = False,
+    exclude: set[str] | None = None,
+    failed: bool = False,
+) -> None:
     papers = get_papers_todo(exclude=exclude, failed=failed)
     issns = {p.issn: p.name for p in papers.values()}
 
-    ISSN = Counter()
+    ISSN = Counter[str]()
     for _, p in papers.items():
         ISSN[p.issn] += 1
 
+    tbl: list[tuple[str, str, int]]
     if byname:
-        d1 = Counter()
+        d1 = Counter[str]()
         d2 = defaultdict(list)
         header = ["Journal", "ISSNs", "ToDo"]
         for issn, cnt in ISSN.items():
@@ -187,13 +200,13 @@ def _todo(byname=False, exclude=None, failed=False):
         tbl = []
         total = 0
         for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
-            tbl.append([issn, issns[issn], cnt])
+            tbl.append((issn, issns[issn], cnt))
             total += cnt
         tbl.append(("total", "", total))
         print(tabulate(tbl, headers=header, tablefmt="rst"))
 
 
-def _urls(exclude=None, failed=False):
+def _urls(exclude: set[str] | None = None, failed: bool = False) -> None:
 
     papers = get_papers_todo(exclude=exclude, failed=failed)
     issns = {p.issn: p.name for p in papers.values()}
@@ -214,14 +227,14 @@ def _urls(exclude=None, failed=False):
                     del papers[pmid]
                     redo.append(row)
 
-    papers = sorted(papers.values(), key=lambda p: (p.name, p.issn, -p.year))
+    papersl = sorted(papers.values(), key=lambda p: (p.name, p.issn, -p.year))
     print("%d to scrape" % len(papers))
     with open(fname, "w", encoding="utf8") as fp:
         W = csv.writer(fp)
         W.writerow(["PubMed", "ISSN", "Journal", "url"])
         for row in redo:
             W.writerow(row)
-        for idx, p in enumerate(papers):
+        for idx, p in enumerate(papersl):
             try:
                 resp = requests.get(f"https://doi.org/{p.doi}", headers=header)
                 url = resp.url
@@ -233,8 +246,8 @@ def _urls(exclude=None, failed=False):
                 print("done ", idx + 1)
 
 
-def parsed():
-    ISSN = {}
+def parsed() -> None:
+    ISSN: dict[str, str] = {}
     res = defaultdict(list)
     for xmld in glob.glob(os.path.join(Config.DATADIR, "cleaned_*")):
         _, issn = xmld.split("_")
@@ -261,11 +274,9 @@ def cli():
 @cli.command()
 @click.option("--showall", is_flag=True, help="also show journals not done yet")
 @click.option("--exclude", help="comma separated list of ISSN to exclude")
-def summary(showall, exclude=None):
+def summary(showall: bool, exclude: str | None = None):
     """Show a summary as a CSV."""
-    if exclude:
-        exclude = set(exclude.split(","))
-    _summary(showall, exclude=exclude)
+    _summary(showall, exclude=set(exclude.split(",")) if exclude else None)
 
 
 @cli.command()
@@ -283,22 +294,19 @@ def cleaned():
 @cli.command()
 @click.option("--failed", is_flag=True, help="include failed documents")
 @click.option("--exclude", help="comma separated list of ISSN to exclude")
-def urls(exclude=None, failed=False):
+def urls(exclude: str | None = None, failed: bool = False):
     """Generate a CSV (to stdout) of URL of journals."""
-    if exclude:
-        exclude = set(exclude.split(","))
-    _urls(exclude=exclude, failed=failed)
+
+    _urls(exclude=set(exclude.split(",")) if exclude else None, failed=failed)
 
 
 @cli.command()
 @click.option("--byname", is_flag=True, help="group table by journal name")
 @click.option("--failed", is_flag=True, help="include failed documents")
 @click.option("--exclude", help="comma separated list of ISSN to exclude")
-def todo(byname, exclude=None, failed=False):
+def todo(byname: bool, exclude: str | None = None, failed: bool = False):
     """Generate a CSV (to stdout) of Papers remaining to be downloaded."""
-    if exclude:
-        exclude = set(exclude.split(","))
-    _todo(byname, exclude, failed=failed)
+    _todo(byname, set(exclude.split(",")) if exclude else None, failed=failed)
 
 
 if __name__ == "__main__":

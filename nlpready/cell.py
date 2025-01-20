@@ -5,12 +5,12 @@ import os
 import time
 from io import StringIO
 from os.path import join
-from typing import Any
 from typing import TYPE_CHECKING
 
 import click
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 
 from .mlabc import Clean
@@ -129,11 +129,11 @@ def download_cell(
     downloader.run()
 
 
-def getpage(doi: str, driver: Any) -> str:
+def getpage(doi: str, driver: WebDriver) -> str:
 
     driver.get(f"http://doi.org/{doi}")
 
-    h = driver.find_element_by_tag_name("html")
+    h = driver.find_element(by=By.TAG_NAME, value="html")
     txt = h.get_attribute("outerHTML")
     soup = BeautifulSoup(StringIO(txt), "lxml")
     secs = soup.select("article div.Body section")
@@ -141,7 +141,7 @@ def getpage(doi: str, driver: Any) -> str:
         secs = soup.select("div.fullText section")
     assert len(secs) > 3, (doi, secs)
 
-    return txt
+    return txt or ""
 
 
 def old_download_cell(
@@ -185,7 +185,7 @@ def old_download_cell(
     if headless:
         options.add_argument("headless")
     # https://blog.miguelgrinberg.com/post/using-headless-chrome-with-selenium
-    driver = webdriver.Chrome(chrome_options=options)
+    driver = webdriver.Chrome(options=options)
     for idx, (pmid, p) in enumerate(lst):
         print(pmid, p.doi)
         xml = getpage(p.doi, driver)
