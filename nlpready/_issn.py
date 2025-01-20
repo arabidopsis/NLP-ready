@@ -98,7 +98,7 @@ def issn2mod() -> dict[str, str]:
 
 def doubles() -> None:
     # pylint: disable=import-outside-toplevel
-    from .summary import get_done
+    from ._summary import get_done
     from ._mlabc import read_journals_csv
 
     pmid2doi = read_journals_csv()

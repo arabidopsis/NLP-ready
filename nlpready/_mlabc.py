@@ -25,8 +25,8 @@ from requests import Response as RequestResponse
 from selenium.webdriver.common.by import By
 
 from . import config as Config
-from .rescantxt import find_primers
-from .rescantxt import reduce_nums
+from ._rescantxt import find_primers
+from ._rescantxt import reduce_nums
 
 if TYPE_CHECKING:
     from jinja2 import Environment

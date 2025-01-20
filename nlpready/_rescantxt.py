@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 
 from markupsafe import Markup
@@ -16,7 +18,7 @@ MGL = re.compile(number + r"\s*mg/l")
 
 N = re.compile(
     number
-    + r"(?:\s|-)?(°C|μM|μl|mg/l|%|mM|nM|rpm|ml|NA|h|K|M|min|g/l|s|kb|μg/μl|μg|kV)\b"
+    + r"(?:\s|-)?(°C|μM|μl|mg/l|%|mM|nM|rpm|ml|NA|h|K|M|min|g/l|s|kb|μg/μl|μg|kV)\b",
 )
 FPCT = re.compile(r"[0-9]+\.[0-9]*%")
 PCT = re.compile(pm + "%")
