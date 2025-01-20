@@ -12,8 +12,7 @@ from .mlabc import XRef
 
 if TYPE_CHECKING:
     from bs4 import BeautifulSoup, Tag
-    from .mlabc import Paper
-    from requests import Response
+    from .mlabc import Paper, Response
 
 ISSN = {
     "1040-4651": "Plant Cell",

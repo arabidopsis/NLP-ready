@@ -13,7 +13,7 @@ from .mlabc import XRef
 if TYPE_CHECKING:
     from typing import Iterator
     from bs4 import BeautifulSoup, Tag
-    from requests import Response
+    from .mlabc import Response
 
 
 ISSN = {"1095-9203": "Science", "0036-8075": "Science"}

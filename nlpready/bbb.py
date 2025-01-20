@@ -11,7 +11,7 @@ from .mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
-    from requests import Response
+    from .mlabc import Response
     from .mlabc import Paper
 
 ISSN = {

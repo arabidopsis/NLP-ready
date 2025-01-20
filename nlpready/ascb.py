@@ -8,11 +8,11 @@ import requests
 from .mlabc import Clean
 from .mlabc import Download
 from .mlabc import Generate
+from .mlabc import Response
 
 if TYPE_CHECKING:
     from bs4 import BeautifulSoup, Tag
     from .mlabc import Paper
-    from requests import Response
 
 ISSN = {
     "1059-1524": "Mol. Biol. Cell",

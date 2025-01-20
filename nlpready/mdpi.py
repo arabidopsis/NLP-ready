@@ -12,7 +12,7 @@ from .mlabc import Generate
 
 if TYPE_CHECKING:
 
-    from requests import Response
+    from .mlabc import Response
     from bs4 import BeautifulSoup
     from .mlabc import Paper
 

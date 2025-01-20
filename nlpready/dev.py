@@ -9,7 +9,7 @@ from .mlabc import Generate
 if TYPE_CHECKING:
     from bs4 import BeautifulSoup, Tag
     from .mlabc import Paper
-    from requests import Response
+    from .mlabc import Response
 
 ISSN = {"0950-1991": "Development", "1477-9129": "Development"}
 

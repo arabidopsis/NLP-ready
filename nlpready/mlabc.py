@@ -6,8 +6,10 @@ import re
 import sys
 import time
 from collections import defaultdict
+from dataclasses import dataclass
 from io import BytesIO
 from os.path import join
+from typing import Any
 from typing import cast
 from typing import Iterator
 from typing import Literal
@@ -19,6 +21,8 @@ import click
 import requests
 from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError
+from requests import Response as RequestResponse
+from selenium.webdriver.common.by import By
 
 from . import config as Config
 from .rescantxt import find_primers
@@ -26,8 +30,22 @@ from .rescantxt import reduce_nums
 
 if TYPE_CHECKING:
     from jinja2 import Environment
-    from requests import Response
     from bs4 import Tag
+    from selenium.webdriver.remote.webdriver import WebDriver
+
+
+@dataclass
+class SeleniumResponse:
+    content: bytes
+    url: str
+    status_code: int = 200
+    encoding: str = "UTF-8"
+
+    def raise_for_status(self):
+        pass
+
+
+Response = RequestResponse | SeleniumResponse
 
 
 class XRef(TypedDict):
@@ -592,7 +610,13 @@ class Download:
     parser = "lxml"
     Referer = "http://google.com"
 
-    def __init__(self, issn: str, mx: int = 0, sleep: float = 10.0, **kwargs) -> None:
+    def __init__(
+        self,
+        issn: str,
+        mx: int = 0,
+        sleep: float = 10.0,
+        **kwargs: Any,
+    ) -> None:
         self.issn = issn
         self.sleep = sleep
         self.mx = mx
@@ -696,17 +720,6 @@ class Download:
         self.end()
 
 
-# pylint: disable=too-few-public-methods
-class FakeResponse:
-    content = None
-    status_code = 200
-    encoding = "UTF-8"
-    url = None
-
-    def raise_for_status(self):
-        pass
-
-
 # pylint: disable=abstract-method
 class DownloadSelenium(Download):
 
@@ -714,20 +727,20 @@ class DownloadSelenium(Download):
 
     def __init__(
         self,
-        issn,
-        mx=0,
-        sleep=10.0,
-        headless=True,
-        close=True,
-        driver=None,
-        **kwargs,
-    ):
+        issn: str,
+        mx: int = 0,
+        sleep: float = 10.0,
+        headless: bool = True,
+        close: bool = True,
+        driver: WebDriver | None = None,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(issn, mx=mx, sleep=sleep, **kwargs)
         self.headless = headless
         self.close = close
         self.driver = driver
 
-    def start(self):
+    def start(self) -> None:
         # pylint: disable=import-outside-toplevel
         if self.driver is not None:
             return
@@ -737,10 +750,10 @@ class DownloadSelenium(Download):
         if self.headless:
             options.add_argument("headless")
         print("starting Chrome")
-        self.driver = webdriver.Chrome(chrome_options=options)
+        self.driver = webdriver.Chrome(options=options)
         # self.driver.implicitly_wait(10)  # seconds
 
-    def end(self):
+    def end(self) -> None:
         if self.close and self.driver is not None:
             self.driver.close()
 
@@ -750,10 +763,11 @@ class DownloadSelenium(Download):
 
         return WebDriverWait(self.driver, self.WAIT)
 
-    def get_response(self, paper, header):
+    def get_response(self, paper: Paper, header: dict[str, str]) -> Response:
         # pylint: disable=import-outside-toplevel
         from selenium.common.exceptions import TimeoutException
 
+        assert self.driver is not None
         url = f"http://doi.org/{paper.doi}"
         self.driver.get(url)
         try:
@@ -761,9 +775,10 @@ class DownloadSelenium(Download):
         except TimeoutException:
             assert False, "selenium timeout"  # trigger failure with
 
-        h = self.driver.find_element_by_tag_name("html")
-        txt = h.get_attribute("outerHTML")
-        resp = FakeResponse()
-        resp.url = self.driver.current_url
-        resp.content = txt.encode("utf-8")
-        return resp
+        h = self.driver.find_element(by=By.TAG_NAME, value="html")
+        txt = h.get_attribute("outerHTML") or ""
+
+        return SeleniumResponse(
+            content=txt.encode("utf-8"),
+            url=self.driver.current_url,
+        )

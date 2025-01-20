@@ -24,7 +24,7 @@ from .mlabc import readxml
 if TYPE_CHECKING:
     from bs4 import Tag
     from .mlabc import Paper
-    from requests import Response
+    from .mlabc import Response
 
 ISSN = {
     "1097-4172": "Cell",

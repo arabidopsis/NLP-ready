@@ -12,7 +12,7 @@ from .mlabc import Generate
 
 if TYPE_CHECKING:
     from .mlabc import Paper
-    from requests import Response
+    from .mlabc import Response
 
 ISSN = {
     "1664-462X": "Front Plant Sci",
