@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import os
 import warnings
-from collections import Counter, namedtuple
+from collections import Counter
+from collections import namedtuple
 from importlib import import_module
-from pickle import dump, load
+from pickle import dump
+from pickle import load
+from typing import Any
 
 import click
 
-from .mlabc import Config, Generate
+from .mlabc import Config
+from .mlabc import Generate
 
 # add module name to this list...
 
@@ -53,14 +59,23 @@ KEYMAP = {
 
 
 Journal = namedtuple(
-    "Journal", ["url", "mod", "issn", "ndone", "journal", "not_ok", "nfailed"]
+    "Journal",
+    ["url", "mod", "issn", "ndone", "journal", "not_ok", "nfailed"],
 )
 
+from typing import TypedDict, Callable, cast
 
-def getmod(mod):
+
+class NLPMod(TypedDict):
+    issn: dict[str, str]
+    download: Callable[[str, float, int], None]
+    Generate: type[Generate]
+
+
+def getmod(mod: str) -> NLPMod:
     mod = "." + mod
     m = import_module(mod, "nlpready")
-    ret = dict(issn=m.ISSN)
+    ret: dict[str, Any] = dict(issn=m.ISSN)
     for name in dir(m):
         a = getattr(m, name)
         if name.startswith("download_"):
@@ -68,11 +83,11 @@ def getmod(mod):
         elif isinstance(a, type) and Generate in a.__bases__:
             a = getattr(m, name)
             ret["Generate"] = a
-    return ret
+    return cast(NLPMod, ret)
 
 
-def issn2mod():
-    is2mod = {}
+def issn2mod() -> dict[str, str]:
+    is2mod: dict[str, str] = {}
     for mod in MODS:
         m = getmod(mod)
         d = m["issn"]
@@ -81,7 +96,7 @@ def issn2mod():
     return is2mod
 
 
-def doubles():
+def doubles() -> None:
     # pylint: disable=import-outside-toplevel
     from .summary import get_done
     from .mlabc import read_journals_csv
@@ -93,8 +108,8 @@ def doubles():
         paper = pmid2doi[pmid]
         for iissn in res[pmid]:
             d = getmod(iissn)
-            g = d["Generate"](iissn)
-            soup = g.get_soup(paper, pmid)
+            g: Generate = d["Generate"](iissn)
+            soup = g.get_soup(paper.issn, pmid)
             e = g.create_clean(soup, pmid)
             papers.append((paper, e))
 
@@ -109,7 +124,8 @@ def mod_option(f):
 
 def issn_option(f):
     return click.option(
-        "--issn", help="comma separated list of journals (issn) to run [default: all]"
+        "--issn",
+        help="comma separated list of journals (issn) to run [default: all]",
     )(f)
 
 
@@ -125,9 +141,18 @@ def cli():
 @click.option("--sort", default="journal", help="sort on: " + ",".join(KEYMAP))
 @click.option("--num", is_flag=True, help="reduce numbers to NUMBER etc.")
 @click.option(
-    "--cache", default=Config.PKLFILE, help="cached pickle file", show_default=True
+    "--cache",
+    default=Config.PKLFILE,
+    help="cached pickle file",
+    show_default=True,
 )
-def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
+def tohtml(
+    cache: str,
+    issn: str | None = None,
+    mod: str = "",
+    num: bool = False,
+    sort: str = "journal",
+) -> None:
     """Generate HTML documents from downloads."""
     # pylint: disable=too-many-locals
     # pylint: disable=import-outside-toplevel
@@ -145,7 +170,9 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     else:
         mods = MODS
     if issn:
-        issn = {s.strip() for s in issn.split(",")}
+        issn_ = {s.strip() for s in issn.split(",")}
+    else:
+        issn_ = set()
     # journals = []
 
     total1 = set()
@@ -153,7 +180,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     total3 = set()
 
     p2i = pmid2doi()
-    issns = {p.issn: p.name for p in p2i.values() if not issn or p.issn in issn}
+    issns = {p.issn: p.name for p in p2i.values() if not issn_ or p.issn in issn_}
     issnmap = {}
 
     for mmod in mods:
@@ -165,7 +192,7 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
             print("writing", mmod, iissn, journal)
             g = d["Generate"](iissn, pmid2doi=p2i)
             # try:
-            fname, papers, failed = g.tohtml(
+            fname, papers, failed, _ = g.tohtmlx(
                 save=True,
                 prefix=os.path.join(jdir, mmod + "_"),
                 env=env,
@@ -208,10 +235,10 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
         issnmap2.update(issnmap)  # overwrite
         issnmap = issnmap2
 
-    with open(cache, "wb") as fp:
-        dump(issnmap, fp)
+    with open(cache, "wb") as wfp:
+        dump(issnmap, wfp)
 
-    journals_ = issnmap.values()
+    journals_ = list(issnmap.values())
 
     def sortf():
         s = sort
@@ -226,8 +253,8 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
     # pylint: disable=no-member
     res = template.render(journals=journals_, name=Config.NAME)
 
-    with open(os.path.join(Config.DATADIR, "html", "index.html"), "w") as fp:
-        fp.write(res)
+    with open(os.path.join(Config.DATADIR, "html", "index.html"), "w") as fp2:
+        fp2.write(res)
     click.secho(
         "found %d pubmeds. %d unique, %d usable"
         % (len(total3), len(total2), len(total1)),
@@ -237,14 +264,14 @@ def tohtml(cache, issn=None, mod="", num=False, sort="journal"):
 
 # @cli.command()
 # @click.option("--mod", help="modules to run")
-def tokenize(mod=""):
+def tokenize(mod: str = "") -> None:
     # from nltk import word_tokenize, PorterStemmer
 
     if mod:
         mods = [s.strip() for s in mod.split(",")]
     else:
         mods = MODS
-    cc = Counter()
+    cc = Counter[str]()
     # porter = PorterStemmer()
     for m in mods:
         d = getmod(m)
@@ -270,11 +297,16 @@ def tokenize(mod=""):
 @issn_option
 @click.option("--nowrite", is_flag=True, help="don't overwrite")
 @click.option(
-    "--num", is_flag=True, help="replace numbers with the token NUMBER in the text"
+    "--num",
+    is_flag=True,
+    help="replace numbers with the token NUMBER in the text",
 )
 def clean(
-    num=False, issn="", mod="", nowrite=False
-):  # pylint: disable=redefined-outer-name
+    num: bool = False,
+    issn: str = "",
+    mod: str = "",
+    nowrite: bool = False,
+) -> None:  # pylint: disable=redefined-outer-name
     """Create "clean" documents suitable for input into ML programs."""
     # pylint: disable=import-outside-toplevel
     from .mlabc import pmid2doi
@@ -301,7 +333,7 @@ def clean(
 
 @cli.command()
 @click.option("--d", help="directory to scan", default=Config.DATADIR)
-def cleandirs(d):
+def cleandirs(d: str) -> None:
     """Remove empty directories."""
     d = d or Config.DATADIR
     for f in os.listdir(d):
@@ -323,7 +355,7 @@ def cleandirs(d):
     show_default=True,
 )
 @click.option("--mx", default=3, help="max documents to download 0=all")
-def download(mod="", sleep=10.0, mx=1, issn=""):
+def download(mod: str = "", sleep: float = 10.0, mx: int = 1, issn: str = "") -> None:
     """Download html/xml from websites."""
     if mod:
         mods = [s.strip() for s in mod.split(",")]
@@ -346,11 +378,12 @@ def download(mod="", sleep=10.0, mx=1, issn=""):
             if issns and iissn not in issns:
                 continue
             print("downloading:", m, iissn)
-            d["download"](iissn, sleep=sleep, mx=mx)
+            func = d["download"]
+            func(iissn, sleep=sleep, mx=mx)  # type: ignore
 
 
 @cli.command()
-def summary():
+def summary() -> None:
     """Summary of current download status."""
     # pylint: disable=import-outside-toplevel
     from .download import journal_summary
@@ -381,7 +414,15 @@ def summary():
 )
 @click.option("--noheader", is_flag=True, help="csvfile has no header")
 @click.argument("csvfile")
-def journals(csvfile, out, email, api_key, noheader=False, col=0, sleep=0.37):
+def journals(
+    csvfile: str,
+    out: str,
+    email: str | None,
+    api_key: str | None,
+    noheader: bool = False,
+    col: int = 0,
+    sleep: float = 0.37,
+) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of pubmed IDs."""
     # pylint: disable=import-outside-toplevel
     from .download import getmeta
@@ -421,7 +462,7 @@ FAKE_ISSN = {"epmc", "elsevier"}
 
 
 @cli.command()
-def issn():
+def issn() -> None:
     """Print all known ISSN,journals."""
     for m in MODS:
         if m in FAKE_ISSN:
@@ -429,11 +470,11 @@ def issn():
         mod = getmod(m)
         d = mod["issn"]
         for iissn in d:
-            print("{},{}".format(iissn, d[iissn]))
+            print(f"{iissn},{d[iissn]}")
 
 
 @cli.command()
-def show_modules():
+def show_modules() -> None:
     """Print all available modules."""
     mx = len(sorted(MODS, key=len, reverse=True)[0])
     for m in sorted(MODS):

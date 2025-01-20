@@ -501,7 +501,7 @@ class Generate:
 
         return True
 
-    def tohtml(
+    def tohtmlx(
         self,
         template: str = "template.html",
         save: bool = False,
@@ -509,7 +509,7 @@ class Generate:
         env: Environment | None = None,
         verbose: bool = True,
         num: bool = False,
-    ) -> str | tuple[str, list[tuple[Paper, Clean]], list[Paper]]:
+    ) -> tuple[str, list[tuple[Paper, Clean]], list[Paper], str]:
         if env is None:
             env = make_jinja_env()
 
@@ -573,8 +573,18 @@ class Generate:
         if save:
             with open(fname, "w") as fp:
                 fp.write(t)
-            return fname, papers, failed
+        return fname, papers, failed, t
 
+    def tohtml(
+        self,
+        template: str = "template.html",
+        save: bool = False,
+        prefix: str = "",
+        env: Environment | None = None,
+        verbose: bool = True,
+        num: bool = False,
+    ) -> str:
+        _, _, _, t = self.tohtmlx(template, save, prefix, env, verbose, num)
         return t
 
 
