@@ -1,4 +1,13 @@
-from .mlabc import Clean, Download, Generate
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from .mlabc import Clean
+from .mlabc import Download
+from .mlabc import Generate
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
 
 ISSN = {
     "1460-2075": "EMBO J.",
@@ -10,66 +19,66 @@ ISSN = {
 
 
 class EMBOJ(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
 
-    def title(self):
+    def title(self) -> str | None:
         s = self.root.select("#embo-page-title")
         if s:
             return s[0].text.strip()
         return super().title()
 
-    def results(self):
+    def results(self) -> list[Tag]:
         secs = self.article.select("div.section.results-discussion")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results and discussion", "results"}:
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select("div.section.methods")
         if not secs:
             secs = self.article.select("div.section.materials-methods")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"materials and methods", "methods"}:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select("div.section.abstract")
         # print(secs)
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("div.fig.pos-float"):
+                a.replace_with(self.newfig(a, caption=".fig-caption p"))
+            for a in sec.select("div.table.pos-float"):
+                a.replace_with(self.newtable(a, caption=".table-caption"))
+            for a in sec.select("p a.xref-ref"):
+                a.replace_with("CITATION")
+            for a in sec.select("p a.xref-fig"):
+                a.replace_with("FIG-REF")
 
-        for a in sec.select("div.fig.pos-float"):
-            a.replace_with(self.newfig(a, caption=".fig-caption p"))
-        for a in sec.select("div.table.pos-float"):
-            a.replace_with(self.newtable(a, caption=".table-caption"))
-        for a in sec.select("p a.xref-ref"):
-            a.replace_with("CITATION")
-        for a in sec.select("p a.xref-fig"):
-            a.replace_with("FIG-REF")
-
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+        txt = [self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")]
         return txt
 
 
-def download_emboj(issn, sleep=5.0, mx=0):
+def download_emboj(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://emboj.embopress.org"
 
@@ -82,17 +91,17 @@ def download_emboj(issn, sleep=5.0, mx=0):
 
 
 class GenerateEMBJ(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return EMBOJ(soup)
 
 
-def gen_emboj(issn):
+def gen_emboj(issn: str) -> None:
 
     e = GenerateEMBJ(issn)
     e.run()
 
 
-def html_emboj(issn):
+def html_emboj(issn: str) -> None:
 
     e = GenerateEMBJ(issn)
     print(e.tohtml())

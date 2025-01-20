@@ -44,7 +44,25 @@ def fetchpubmed(
     return resp.content  # need buffer for parsing
 
 
-def parse_xml(xml: bytes) -> dict[str, Any] | None:
+from typing import TypedDict
+
+
+class NCBIPaper(TypedDict):
+    pmid: str | None
+    year: int | None
+    title: str | None
+    abstract: str | None
+    authors: list[tuple[str | None, str | None, str | None]]
+    journal: str | None
+    volume: str | None
+    issue: str | None
+    pages: str | None
+    doi: str | None
+    issn: str | None
+    pmcid: str | None
+
+
+def parse_xml(xml: bytes) -> NCBIPaper | None:
     """Parse NCBI Journal metadata into a dictionary."""
     ipt = BytesIO(xml)
     tree = etree.parse(ipt)
@@ -55,8 +73,8 @@ def parse_xml(xml: bytes) -> dict[str, Any] | None:
     if article is None:
         return None
     t = tree.findtext("PubmedArticle/MedlineCitation/PMID")
-    pmid = t.strip() if t else None
-    title = article.findtext("ArticleTitle")
+    pmid: str | None = t.strip() if t else None
+    title: str | None = article.findtext("ArticleTitle")
     abstract = article.findtext("Abstract/AbstractText")
     authors = article.findall("AuthorList/Author")
     pages = article.findtext("Pagination/MedlinePgn")
@@ -112,20 +130,20 @@ def parse_xml(xml: bytes) -> dict[str, Any] | None:
         (a.findtext("ForeName"), a.findtext("Initials"), a.findtext("LastName"))
         for a in authors
     ]
-    return {
-        "pmid": pmid,
-        "year": year,
-        "title": title,
-        "abstract": abstract,
-        "authors": alist,
-        "journal": name,
-        "volume": volume,
-        "issue": issue,
-        "pages": pages,
-        "doi": doi,
-        "issn": issn,
-        "pmcid": pmcid,
-    }
+    return NCBIPaper(
+        pmid=pmid,
+        year=year,
+        title=title,
+        abstract=abstract,
+        authors=alist,
+        journal=name,
+        volume=volume,
+        issue=issue,
+        pages=pages,
+        doi=doi,
+        issn=issn,
+        pmcid=pmcid,
+    )
 
 
 def getmeta(
@@ -140,11 +158,13 @@ def getmeta(
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
 
     # return data from xml file at NIH in a pythonic dictionary
-    def pubmed_meta(session, pmid):
+    def pubmed_meta(session: Session, pmid: str) -> NCBIPaper | None:
         xml = fetchpubmed(session, pmid, email=email, api_key=api_key)
+        if xml is None:
+            return None
         return parse_xml(xml)
 
-    session = requests  # .Session()
+    session = Session()
     e = os.path.exists(pubmeds)
     if e:
         with open(pubmeds, encoding="utf8") as fp:
