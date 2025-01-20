@@ -377,7 +377,7 @@ def download(mod: str = "", sleep: float = 10.0, mx: int = 1, issn: str = "") ->
         for iissn in d["issn"]:
             if issns and iissn not in issns:
                 continue
-            print("downloading:", m, iissn)
+            # print("downloading:", m, iissn)
             func = d["download"]
             func(iissn, sleep=sleep, mx=mx)  # type: ignore
 

@@ -669,8 +669,10 @@ class Download:
             for p in read_suba_papers_csv()
             if p.doi and p.issn == self.issn and p.pmid not in allpmid
         }
-
-        print(f"{self.issn}: {len(failed)} failed, {len(done)} done, {len(todo)} todo")
+        if len(failed) > 0 or len(done) > 0 or len(todo) > 0:
+            print(
+                f"{self.issn}: {len(failed)} failed, {len(done)} done, {len(todo)} todo",
+            )
         lst = sorted(todo.values(), key=lambda p: -p.year)
         if self.mx > 0:
             lst = lst[: self.mx]
@@ -690,6 +692,7 @@ class Download:
                     header["Referer"] = resp.url
                     xml = resp.content
                     soup = self.create_soup(paper, resp)
+
                     err = self.check_soup(paper, soup, resp)
                     if err:
                         xml = err
@@ -734,7 +737,7 @@ class DownloadSelenium(Download):
         issn: str,
         mx: int = 0,
         sleep: float = 10.0,
-        headless: bool = True,
+        headless: bool = False,
         close: bool = True,
         driver: WebDriver | None = None,
         **kwargs: Any,
@@ -780,9 +783,10 @@ class DownloadSelenium(Download):
             assert False, "selenium timeout"  # trigger failure with
 
         h = self.driver.find_element(by=By.TAG_NAME, value="html")
+
         txt = h.get_attribute("outerHTML") or ""
 
         return SeleniumResponse(
             content=txt.encode("utf-8"),
-            url=self.driver.current_url,
+            url=self.driver.current_url or "<unknown>",
         )

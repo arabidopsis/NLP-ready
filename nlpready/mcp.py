@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import requests
 
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import Generate
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
 
 ISSN = {
     "1535-9484": "Mol. Cell Proteomics",
@@ -21,23 +26,23 @@ ISSN = {
 
 
 class MCP(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2:
@@ -48,23 +53,23 @@ class MCP(Clean):
                     "materials and methods",
                     "material and methods",
                 }:  # spelling!
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select("div.section.abstract")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def tostr(self, sec):
-
-        for a in sec.select("div.table.pos-float"):
-            a.replace_with(self.newtable(a, caption=".table-caption"))
-        for a in sec.select("div.fig.pos-float"):
-            a.replace_with(self.newfig(a, caption=".fig-caption p"))
-        for a in sec.select("p a.xref-bibr"):
-            a.replace_with("CITATION")
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("div.table.pos-float"):
+                a.replace_with(self.newtable(a, caption=".table-caption"))
+            for a in sec.select("div.fig.pos-float"):
+                a.replace_with(self.newfig(a, caption=".fig-caption p"))
+            for a in sec.select("p a.xref-bibr"):
+                a.replace_with("CITATION")
+        txt = [self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")]
         return txt
 
 
@@ -73,13 +78,13 @@ class GenerateMCP(Generate):
         return MCP(soup)
 
 
-def gen_mcp(issn):
+def gen_mcp(issn: str) -> None:
 
     mcp = GenerateMCP(issn)
     mcp.run()
 
 
-def download_mcp(issn, sleep=5.0, mx=0):
+def download_mcp(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://www.mcponline.org"
 
@@ -102,7 +107,7 @@ def download_mcp(issn, sleep=5.0, mx=0):
     o.run()
 
 
-def html_mcp(issn):
+def html_mcp(issn: str) -> None:
 
     mcp = GenerateMCP(issn)
     print(mcp.tohtml())

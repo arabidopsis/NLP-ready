@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import requests
 
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import Generate
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
 
 ISSN = {
     "1535-3907": "J. Proteome Res.",
@@ -15,13 +20,13 @@ ISSN = {
 
 
 class JProteome(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("article.article")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
         secs = self.article.select("#articleBody .hlFld-Fulltext .NLM_sec_level_1")
         for sec in secs:
             h2 = sec.find("h2")
@@ -34,11 +39,11 @@ class JProteome(Clean):
                     "results and discussiom",
                 ]:
                     if txt.endswith(t):
-                        return sec
+                        return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select("#articleBody .hlFld-Fulltext .NLM_sec_level_1")
         for sec in secs:
             h2 = sec.find("h2")
@@ -52,25 +57,25 @@ class JProteome(Clean):
                     "material and methods",
                 ]:  # spelling!
                     if txt.endswith(t):
-                        return sec
+                        return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select("#articleBody .hlFld-Abstract #abstractBox")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def title(self):
+    def title(self) -> str | None:
         return self.article.select("h1.articleTitle")[0].text.strip()
 
-    def tostr(self, sec):
-
-        for a in sec.select("div.figure"):
-            a.replace_with(self.newfig(a, caption=".caption p"))
-        for a in sec.select("div.NLM_table-wrap"):
-            a.replace_with(self.newtable(a, caption=".NLM_caption"))
-        for a in sec.select("div.NLM_p a.ref"):
-            a.replace_with(" CITATION ")
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("div.figure"):
+                a.replace_with(self.newfig(a, caption=".caption p"))
+            for a in sec.select("div.NLM_table-wrap"):
+                a.replace_with(self.newtable(a, caption=".NLM_caption"))
+            for a in sec.select("div.NLM_p a.ref"):
+                a.replace_with(" CITATION ")
 
         def paraordiv(tag):
 
@@ -80,22 +85,26 @@ class JProteome(Clean):
 
             return ret
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.find_all(paraordiv)]
+        txt = [
+            self.SPACE.sub(" ", p.text)
+            for sec in seclist
+            for p in sec.find_all(paraordiv)
+        ]
         return txt
 
 
 class GenerateJProteome(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return JProteome(soup)
 
 
-def gen_jproteome(issn):
+def gen_jproteome(issn: str) -> None:
 
     g = GenerateJProteome(issn)
     g.run()
 
 
-def download_jproteome(issn, sleep=5.0, mx=0):
+def download_jproteome(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://pubs.acs.org"
 
@@ -117,7 +126,7 @@ def download_jproteome(issn, sleep=5.0, mx=0):
     o.run()
 
 
-def html_jproteome(issn):
+def html_jproteome(issn: str) -> None:
 
     g = GenerateJProteome(issn)
     print(g.tohtml())

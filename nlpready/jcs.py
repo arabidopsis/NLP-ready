@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import Generate
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
 
 ISSN = {
     "0021-9533": "J. Cell. Sci.",
@@ -14,32 +19,32 @@ ISSN = {
 
 
 class JCS(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.article.fulltext-view")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
         secs = self.article.select("div.section.results")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select("div.section.materials-methods")
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select("div.section.methods")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
             if h2:
@@ -50,37 +55,37 @@ class JCS(Clean):
                     "materials and methods",
                     "material and methods",
                 }:  # spelling!
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select("div.section.abstract")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def tostr(self, sec):
-
-        for a in sec.select("div.table.pos-float"):
-            a.replace_with(self.newtable(a, caption=".table-caption p"))
-        for a in sec.select("div.fig.pos-float"):
-            a.replace_with(self.newfig(a, caption=".fig-caption p"))
-        for a in sec.select("p a.xref-bibr"):
-            a.replace_with("CITATION")
-        return super().tostr(sec)
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("div.table.pos-float"):
+                a.replace_with(self.newtable(a, caption=".table-caption p"))
+            for a in sec.select("div.fig.pos-float"):
+                a.replace_with(self.newfig(a, caption=".fig-caption p"))
+            for a in sec.select("p a.xref-bibr"):
+                a.replace_with("CITATION")
+        return super().tostr(seclist)
 
 
 class GenerateJCS(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return JCS(soup)
 
 
-def gen_jcs(issn):
+def gen_jcs(issn: str) -> None:
 
     jcs = GenerateJCS(issn)
     jcs.run()
 
 
-def download_jcs(issn, sleep=5.0, mx=0):
+def download_jcs(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://jcs.biologists.org"
 
@@ -92,7 +97,7 @@ def download_jcs(issn, sleep=5.0, mx=0):
     o.run()
 
 
-def html_jcs(issn):
+def html_jcs(issn: str) -> None:
 
     jcs = GenerateJCS(issn)
     print(jcs.tohtml())

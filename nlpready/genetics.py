@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._mlabc import Clean
-from ._mlabc import Download
+from ._mlabc import DownloadSelenium
 from ._mlabc import Generate
 
 
@@ -16,12 +16,15 @@ ISSN = {
     "0016-6731": "Genetics",
     "1943-2631": "Genetics",
 }
+ARTICLE = "widget.widget-ArticleFulltext.widget-instance-OUP_Article_FullText_Widget"
+# ARTICLE = "div.widget-items[data-widgetname=ArticleFulltext]"
 
 
 class Genetics(Clean):
     def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
-        a = root.select("div.article.fulltext-view")
+        # a = root.select("div.article.fulltext-view")
+        a = root.select(ARTICLE)
         assert a, a
         self.article = a[0]
 
@@ -31,7 +34,7 @@ class Genetics(Clean):
             return [secs[0]]
         for sec in self.article.select("div.section"):
             h2 = sec.find("h2")
-            if h2:
+            if h2 and h2.text:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
                     return [sec]
@@ -55,7 +58,7 @@ class Genetics(Clean):
         return []
 
     def abstract(self) -> list[Tag]:
-        secs = self.article.select("div.section.abstract")
+        secs = self.article.select("section.abstract")
         return [secs[0]] if secs else []
 
     def tostr(self, seclist: list[Tag]) -> list[str]:
@@ -71,7 +74,7 @@ class Genetics(Clean):
 
 
 def download_genetics(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
-    class D(Download):
+    class D(DownloadSelenium):
         Referer = "http://www.genetics.org"
 
         def check_soup(
@@ -80,7 +83,9 @@ def download_genetics(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
             soup: BeautifulSoup,
             resp: Response,
         ) -> bytes | None:
-            a = soup.select("div.article.fulltext-view")
+            # a = soup.select("div.article.fulltext-view")
+            a = soup.select(ARTICLE)
+
             if not a:
                 if paper.year <= 2001:  # probably only a (scanned?) PDF version
                     return b"failed-only-pdf"
