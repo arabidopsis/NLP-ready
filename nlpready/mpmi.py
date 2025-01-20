@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import Generate
+
+if TYPE_CHECKING:
+
+    from bs4 import BeautifulSoup, Tag
+
 
 ISSN = {
     "0894-0282": "Mol. Plant Microbe Interact.",
@@ -10,39 +17,39 @@ ISSN = {
 
 
 class MPMI(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("table .pubContent")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
         secs = self.article.select(
             ".hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1",
         )
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select(".hlFld-Fulltext .NLM_sec_level_1")
         for sec in secs:
             h2 = sec.select("table tr th")
             if h2:
                 txt = h2[0].text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select(
             ".hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1",
         )
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select(
             ".hlFld-Fulltext .MaterialsAndMethods.NLM_sec_level_1",
         )
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select(".hlFld-Fulltext .NLM_sec_level_1")
         for sec in secs:
             h2 = sec.select("table tr th")
@@ -55,43 +62,44 @@ class MPMI(Clean):
                     "materials and methods",
                     "material and methods",
                 }:  # spelling!
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.article.select(".hlFld-Abstract .abstractInFull")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def title(self):
+    def title(self) -> str | None:
         return self.article.select(".hlFld-Abstract .hlFld-Title")[0].text.strip()
 
-    def tostr(self, sec):
-        for a in sec.select("div.figure"):
-            p = self.root.new_tag("p")  # , **{'class': 'NLM_p'})
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("div.figure"):
+                p = self.root.new_tag("p")  # , **{'class': 'NLM_p'})
 
-            p.string = "[[FIGURE]]"
-            a.replace_with(p)
-        for a in sec.select("p span.ref-lnk"):
-            a.replace_with("CITATION")
-        for a in sec.select("p a.ref.bibr"):
-            a.replace_with("CITATION")
+                p.string = "[[FIGURE]]"
+                a.replace_with(p)
+            for a in sec.select("p span.ref-lnk"):
+                a.replace_with("CITATION")
+            for a in sec.select("p a.ref.bibr"):
+                a.replace_with("CITATION")
 
-        return super().tostr(sec)
+        return super().tostr(seclist)
 
 
 class GenerateMPMI(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return MPMI(soup)
 
 
-def gen_mpmi(issn):
+def gen_mpmi(issn: str) -> None:
 
     g = GenerateMPMI(issn)
     g.run()
 
 
-def download_mpmi(issn, sleep=5.0, mx=0):
+def download_mpmi(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://apsjournals.apsnet.org"
 
@@ -103,7 +111,7 @@ def download_mpmi(issn, sleep=5.0, mx=0):
     o.run()
 
 
-def html_mpmi(issn):
+def html_mpmi(issn: str) -> None:
 
     g = GenerateMPMI(issn)
     print(g.tohtml())

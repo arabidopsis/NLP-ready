@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import click
+from bs4 import Tag
 
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import Generate
+
+
+if TYPE_CHECKING:
+
+    from bs4 import BeautifulSoup
 
 ISSN = {
     "1460-2431": "J. Exp. Bot.",
@@ -28,11 +35,11 @@ ISSN = {
 }
 
 
-def has_class(d, cls):
+def has_class(d: Tag, cls: str):
     return d.has_attr("class") and cls in d["class"]
 
 
-def ok_elem(tag):
+def ok_elem(tag: Tag) -> bool:
     if tag.name == "p":
         return True
     if tag.name == "div":
@@ -42,7 +49,7 @@ def ok_elem(tag):
 
 
 class OUP(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("div.article-body div.widget-items")
         assert a, a
@@ -51,6 +58,8 @@ class OUP(Clean):
         objs = defaultdict(list)
         target = None
         for d in self.article.contents:
+            if not isinstance(d, Tag):
+                continue
             if d.name == "h2":
                 target = d.text.lower().strip()
             elif d.name == "section" and d.attrs["class"] == ["abstract"]:
@@ -60,7 +69,7 @@ class OUP(Clean):
             elif ok_elem(d):
                 if target:
                     objs[target].append(d)
-        res = {}
+        res: dict[str, list[Tag]] = {}
         # sections = {'abstract', 'results', 'materials and methods', 'results and discussion',
         #             'material and methods'}  # spelling!
         for k in objs:
@@ -69,7 +78,7 @@ class OUP(Clean):
         # assert set(res) == sections, (set(res))
         self.resultsd = res
 
-    def results(self):
+    def results(self) -> list[Tag]:
         K = ("results and discussion", "results")
         for k in K:
             if k in self.resultsd:
@@ -77,9 +86,9 @@ class OUP(Clean):
         for k in self.resultsd:
             if k.endswith(K):
                 return self.resultsd[k]
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         K = ("materials and methods", "material and methods")
         for k in K:
             if k in self.resultsd:
@@ -87,40 +96,45 @@ class OUP(Clean):
         for k in self.resultsd:
             if k.endswith(K):
                 return self.resultsd[k]
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         s = self.article.select("section.abstract")
         if s:
-            return s[0].select("p") or s
-        return self.resultsd.get("abstract")
+            return [s[0].select("p")[0]] or [s[0]]
+        return self.resultsd.get("abstract") or []
 
-    def title(self):
+    def title(self) -> str | None:
         s = self.root.select("h1.wi-article-title")
         if s:
             return s[0].text.strip()
         return super().title()
 
-    def tostr(self, sec):
-
-        for p in sec:
-            for a in p.select("a.xref-bibr"):
-                a.replace_with("CITATION")
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for p in sec:
+                if not isinstance(p, Tag):
+                    continue
+                for a in p.select("a.xref-bibr"):
+                    a.replace_with("CITATION")
         ss = []
-        for p in sec:
-            if p.name == "div":
-                if has_class(p, "fig-section"):
-                    ss.append(self.newfig(p, caption=".fig-caption p", node="div"))
-                elif has_class(p, "table-wrap"):
-                    ss.append(self.newtable(p, caption=".caption p", node="div"))
-            else:
-                ss.append(p)
+        for sec in seclist:
+            for p in sec:
+                if not isinstance(p, Tag):
+                    continue
+                if p.name == "div":
+                    if has_class(p, "fig-section"):
+                        ss.append(self.newfig(p, caption=".fig-caption p", node="div"))
+                    elif has_class(p, "table-wrap"):
+                        ss.append(self.newtable(p, caption=".caption p", node="div"))
+                else:
+                    ss.append(p)
 
         txt = [self.SPACE.sub(" ", p.text) for p in ss]
         return txt
 
 
-def download_oup(issn, sleep=5.0, mx=0):
+def download_oup(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://academic.oup.com"
 
@@ -145,22 +159,22 @@ def download_oup(issn, sleep=5.0, mx=0):
 
 
 class GenerateOUP(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return OUP(soup)
 
 
-def gen_oup(issn):
+def gen_oup(issn: str) -> None:
 
     e = GenerateOUP(issn)
     e.run()
 
 
-def html_oup(issn):
+def html_oup(issn: str) -> None:
     e = GenerateOUP(issn)
     print(e.tohtml())
 
 
-def run():
+def run() -> None:
     for issn in ISSN:
         download_oup(issn, sleep=10.0, mx=1)
 

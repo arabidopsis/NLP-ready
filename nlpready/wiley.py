@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import requests
 
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import dump
 from ._mlabc import Generate
+
+
+if TYPE_CHECKING:
+
+    from bs4 import BeautifulSoup, Tag
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
@@ -50,41 +57,41 @@ ISSN = {
 
 # pylint: disable=abstract-method
 class BaseWiley(Clean):
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("figure"):
+                # figure inside a div.Para so can't really replace
+                # with a "p"
+                a.replace_with(self.newfig(a))
 
-        for a in sec.select("figure"):
-            # figure inside a div.Para so can't really replace
-            # with a "p"
-            a.replace_with(self.newfig(a))
+            for a in sec.select(".article-table-content"):
+                a.replace_with(self.newtable(a, caption=".article-table-caption"))
+            # for a in sec.select('figure'):
+            #    p = self.root.new_tag('p')
+            #    p.string = '[[FIGURE]]'
+            #     a.replace_with(p)
+            for a in sec.select('p a[title="Link to bibliographic citation"]'):
+                a.replace_with("CITATION")
+            for a in sec.select("p a.bibLink"):
+                a.replace_with("CITATION")
 
-        for a in sec.select(".article-table-content"):
-            a.replace_with(self.newtable(a, caption=".article-table-caption"))
-        # for a in sec.select('figure'):
-        #    p = self.root.new_tag('p')
-        #    p.string = '[[FIGURE]]'
-        #     a.replace_with(p)
-        for a in sec.select('p a[title="Link to bibliographic citation"]'):
-            a.replace_with("CITATION")
-        for a in sec.select("p a.bibLink"):
-            a.replace_with("CITATION")
-
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+        txt = [self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")]
         return txt
 
 
 class Wiley(BaseWiley):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("article.journal article.issue article.article")[0]
         assert a, a
         self.article = a
 
-    def title(self):
+    def title(self) -> str | None:
         for s in self.article.select("h1.article-header__title"):
             return s.text.strip()
         return super().title()
 
-    def results(self):
+    def results(self) -> list[Tag]:
         for sec in self.article.select("section.article-body-section"):
             h2 = sec.find("h2")
             if h2:
@@ -92,11 +99,11 @@ class Wiley(BaseWiley):
                 if txt.endswith(
                     ("results", "results and discussion", "significance of the study"),
                 ):
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         for sec in self.article.select("section.article-body-section"):
             h2 = sec.find("h2")
             if h2:
@@ -109,38 +116,38 @@ class Wiley(BaseWiley):
                         "material and methods",
                     ),
                 ):  # spelling!
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         for s in self.article.select("section.article-section--abstract"):
             if s.attrs["id"] == "abstract":
-                return s
-        return None
+                return [s]
+        return []
 
 
 class Wiley2(BaseWiley):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("article div.article__body article")
         assert a, a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
         for sec in self.article.select(
             ".article-section.article-section__full div.article-section__content",
         ):
             h2 = sec.find("h2")
             if h2 and h2.text.lower().strip().endswith("results and discussion"):
-                return sec
+                return [sec]
         for sec in self.article.select("div.article-section__content"):
             h2 = sec.find("h2")
             if h2 and h2.text.lower().strip().endswith("results"):
-                return sec
-        return None
+                return [sec]
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         for sec in self.article.select("section.article-body-section"):
             h2 = sec.find("h2")
             if h2:
@@ -153,7 +160,7 @@ class Wiley2(BaseWiley):
                         "material and methods",
                     ),
                 ):  # spelling!
-                    return sec
+                    return [sec]
 
         for sec in self.article.select("div.article-section__content"):
             h2 = sec.find("h2")
@@ -167,16 +174,16 @@ class Wiley2(BaseWiley):
                         "material and methods",
                     ),
                 ):  # spelling!
-                    return sec
+                    return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         for s in self.article.select("section.article-section__abstract"):
-            return s
-        return None
+            return [s]
+        return []
 
-    def title(self):
+    def title(self) -> str | None:
         s = self.root.select(".article-citation .citation__title")
         if s:
             return s[0].text.strip()
@@ -184,10 +191,11 @@ class Wiley2(BaseWiley):
 
 
 class GenerateWiley(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         # p = self.pmid2doi[pmid]
         # if p.issn in {'1873-3468'}:
         #     return Wiley(soup)
+        e: Clean
         try:
             e = Wiley(soup)
         except Exception:  # pylint: disable=broad-except
@@ -195,12 +203,12 @@ class GenerateWiley(Generate):
         return e
 
 
-def gen_wiley(issn):
+def gen_wiley(issn: str) -> None:
     e = GenerateWiley(issn)
     e.run()
 
 
-def download_wiley(issn, sleep=5.0, mx=0):
+def download_wiley(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://onlinelibrary.wiley.com"
 
@@ -225,13 +233,13 @@ def download_wiley(issn, sleep=5.0, mx=0):
     download.run()
 
 
-def html_wiley(issn):
+def html_wiley(issn: str) -> None:
 
     e = GenerateWiley(issn)
     print(e.tohtml())
 
 
-def download_all(sleep=10.0, mx=5):
+def download_all(sleep: float = 10.0, mx: int = 5) -> None:
     for issn in ISSN:
         download_wiley(issn=issn, sleep=sleep, mx=mx)
 

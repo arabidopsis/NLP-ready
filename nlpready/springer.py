@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ._mlabc import Clean
 from ._mlabc import Download
 from ._mlabc import dump
 from ._mlabc import Generate
+
+if TYPE_CHECKING:
+
+    from bs4 import BeautifulSoup, Tag
 
 ISSN = {
     "1573-5028": "Plant Mol. Biol.",
@@ -49,28 +55,28 @@ ISSN = {
 
 
 class Springer(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("main#main-content article.main-body__content")
         assert a
         self.article = a[0]
 
-    def results(self):
+    def results(self) -> list[Tag]:
         secs = self.article.select("#body section.SectionTypeResults")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("#body section"):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         secs = self.article.select("#body section.SectionTypeMaterialsAndMethods")
         if secs:
-            return secs[0]
+            return [secs[0]]
         for sec in self.article.select("#body section"):
             h2 = sec.find("h2")
             if h2:
@@ -81,16 +87,16 @@ class Springer(Clean):
                     "experimental procedures",
                     "methods",
                 }:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
 
         secs = self.article.select("section.Abstract")
         if secs:
-            return secs[0]
+            return [secs[0]]
         secs = self.article.select("div.section.abstract")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
     def title(self):
         s = self.root.select("h1.ArticleTitle")
@@ -98,18 +104,18 @@ class Springer(Clean):
             return s[0].text.strip()
         return super().title()
 
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        for sec in seclist:
+            for a in sec.select("figure"):
+                a.replace_with(self.newfig(a, node="span"))
+                # a.replace_with('[[FIGURE]]')
 
-        for a in sec.select("figure"):
-            a.replace_with(self.newfig(a, node="span"))
-            # a.replace_with('[[FIGURE]]')
+            for a in sec.select("div.Table"):
+                a.replace_with(self.newtable(a, ".Caption p", node="span"))
+                # a.replace_with('[[TABLE]]')
 
-        for a in sec.select("div.Table"):
-            a.replace_with(self.newtable(a, ".Caption p", node="span"))
-            # a.replace_with('[[TABLE]]')
-
-        for a in sec.select("span.CitationRef"):
-            a.replace_with("CITATION")
+            for a in sec.select("span.CitationRef"):
+                a.replace_with("CITATION")
 
         def para(tag):
             return tag.name == "p" or (
@@ -117,28 +123,32 @@ class Springer(Clean):
             )
 
         # txt = [self.SPACE.sub(' ', p.text) for p in sec.select('p, div.Para')]
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.find_all(para)]
+        txt = [
+            self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.find_all(para)
+        ]
         return txt
 
 
 class SpringerRice(Springer):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup) -> None:
         super().__init__(root)
         a = root.select("body.journal-fulltext .FulltextWrapper > section")
         assert a
-        self.article = a[0].parent
+        article = a[0].parent
+        assert article
+        self.article = article
 
-    def results(self):
+    def results(self) -> list[Tag]:
 
         for sec in self.article.select("section"):
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 if txt in {"results", "results and discussion"}:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         for sec in self.article.select("section"):
             h2 = sec.find("h2")
             if h2:
@@ -150,11 +160,11 @@ class SpringerRice(Springer):
                     "experimental procedures",
                     "methods",
                 }:
-                    return sec
-        return None
+                    return [sec]
+        return []
 
 
-def download_springer(issn, sleep=5.0, mx=0):
+def download_springer(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://link.springer.com"
 
@@ -173,23 +183,23 @@ def download_springer(issn, sleep=5.0, mx=0):
 
 
 class GenerateSpringer(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         if self.pmid2doi[pmid].issn == "1939-8425":
             return SpringerRice(soup)
         return Springer(soup)
 
 
-def gen_springer(issn):
+def gen_springer(issn: str) -> None:
     e = GenerateSpringer(issn)
     e.run()
 
 
-def html_springer(issn):
+def html_springer(issn: str) -> None:
     e = GenerateSpringer(issn)
     print(e.tohtml())
 
 
-def run():
+def run() -> None:
     for issn in ISSN:
         download_springer(issn=issn, sleep=60.0 * 2, mx=0)
 
