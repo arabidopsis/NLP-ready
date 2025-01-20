@@ -74,7 +74,7 @@ class MCP(Clean):
 
 
 class GenerateMCP(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return MCP(soup)
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import requests
+from bs4 import Tag
 
 from ._mlabc import Clean
 from ._mlabc import Download
@@ -23,27 +24,27 @@ ISSN = {
 
 
 class MDPI(Clean):
-    def __init__(self, root):
+    def __init__(self, root: BeautifulSoup):
         super().__init__(root)
         a = root.select("article")
         assert a, a
         self.article = a[0]
-        self.figures = {}
+        self.figures: dict[str, Tag] = {}
 
-    def results(self):
+    def results(self) -> list[Tag]:
         for sec in self.article.select(".html-body section"):
             if sec.attrs.get("type") == "results":
-                return sec
+                return [sec]
             h2 = sec.find("h2")
             if h2:
                 txt = h2.text.lower().strip()
                 for t in ["results", "results and discussion"]:
                     if txt.endswith(t):
-                        return sec
+                        return [sec]
 
-        return None
+        return []
 
-    def methods(self):
+    def methods(self) -> list[Tag]:
         for sec in self.article.select(".html-body section"):
             h2 = sec.find("h2")
             if h2:
@@ -56,31 +57,32 @@ class MDPI(Clean):
                     "experimental section",
                 ]:  # spelling!
                     if txt.endswith(t):
-                        return sec
+                        return [sec]
 
-        return None
+        return []
 
-    def abstract(self):
+    def abstract(self) -> list[Tag]:
         secs = self.root.select("article div.html-front #html-abstract")
-        return secs[0] if secs else None
+        return [secs[0]] if secs else []
 
-    def title(self):
+    def title(self) -> str | None:
         secs = self.root.select("article div.html-front #html-article-title")
         return secs[0].text.strip()
 
-    def tostr(self, sec):
+    def tostr(self, seclist: list[Tag]) -> list[str]:
         figs = []
-        for a in sec.select("div.html-p a.html-bibr"):
-            a.replace_with(" CITATION ")
+        for sec in seclist:
+            for a in sec.select("div.html-p a.html-bibr"):
+                a.replace_with(" CITATION ")
 
-        for a in sec.select("div.html-p a.html-fig"):
-            href = a["href"]
-            if href not in self.figures:
-                n = self.root.select(href)[0]
-                self.figures[href] = n.select(".html-fig_description")[0]
-                figs.append(href)
+            for a in sec.select("div.html-p a.html-fig"):
+                href = str(a["href"])
+                if href not in self.figures:
+                    n = self.root.select(href)[0]
+                    self.figures[href] = n.select(".html-fig_description")[0]
+                    figs.append(href)
 
-            a.replace_with(" FIG-REF ")
+                a.replace_with(" FIG-REF ")
 
         # for a in sec.select('.html-fig-wrap'):
         #     # figures are placed by some javascript I think... so this doesn't work
@@ -92,27 +94,42 @@ class MDPI(Clean):
             self.FIGURE % self.SPACE.sub(" ", self.figures[href].text) for href in figs
         ]
 
-        txt = [self.SPACE.sub(" ", p.text) for p in sec.select("div.html-p")]
+        txt = [
+            self.SPACE.sub(" ", p.text)
+            for sec in seclist
+            for p in sec.select("div.html-p")
+        ]
         if not txt:
-            txt = [self.SPACE.sub(" ", p.text) for p in sec.select("p")]
+            txt = [
+                self.SPACE.sub(" ", p.text) for sec in seclist for p in sec.select("p")
+            ]
         if not txt:
-            txt = [" ".join([self.SPACE.sub(" ", p.string) for p in sec.contents])]
+            txt = [
+                " ".join(
+                    [
+                        self.SPACE.sub(" ", p.string)
+                        for sec in seclist
+                        for p in sec.contents
+                        if isinstance(p, Tag)
+                    ],
+                ),
+            ]
 
         return txt + figs
 
 
 class GenerateMDPI(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return MDPI(soup)
 
 
-def gen_mdpi(issn):
+def gen_mdpi(issn: str) -> None:
 
     mdpi = GenerateMDPI(issn)
     mdpi.run()
 
 
-def download_mdpi(issn, sleep=5.0, mx=0):
+def download_mdpi(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://www.mdpi.com"
 
@@ -141,7 +158,7 @@ def download_mdpi(issn, sleep=5.0, mx=0):
     o.run()
 
 
-def html_mdpi(issn):
+def html_mdpi(issn: str) -> None:
 
     mdpi = GenerateMDPI(issn)
     print(mdpi.tohtml())
