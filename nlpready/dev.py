@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .mlabc import Clean
-from .mlabc import Download
-from .mlabc import Generate
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import BeautifulSoup, Tag
-    from .mlabc import Paper
-    from .mlabc import Response
+    from ._mlabc import Paper
+    from ._mlabc import Response
 
 ISSN = {"0950-1991": "Development", "1477-9129": "Development"}
 

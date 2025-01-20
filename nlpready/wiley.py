@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import requests
 
-from .mlabc import Clean, Download, Generate, dump
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import dump
+from ._mlabc import Generate
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
@@ -85,7 +90,7 @@ class Wiley(BaseWiley):
             if h2:
                 txt = h2.text.lower().strip()
                 if txt.endswith(
-                    ("results", "results and discussion", "significance of the study")
+                    ("results", "results and discussion", "significance of the study"),
                 ):
                     return sec
 
@@ -102,7 +107,7 @@ class Wiley(BaseWiley):
                         "materials and methods",
                         "methods",
                         "material and methods",
-                    )
+                    ),
                 ):  # spelling!
                     return sec
 
@@ -124,7 +129,7 @@ class Wiley2(BaseWiley):
 
     def results(self):
         for sec in self.article.select(
-            ".article-section.article-section__full div.article-section__content"
+            ".article-section.article-section__full div.article-section__content",
         ):
             h2 = sec.find("h2")
             if h2 and h2.text.lower().strip().endswith("results and discussion"):
@@ -146,7 +151,7 @@ class Wiley2(BaseWiley):
                         "materials and methods",
                         "methods",
                         "material and methods",
-                    )
+                    ),
                 ):  # spelling!
                     return sec
 
@@ -160,7 +165,7 @@ class Wiley2(BaseWiley):
                         "materials and methods",
                         "methods",
                         "material and methods",
-                    )
+                    ),
                 ):  # spelling!
                     return sec
 

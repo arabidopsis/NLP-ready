@@ -1,4 +1,8 @@
-from .mlabc import Clean, Download, Generate
+from __future__ import annotations
+
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 ISSN = {
     "0021-9533": "J. Cell. Sci.",

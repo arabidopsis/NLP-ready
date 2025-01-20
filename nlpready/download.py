@@ -16,8 +16,8 @@ import requests
 from bs4 import BeautifulSoup
 from lxml import etree
 
-from .mlabc import read_pubmed_csv
-from .mlabc import read_suba_papers_csv
+from ._mlabc import read_pubmed_csv
+from ._mlabc import read_suba_papers_csv
 
 if TYPE_CHECKING:
     from requests import Session
@@ -214,7 +214,7 @@ def getmeta(
 def journal_summary() -> None:
     """Summarize journal statistics."""
     # pylint: disable=import-outside-toplevel
-    from .issn import issn2mod
+    from ._issn import issn2mod
 
     d = defaultdict(list)
     for p in read_suba_papers_csv():

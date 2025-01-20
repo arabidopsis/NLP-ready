@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 from collections import defaultdict
 
 import click
 
-from .mlabc import Clean, Download, Generate
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 ISSN = {
     "1460-2431": "J. Exp. Bot.",

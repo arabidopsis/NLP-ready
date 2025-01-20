@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING
 from bs4 import BeautifulSoup
 from bs4 import Tag
 
-from .mlabc import Clean
-from .mlabc import Download
-from .mlabc import Generate
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 if TYPE_CHECKING:
-    from .mlabc import Paper
-    from .mlabc import Response
+    from ._mlabc import Paper
+    from ._mlabc import Response
 
 ISSN = {
     "1664-462X": "Front Plant Sci",

@@ -1,4 +1,9 @@
-from .mlabc import Clean, Download, Generate, dump
+from __future__ import annotations
+
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import dump
+from ._mlabc import Generate
 
 ISSN = {
     "1573-5028": "Plant Mol. Biol.",

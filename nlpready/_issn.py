@@ -11,8 +11,8 @@ from typing import Any
 
 import click
 
-from .mlabc import Config
-from .mlabc import Generate
+from ._mlabc import Config
+from ._mlabc import Generate
 
 # add module name to this list...
 
@@ -99,7 +99,7 @@ def issn2mod() -> dict[str, str]:
 def doubles() -> None:
     # pylint: disable=import-outside-toplevel
     from .summary import get_done
-    from .mlabc import read_journals_csv
+    from ._mlabc import read_journals_csv
 
     pmid2doi = read_journals_csv()
     res = get_done()
@@ -156,7 +156,7 @@ def tohtml(
     """Generate HTML documents from downloads."""
     # pylint: disable=too-many-locals
     # pylint: disable=import-outside-toplevel
-    from .mlabc import pmid2doi, make_jinja_env
+    from ._mlabc import pmid2doi, make_jinja_env
 
     # from pickle import load, dump
 
@@ -309,7 +309,7 @@ def clean(
 ) -> None:  # pylint: disable=redefined-outer-name
     """Create "clean" documents suitable for input into ML programs."""
     # pylint: disable=import-outside-toplevel
-    from .mlabc import pmid2doi
+    from ._mlabc import pmid2doi
 
     if mod:
         mods = [s.strip() for s in mod.split(",")]

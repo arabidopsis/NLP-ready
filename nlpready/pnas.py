@@ -1,4 +1,8 @@
-from .mlabc import Clean, Download, Generate
+from __future__ import annotations
+
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 ISSN = {
     "0027-8424": "Proc. Natl. Acad. Sci. U.S.A.",
@@ -56,7 +60,7 @@ class PNAS(Clean):
                 self.newtable(
                     a,
                     caption=".table-caption p",
-                )
+                ),
             )
             # a.replace_with('[[FIGURE]]')
         for a in sec.select("p a.xref-bibr"):

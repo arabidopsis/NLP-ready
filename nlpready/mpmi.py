@@ -1,4 +1,8 @@
-from .mlabc import Clean, Download, Generate
+from __future__ import annotations
+
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 ISSN = {
     "0894-0282": "Mol. Plant Microbe Interact.",
@@ -14,7 +18,7 @@ class MPMI(Clean):
 
     def results(self):
         secs = self.article.select(
-            ".hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1"
+            ".hlFld-Fulltext .NLM_sec-type_results.NLM_sec_level_1",
         )
         if secs:
             return secs[0]
@@ -30,12 +34,12 @@ class MPMI(Clean):
 
     def methods(self):
         secs = self.article.select(
-            ".hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1"
+            ".hlFld-Fulltext .NLM_sec-type_materials|methods.NLM_sec_level_1",
         )
         if secs:
             return secs[0]
         secs = self.article.select(
-            ".hlFld-Fulltext .MaterialsAndMethods.NLM_sec_level_1"
+            ".hlFld-Fulltext .MaterialsAndMethods.NLM_sec_level_1",
         )
         if secs:
             return secs[0]

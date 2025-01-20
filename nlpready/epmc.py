@@ -10,11 +10,11 @@ import click
 import requests
 from lxml import etree
 
-from .mlabc import Clean
-from .mlabc import Config
-from .mlabc import Generate
-from .mlabc import read_suba_papers_csv
-from .mlabc import readxml
+from ._mlabc import Clean
+from ._mlabc import Config
+from ._mlabc import Generate
+from ._mlabc import read_suba_papers_csv
+from ._mlabc import readxml
 
 ISSN = {"epmc": "epmc"}
 

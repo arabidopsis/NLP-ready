@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING
 
 import requests
 
-from .mlabc import Clean
-from .mlabc import Download
-from .mlabc import Generate
-from .mlabc import Paper
-from .mlabc import XRef
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
+from ._mlabc import Paper
+from ._mlabc import XRef
 
 if TYPE_CHECKING:
     from typing import Iterator
     from bs4 import BeautifulSoup, Tag
-    from .mlabc import Response
+    from ._mlabc import Response
 
 
 ISSN = {"1095-9203": "Science", "0036-8075": "Science"}

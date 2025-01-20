@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 
 import click
 
-from .mlabc import Clean
-from .mlabc import Download
-from .mlabc import Generate
-from .mlabc import XRef
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
+from ._mlabc import XRef
 
 if TYPE_CHECKING:
     from bs4 import BeautifulSoup, Tag
-    from .mlabc import Paper, Response
+    from ._mlabc import Paper, Response
 
 ISSN = {
     "1040-4651": "Plant Cell",

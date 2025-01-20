@@ -13,13 +13,13 @@ import click
 import requests
 from tabulate import tabulate  # type: ignore
 
-from .mlabc import Config
-from .mlabc import read_issn
-from .mlabc import read_suba_papers_csv
-from .mlabc import USER_AGENT
+from ._mlabc import Config
+from ._mlabc import read_issn
+from ._mlabc import read_suba_papers_csv
+from ._mlabc import USER_AGENT
 
 if TYPE_CHECKING:
-    from .mlabc import Paper
+    from ._mlabc import Paper
 
 
 def _glob(d, g):

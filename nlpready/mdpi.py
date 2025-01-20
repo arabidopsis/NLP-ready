@@ -4,17 +4,17 @@ from typing import TYPE_CHECKING
 
 import requests
 
-from .mlabc import Clean
-from .mlabc import Download
-from .mlabc import Generate
+from ._mlabc import Clean
+from ._mlabc import Download
+from ._mlabc import Generate
 
 # http://genesdev.cshlp.org
 
 if TYPE_CHECKING:
 
-    from .mlabc import Response
+    from ._mlabc import Response
     from bs4 import BeautifulSoup
-    from .mlabc import Paper
+    from ._mlabc import Paper
 
 ISSN = {
     "1422-0067": "Int J Mol Sci",

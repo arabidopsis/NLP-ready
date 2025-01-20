@@ -13,18 +13,18 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 
-from .mlabc import Clean
-from .mlabc import Config
-from .mlabc import DownloadSelenium
-from .mlabc import dump
-from .mlabc import Generate
-from .mlabc import read_suba_papers_csv
-from .mlabc import readxml
+from ._mlabc import Clean
+from ._mlabc import Config
+from ._mlabc import DownloadSelenium
+from ._mlabc import dump
+from ._mlabc import Generate
+from ._mlabc import read_suba_papers_csv
+from ._mlabc import readxml
 
 if TYPE_CHECKING:
     from bs4 import Tag
-    from .mlabc import Paper
-    from .mlabc import Response
+    from ._mlabc import Paper
+    from ._mlabc import Response
 
 ISSN = {
     "1097-4172": "Cell",

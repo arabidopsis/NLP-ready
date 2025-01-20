@@ -1,10 +1,17 @@
+from __future__ import annotations
+
 from io import BytesIO
 from os.path import join
 
 from lxml import etree
-from lxml.html import document_fromstring, parse
+from lxml.html import document_fromstring
+from lxml.html import parse
 
-from .mlabc import Clean, Config, Download, Generate, dump
+from ._mlabc import Clean
+from ._mlabc import Config
+from ._mlabc import Download
+from ._mlabc import dump
+from ._mlabc import Generate
 
 ISSN = {
     "1476-4687": "Nature",
@@ -132,7 +139,7 @@ def download_nature(issn, sleep=5.0, mx=0):
             a = a or soup.xpath('.//section[@aria-labelledby="methods-summary"]')
             a = a or soup.xpath('.//section[@aria-labelledby="materials-and-methods"]')
             a = a or soup.xpath(
-                './/section[@aria-labelledby="material-and-methods"]'
+                './/section[@aria-labelledby="material-and-methods"]',
             )  # spelling?
             if not a:
                 dump(paper, resp.content)
