@@ -2,7 +2,7 @@ syntax: glob
 .DS_Store
 *.pyc
 *~
-*.csv
+/*.csv
 .ipynb_checkpoints/
 nlpready-data/*
 /.venv
