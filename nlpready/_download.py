@@ -214,7 +214,7 @@ def getmeta(
 def journal_summary() -> None:
     """Summarize journal statistics."""
     # pylint: disable=import-outside-toplevel
-    from ._issn import issn2mod
+    from ._cli import issn2mod
 
     d = defaultdict(list)
     for p in read_suba_papers_csv():

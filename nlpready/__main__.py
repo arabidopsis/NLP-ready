@@ -1,5 +1,5 @@
 from __future__ import annotations
 
-from ._issn import cli
+from ._cli import cli
 
 cli()

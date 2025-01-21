@@ -386,7 +386,7 @@ def download(mod: str = "", sleep: float = 10.0, mx: int = 1, issn: str = "") ->
 def summary() -> None:
     """Summary of current download status."""
     # pylint: disable=import-outside-toplevel
-    from .download import journal_summary
+    from ._download import journal_summary
 
     journal_summary()
 
@@ -425,7 +425,7 @@ def journals(
 ) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of pubmed IDs."""
     # pylint: disable=import-outside-toplevel
-    from .download import getmeta
+    from ._download import getmeta
 
     if not email:
         warnings.warn(

@@ -437,13 +437,13 @@ class Generate:
             a = e.abstract()
             m = e.methods()
             r = e.results()
-            if a is not None:
+            if a:
                 for p in e.tostr(a):
                     yield "a", reduce_nums(p)
-            if m is not None:
+            if m:
                 for p in e.tostr(m):
                     yield "m", reduce_nums(p)
-            if r is not None:
+            if r:
                 for p in e.tostr(r):
                     yield "r", reduce_nums(p)
 
@@ -480,7 +480,7 @@ class Generate:
         r = e.results()
         ft = e.full_text() if (not m and not r) else None
 
-        if a is None or m is None or r is None:
+        if not a or not m or not r:
             click.secho(
                 "{}: missing: abs {}, methods {}, results {} doi={}".format(
                     pmid,
@@ -498,10 +498,10 @@ class Generate:
         else:
             click.secho("generating %s" % fname, fg="magenta")
 
-        def con(sec: list[Tag]) -> str:
+        def con(seclist: list[Tag]) -> str:
             if num:
-                return " ".join(reduce_nums(a) for a in e.tostr(sec))
-            return " ".join(e.tostr(sec))
+                return " ".join(reduce_nums(a) for a in e.tostr(seclist))
+            return " ".join(e.tostr(seclist))
 
         with open(fname, "w", encoding="utf-8") as fp:
             if a:
