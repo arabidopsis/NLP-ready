@@ -9,6 +9,7 @@ from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
+    from ._mlabc import Response, Paper
 
 ISSN = {
     "1932-6203": "PLoS ONE",
@@ -74,9 +75,15 @@ def download_plos(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://www.plosone.org"
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article-text")
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

@@ -14,6 +14,7 @@ from ._mlabc import Generate
 if TYPE_CHECKING:
 
     from bs4 import BeautifulSoup
+    from ._mlabc import Response, Paper
 
 ISSN = {
     "1460-2431": "J. Exp. Bot.",
@@ -138,10 +139,17 @@ def download_oup(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://academic.oup.com"
 
-        def check_soup(self, paper, soup, resp):
-            a = soup.select("div.article-body div.widget-items")
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
+            aa = soup.select("div.article-body div.widget-items")
             assert (
-                a and len(a) == 1 and a[0].attrs["data-widgetname"] == "ArticleFulltext"
+                aa
+                and len(aa) == 1
+                and aa[0].attrs["data-widgetname"] == "ArticleFulltext"
             ), (paper.pmid, resp.url)
             o = OUP(soup)
             a = o.abstract()
@@ -153,6 +161,7 @@ def download_oup(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
                     % (paper.pmid, paper.issn, a is None, m is None, r is None),
                     fg="magenta",
                 )
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

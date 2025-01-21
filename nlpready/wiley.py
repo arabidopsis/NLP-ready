@@ -13,6 +13,7 @@ from ._mlabc import Generate
 if TYPE_CHECKING:
 
     from bs4 import BeautifulSoup, Tag
+    from ._mlabc import Response, Paper
 
 # generated from downloads.py:wiley_issn()
 # only gives online version for Plant J. !!!!
@@ -217,7 +218,12 @@ def download_wiley(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
             resp = requests.get(url, headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("article.journal article.issue article.article")
             if not a:
                 a = soup.select("article div.article__body article")

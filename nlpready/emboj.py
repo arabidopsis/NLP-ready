@@ -8,6 +8,8 @@ from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
+    from ._mlabc import Response, Paper
+
 
 ISSN = {
     "1460-2075": "EMBO J.",
@@ -82,9 +84,15 @@ def download_emboj(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "http://emboj.embopress.org"
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article.fulltext-view")
             assert a and len(a) == 1, (paper, resp.url)
+            return None
 
     e = D(issn, sleep=sleep, mx=mx)
     e.run()

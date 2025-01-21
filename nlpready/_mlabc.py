@@ -233,7 +233,7 @@ class Clean:
     def tostr(self, seclist: list[Tag]) -> list[str]:
 
         txt = [
-            self.SPACE.sub(" ", p.get_text(strip=True))
+            self.SPACE.sub(" ", p.get_text(" ", strip=True))
             for sec in seclist
             for p in sec.select("p")
         ]
@@ -318,7 +318,7 @@ class Clean:
         caption: str = "figcaption p",
         node: str = "p",
     ) -> Tag:
-        captions = [c.get_text(strip=True) for c in tag.select(caption)]
+        captions = [c.get_text(" ", strip=True) for c in tag.select(caption)]
         txt = " ".join(captions)
         new_tag = self.root.new_tag(node)
         new_tag.string = fmt % txt

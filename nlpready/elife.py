@@ -8,6 +8,8 @@ from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import BeautifulSoup, Tag
+    from ._mlabc import Response, Paper
+
 
 # http://genesdev.cshlp.org
 
@@ -92,9 +94,15 @@ def download_elife(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://elifesciences.org"
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("main section.article-section")
             assert a, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

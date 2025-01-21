@@ -11,6 +11,7 @@ from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
+    from ._mlabc import Response, Paper
 
 
 ISSN = {"1470-8728": "Biochem. J.", "0264-6021": "Biochem. J."}
@@ -94,7 +95,12 @@ def download_bioj(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
                 resp = requests.get(resp.url + ".full", headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article.fulltext-view")
             # if not a and year <= 2001:  # probably only a (scanned?) PDF version
             #    xml = b'failed-only-pdf'

@@ -11,6 +11,8 @@ from ._mlabc import Generate
 if TYPE_CHECKING:
 
     from bs4 import BeautifulSoup
+    from ._mlabc import Response, Paper
+
 
 ISSN = {
     "0027-8424": "Proc. Natl. Acad. Sci. U.S.A.",
@@ -90,9 +92,15 @@ def download_pnas(issn, sleep=5.0, mx=0):
     class D(Download):
         Referer = "http://www.pnas.org"
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article.fulltext-view")
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

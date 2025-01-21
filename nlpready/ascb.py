@@ -117,9 +117,15 @@ def download_ascb(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
                 )
             return super().get_response(paper, header)
 
-        def check_soup(self, paper: Paper, soup: BeautifulSoup, resp: Response) -> None:
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article__body div.abstractSection.abstractInFull")
             assert a, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

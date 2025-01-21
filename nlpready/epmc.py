@@ -139,7 +139,7 @@ class EPMC(Clean):
         )
         if not titles:
             return None
-        return " ".join([t.get_text(strip=True) for t in titles])
+        return " ".join([t.get_text(" ", strip=True) for t in titles])
 
     def abstract(self) -> list[Tag]:
         abstracts = self.root.select("article > front> article-meta > abstract")
@@ -158,7 +158,7 @@ class EPMC(Clean):
         return []
 
     def tostr(self, seclist: list[Tag]) -> list[str]:
-        return [sec.get_text(strip=True) for sec in seclist]
+        return [sec.get_text(" ", strip=True) for sec in seclist]
 
 
 # PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/

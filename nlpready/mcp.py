@@ -10,6 +10,8 @@ from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
+    from ._mlabc import Response, Paper
+
 
 ISSN = {
     "1535-9484": "Mol. Cell Proteomics",
@@ -94,7 +96,12 @@ def download_mcp(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
                 resp = requests.get(resp.url + ".full", headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("div.article.fulltext-view")
             # if not a and year <= 2001:  # probably only a (scanned?) PDF version
             #    xml = b'failed-only-pdf'
@@ -102,6 +109,7 @@ def download_mcp(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
             #    failed.add(pmid)
             # else:
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()

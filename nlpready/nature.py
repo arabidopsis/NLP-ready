@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-from io import BytesIO
-from os.path import join
-
-from lxml import etree
-from lxml.html import document_fromstring
-from lxml.html import parse
+from typing import TYPE_CHECKING
 
 from ._mlabc import Clean
-from ._mlabc import Config
 from ._mlabc import Download
-from ._mlabc import dump
 from ._mlabc import Generate
+
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
+    from ._mlabc import Response, Paper
 
 ISSN = {
     "1476-4687": "Nature",
@@ -28,130 +26,70 @@ ISSN = {
 
 
 class Nature(Clean):
-    MM = [
-        './/section[@aria-labelledby="methods"]',
-        # './/section[@aria-labelledby="methods-summary"]',
-        './/section[@aria-labelledby="materials-and-methods"]',
-        './/section[@aria-labelledby="material-and-methods"]',
-    ]
 
-    def __init__(self, root):
-        super().__init__(root)
-        # print(etree.tostring(root))
-        a = root.xpath('.//div[@data-article-body="true"]')
-        assert a and len(a) == 1, a
-        self.article = a[0]
+    def results(self) -> list[Tag]:
+        for sec in self.root.select(
+            "article div.c-article-body > div > section[data-title]",
+        ):
+            if (
+                "data-title" in sec.attrs
+                and sec.attrs["data-title"].lower() == "discussion"
+            ):
+                return [sec]
+        return []
 
-    def results(self):
-        secs = self.article.xpath('.//section[@aria-labelledby="main"]')
-        if secs:
-            return secs[0]
-        secs = self.article.xpath('.//section[@aria-labelledby="results"]')
-        if secs:
-            return secs[0]
-        return None
-
-    def methods(self):
-        secs1 = None
-        for _ in self.MM:
-            secs1 = self.article.xpath('.//section[@aria-labelledby="methods"]')
-            if secs1:
-                break
-
-        secs2 = self.article.xpath('.//section[@aria-labelledby="methods-summary"]')
-        secs3 = self.article.xpath('.//section[@aria-labelledby="online-methods"]')
-        secs = secs1 + secs2 + secs3
-        if len(secs) == 1:
-            return secs[0]
-        div = etree.Element("div")
-        for sec in secs:
-            for s in sec:
-                div.append(s)
-        return div
+    def methods(self) -> list[Tag]:
+        for sec in self.root.select(
+            "article div.c-article-body > div > section[data-title]",
+        ):
+            if (
+                "data-title" in sec.attrs
+                and sec.attrs["data-title"].lower() == "methods"
+            ):
+                return [sec]
+        return []
 
     def abstract(self):
-        secs = self.article.xpath('.//section[@aria-labelledby="abstract"]')
-        return secs[0] if secs else None
+        return list(self.root.select('article section[data-title="Abstract"] p'))
 
-    def title(self):
-        txt = "".join(self.root.xpath("/html/head/title/text()"))
-        return txt.rsplit(" | ", 1)[0].strip()
-
-    def tostr(self, sec):
-        for fig in sec.xpath('.//div[@data-container-section="figure"]'):
-            s = etree.Element("p")
-            txt = " ".join(n or "" for n in fig.xpath(".//figcaption//text()"))
-            s.text = self.FIGURE % txt
-            s.tail = fig.tail  # important!
-            fig.getparent().replace(fig, s)
-        for sup in sec.xpath(".//sup"):
-            n = sup.xpath('./a[starts-with(@aria-label,"Reference")]')
-            if len(n) > 0:
-                # for a in n:
-                #     a.text = ' CITATION '
-                s = etree.Element("span")
-                # s.text = ' (CITATION x %d) ' % len(n)
-                s.text = " (CITATION) "
-                s.tail = sup.tail  # important!
-                sup.getparent().replace(sup, s)
-        txt = [
-            self.SPACE.sub(" ", "".join(p.xpath(".//text()")))
-            for p in sec.xpath(".//p")
-        ]
-        return txt
+    def title(self) -> str | None:
+        title = self.root.select("article [data-article-title]")
+        if not title:
+            return None
+        return title[0].get_text(" ", strip=True)
 
 
 class GenerateNature(Generate):
-    def create_clean(self, soup, pmid):
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return Nature(soup)
 
-    def get_soup(self, gdir, pmid):
-        fname = join(Config.DATADIR, gdir, f"{pmid}.html")
-        with open(fname, encoding="utf-8") as fp:
-            # tree = parse(fp)
-            # soup = tree.getroot()
-            txt = fp.read()
-            soup = document_fromstring(txt)
 
-        return soup
-
-
-def gen_nature(issn):
+def gen_nature(issn: str) -> None:
 
     nature = GenerateNature(issn)
     nature.run()
 
 
-def download_nature(issn, sleep=5.0, mx=0):
+def download_nature(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
     class D(Download):
         Referer = "https://www.nature.com"
 
-        def create_soup(self, paper, resp):
-            # parser = etree.XMLParser(ns_clean=True)
-            tree = parse(BytesIO(resp.content))
-            return tree.getroot()
-
-        def check_soup(self, paper, soup, resp):
-            # print(etree.tostring(soup))
-            a = soup.xpath('.//section[@aria-labelledby="abstract"]')
-            assert a and len(a) == 1, (paper.pmid, resp.url)
-            a = soup.xpath('.//section[@aria-labelledby="methods"]')
-            a = a or soup.xpath('.//section[@aria-labelledby="methods-summary"]')
-            a = a or soup.xpath('.//section[@aria-labelledby="materials-and-methods"]')
-            a = a or soup.xpath(
-                './/section[@aria-labelledby="material-and-methods"]',
-            )  # spelling?
-            if not a:
-                dump(paper, resp.content)
-                return b"failed! no mm"
-            assert a and len(a) == 1, (paper.pmid, resp.url)
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
+            x = list(soup.select('article section[data-title="Abstract"] p'))
+            if not x:
+                return b"can't find abstract!"
             return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()
 
 
-def html_nature(issn):
+def html_nature(issn: str) -> None:
 
     nature = GenerateNature(issn)
     print(nature.tohtml())

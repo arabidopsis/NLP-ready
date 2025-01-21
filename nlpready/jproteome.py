@@ -10,6 +10,7 @@ from ._mlabc import Generate
 
 if TYPE_CHECKING:
     from bs4 import Tag, BeautifulSoup
+    from ._mlabc import Response, Paper
 
 ISSN = {
     "1535-3907": "J. Proteome Res.",
@@ -118,9 +119,15 @@ def download_jproteome(issn: str, sleep: float = 5.0, mx: int = 0) -> None:
                 resp = requests.get(url, headers=header)
             return resp
 
-        def check_soup(self, paper, soup, resp):
+        def check_soup(
+            self,
+            paper: Paper,
+            soup: BeautifulSoup,
+            resp: Response,
+        ) -> bytes | None:
             a = soup.select("article.article #articleBody")
             assert a and len(a) == 1, (paper.pmid, resp.url)
+            return None
 
     o = D(issn, sleep=sleep, mx=mx)
     o.run()
