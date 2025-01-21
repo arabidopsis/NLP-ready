@@ -6,3 +6,4 @@ syntax: glob
 .ipynb_checkpoints/
 nlpready-data/*
 /.venv
+.~lock*

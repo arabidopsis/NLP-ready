@@ -5,16 +5,21 @@ import gzip
 import os
 import time
 from os.path import join
+from typing import TYPE_CHECKING
 
 import click
 import requests
-from lxml import etree
+from requests import Session
 
 from ._mlabc import Clean
 from ._mlabc import Config
 from ._mlabc import Generate
 from ._mlabc import read_suba_papers_csv
 from ._mlabc import readxml
+
+
+if TYPE_CHECKING:
+    from bs4 import Tag, BeautifulSoup
 
 ISSN = {"epmc": "epmc"}
 
@@ -24,10 +29,12 @@ XML = (
 )
 
 
-def epmc(pmcid, session=None):
+def epmc(pmcid: str, session: Session | None = None) -> str | None:
     """Given a PUBMED id return the Europmc XML as text."""
     url = XML.format(pmcid=pmcid)
-    resp = (session or requests).get(url)
+    if session is None:
+        session = Session()
+    resp = session.get(url)
     if resp.status_code == 404:
         return None
     resp.raise_for_status()
@@ -39,13 +46,13 @@ def epmc(pmcid, session=None):
     return txt
 
 
-def ensure_dir(d):
+def ensure_dir(d: str) -> None:
     td = join(Config.DATADIR, d)
     if not os.path.isdir(td):
         os.makedirs(td, exist_ok=True)
 
 
-def download_epmc(issn="epmc", sleep=0.5, mx=0):
+def download_epmc(issn: str = "epmc", sleep: float = 0.5, mx: int = 0) -> None:
     """Download any EuroPMC XML files using pubmed IDs."""
     failed = set(readxml("failed_epmc"))
     done = set(readxml("xml_epmc"))
@@ -101,16 +108,7 @@ def download_epmc(issn="epmc", sleep=0.5, mx=0):
         time.sleep(sleep)
 
 
-def getxmlepmc(pmid):
-    parser = etree.XMLParser(ns_clean=True)
-    with open(join(Config.DATADIR, "xml_epmc", f"{pmid}.xml"), "rb") as fp:
-        tree = etree.parse(fp, parser)
-
-    root = tree.getroot()
-    return root
-
-
-TRANS = 'translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")'
+# TRANS = 'translate(text(),"ABCDEFGHIJKLMNOPQRSTUVWXYZ","abcdefghijklmnopqrstuvwxyz")'
 
 EXREFS = {"xref"}
 
@@ -133,86 +131,43 @@ def para2txt3(e):
 
 
 class EPMC(Clean):
-    def title(self):
-        res = self.root.xpath("/article/front/article-meta/title-group/article-title")
-        if not res:
-            return None
-        t = res[0]
-        txt = " ".join(t.xpath(".//text()"))
-        return txt.strip()
 
-    def abstract(self):
-        res = self.root.xpath("/article/front/article-meta/abstract")
-        if not res:
-            return None
-        for r in res:
-            if r.attrib.get("abstract-type") == "precis":
-                continue
-            return r
-        return res[0]
+    def title(self) -> str | None:
 
-    def methods(self):
-        mm = self.root.xpath('/article/body/sec[@sec-type="methods"]')
-        if not mm:
-            mm = self.root.xpath(
-                "/article/body/sec/title[contains(" + TRANS + ',"methods")]/..',
-            )
-        if not mm:
-            mm = self.root.xpath(
-                "/article/body/sec/title[contains(" + TRANS + ',"experimental")]/..',
-            )
-        if not mm:
-            return None
-        return mm[0]
-
-    def results(self):
-        res = self.root.xpath(
-            "/article/body/sec/title[contains(" + TRANS + ',"results")]/..',
+        titles = self.root.select(
+            "article > front > article-meta > title-group > article-title",
         )
-        if res:
-            return res[0]
-        res = self.root.xpath(
-            "/article/body/sec/title[contains(" + TRANS + ',"result")]/..',
-        )
-        if res:
-            return res[0]
+        if not titles:
+            return None
+        return " ".join([t.get_text(strip=True) for t in titles])
 
-        return None
+    def abstract(self) -> list[Tag]:
+        abstracts = self.root.select("article > front> article-meta > abstract")
+        return list(abstracts)
 
-    def tostr(self, sec):
-        def txt(p):
-            res = []
-            for t in para2txt3(p):
-                res.append(t)
+    def methods(self) -> list[Tag]:
+        for sec in self.root.select("article > body > sec > title"):
+            if sec.string and "method" in sec.string.lower():
+                return [sec]
+        return []
 
-            txt = "".join(res)
-            txt = self.SPACE.sub(" ", txt)
-            return txt.strip()
+    def results(self) -> list[Tag]:
+        for sec in self.root.select("article > body > sec > title"):
+            if sec.string and "result" in sec.string.lower():
+                return [sec]
+        return []
 
-        secs = sec.xpath("./sec")
-
-        if not secs:
-            for p in sec.xpath(".//p"):
-                yield txt(p)
-        else:
-            for p in sec.xpath("./sec/*[self::p or self::fig or self::table-wrap]"):
-                if p.tag == "fig":
-                    t = " ".join(txt(c) for c in p.xpath(".//p"))
-                    yield self.FIGURE % t
-                elif p.tag == "table-wrap":
-                    t = " ".join(txt(c) for c in p.xpath(".//caption//p"))
-                    yield self.TABLE % t
-                else:
-                    yield txt(p)
+    def tostr(self, seclist: list[Tag]) -> list[str]:
+        return [sec.get_text(strip=True) for sec in seclist]
 
 
 # PMC ids at ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/ see https://www.ncbi.nlm.nih.gov/pmc/pmctopmid/
 
 
-def pmc_subset(fname):
+def pmc_subset(fname: str) -> None:
     """Create a PMCID subset from PMC-ids.csv.gz."""
     pmids = {p.pmid for p in read_suba_papers_csv()}
-    with open(fname, "w") as out:
+    with open(fname, "w", encoding="utf-8") as out:
         W = csv.writer(out)
         W.writerow(["pmid", "pmcid"])
         with gzip.open("PMC-ids.csv.gz", "rt") as fp:
@@ -224,9 +179,12 @@ def pmc_subset(fname):
                     W.writerow([pmid, pmcid])
 
 
-def getpmcids(pmids, fname="PMC-ids-partial.csv"):
+def getpmcids(
+    pmids: set[str],
+    fname: str = "PMC-ids-partial.csv",
+) -> dict[str, str]:
     """Map pubmed ids to the "open access" fulltext PMC ids."""
-    ret = {}
+    ret: dict[str, str] = {}
     pmids = set(pmids)
     if os.path.exists(fname):
         with open(fname) as fp:
@@ -255,19 +213,18 @@ def getpmcids(pmids, fname="PMC-ids-partial.csv"):
 
 
 class GenerateEPMC(Generate):
-    def create_clean(self, soup, pmid):
+    parser = "lxml-xml"
+
+    def create_clean(self, soup: BeautifulSoup, pmid: str) -> Clean:
         return EPMC(soup)
 
-    def get_soup(self, gdir, pmid):
-        return getxmlepmc(pmid)
 
-
-def gen_epmc(issn="epmc"):
+def gen_epmc(issn: str = "epmc") -> None:
     o = GenerateEPMC(issn)
     o.run()
 
 
-def html_epmc(issn="epmc"):
+def html_epmc(issn: str = "epmc") -> None:
 
     e = GenerateEPMC(issn)
     print(e.tohtml())
@@ -280,7 +237,7 @@ def cli():
 
 @cli.command()
 @click.option("--fname", help="output filename", default="PMC-ids-partial.csv")
-def subset(fname):
+def subset(fname: str):
     """Generate subset of PMC-ids.csv.gz."""
     if not os.path.exists("PMC-ids.csv.gz"):
         raise RuntimeError(

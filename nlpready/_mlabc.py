@@ -34,6 +34,7 @@ if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
 
+# Simple fake requests Response Object
 @dataclass
 class SeleniumResponse:
     content: bytes
@@ -41,7 +42,18 @@ class SeleniumResponse:
     status_code: int = 200
     encoding: str = "UTF-8"
 
-    def raise_for_status(self):
+    def raise_for_status(self) -> None:
+        pass
+
+    @property
+    def text(self) -> str:
+        return self.content.decode(self.encoding)
+
+    @property
+    def ok(self) -> bool:
+        return True
+
+    def close(self):
         pass
 
 
@@ -218,9 +230,13 @@ class Clean:
         # pylint: disable=no-self-use
         return []
 
-    def tostr(self, sec: list[Tag]) -> list[str]:
+    def tostr(self, seclist: list[Tag]) -> list[str]:
 
-        txt = [self.SPACE.sub(" ", p.text) for s in sec for p in s.select("p")]
+        txt = [
+            self.SPACE.sub(" ", p.get_text(strip=True))
+            for sec in seclist
+            for p in sec.select("p")
+        ]
         return txt
 
     def tostr2(self, sec: list[Tag]) -> list[str]:
@@ -275,37 +291,43 @@ class Clean:
         a = self.s_abstract()
         m = self.s_methods()
         r = self.s_results()
-        return a is not None and m is not None and r is not None
+        return a and m and r
 
     def has_rmm(self):
         m = self.s_methods()
         r = self.s_results()
-        return m is not None or r is not None
+        return m or r
 
     def missing(self):
         a = self.s_abstract()
         m = self.s_methods()
         r = self.s_results()
         ret = []
-        if a is None:
+        if not a:
             ret.append("a")
-        if m is None:
+        if not m:
             ret.append("m")
-        if r is None:
+        if not r:
             ret.append("r")
         return " ".join(ret) if ret else ""
 
-    def _newfig(self, tag, fmt, caption="figcaption p", node="p"):
-        captions = [c.text for c in tag.select(caption)]
+    def _newfig(
+        self,
+        tag: Tag,
+        fmt: str,
+        caption: str = "figcaption p",
+        node: str = "p",
+    ) -> Tag:
+        captions = [c.get_text(strip=True) for c in tag.select(caption)]
         txt = " ".join(captions)
         new_tag = self.root.new_tag(node)
         new_tag.string = fmt % txt
         return new_tag
 
-    def newfig(self, tag, caption="figcaption p", node="p"):
+    def newfig(self, tag: Tag, caption: str = "figcaption p", node: str = "p") -> Tag:
         return self._newfig(tag, self.FIGURE, caption=caption, node=node)
 
-    def newtable(self, tag, caption="figcaption p", node="p"):
+    def newtable(self, tag: Tag, caption: str = "figcaption p", node: str = "p") -> Tag:
         return self._newfig(tag, self.TABLE, caption=caption, node=node)
 
 
@@ -326,14 +348,14 @@ class Generate:
 
     def __init__(
         self,
-        issn,
-        onlynewer=False,
+        issn: str,
+        onlynewer: bool = False,
         pmid2doi: (
             dict[str, Paper] | None
         ) = None,  # pylint: disable=redefined-outer-name
-        journal=None,
-        partial=False,
-        **kwargs,
+        journal: str | None = None,
+        partial: bool = False,
+        **kwargs: Any,
     ):
         self.issn = issn
         self._pmid2doi = pmid2doi
