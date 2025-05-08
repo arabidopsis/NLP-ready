@@ -413,7 +413,7 @@ def summary() -> None:
     show_default=True,
 )
 @click.option("--noheader", is_flag=True, help="csvfile has no header")
-@click.argument("csvfile")
+@click.argument("csvfile", type=click.Path(dir_okay=False, exists=True, file_okay=True))
 def journals(
     csvfile: str,
     out: str,

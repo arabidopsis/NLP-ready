@@ -345,6 +345,7 @@ def make_jinja_env() -> Environment:
 
 class Generate:
     parser = "lxml"
+    need_all = False
 
     def __init__(
         self,
@@ -471,7 +472,7 @@ class Generate:
 
     def clean_name(self, pmid: str) -> str:
         dname = self.ensure_dir()
-        fname = join(f"{dname},{pmid}_cleaned.txt")
+        fname = join(dname, f"{pmid}_cleaned.txt")
         return fname
 
     def generate_pmid(
@@ -502,18 +503,19 @@ class Generate:
         r = e.results()
         ft = e.full_text() if (not m and not r) else None
 
-        if not a or not m or not r:
-            click.secho(
-                "{}: missing: abs {}, methods {}, results {} doi={}".format(
-                    pmid,
-                    a is None,
-                    m is None,
-                    r is None,
-                    self.pmid2doi[pmid].doi,
-                ),
-                fg="red",
-            )
-            return False
+        if self.need_all:
+            if not a or not m or not r:
+                click.secho(
+                    "{}: missing: abs {}, methods {}, results {} doi={}".format(
+                        pmid,
+                        a is None or a == [],
+                        m is None or m == [],
+                        r is None or r == [],
+                        self.pmid2doi[pmid].doi,
+                    ),
+                    fg="red",
+                )
+                return False
 
         if exists:
             click.secho("overwriting %s" % fname, fg="yellow")
@@ -676,6 +678,16 @@ class Download:
         soup = BeautifulSoup(BytesIO(xml), self.parser)
         return soup
 
+    def save_page(self, xml: bytes, targetd: str, paper: Paper) -> None:
+        with open(join(Config.DATADIR, targetd, f"{paper.pmid}.html"), "wb") as fp:
+            fp.write(xml)
+
+    def remove_page(self, targetd: str, paper: Paper) -> None:
+        try:
+            os.unlink(join(Config.DATADIR, targetd, f"{paper.pmid}.html"))
+        except FileNotFoundError:
+            pass
+
     def run(self) -> None:
         header = {"User-Agent": USER_AGENT, "Referer": self.Referer}
         # self.ensure_dirs()
@@ -707,21 +719,20 @@ class Download:
                 resp = self.get_response(paper, header)
                 if resp.status_code == 404:
                     xml = b"failed404"
-                    targetd = fdir
                     failed.add(paper.pmid)
                 else:
                     resp.raise_for_status()
                     header["Referer"] = resp.url
                     xml = resp.content
+                    self.save_page(xml, gdir, paper)
                     soup = self.create_soup(paper, resp)
 
                     err = self.check_soup(paper, soup, resp)
                     if err:
-                        xml = err
-                        targetd = fdir
                         failed.add(paper.pmid)
+                        self.save_page(xml, fdir, paper)
+                        self.remove_page(gdir, paper)
                     else:
-                        targetd = gdir
                         done.add(paper.pmid)
 
             except (
@@ -729,16 +740,17 @@ class Download:
                 AssertionError,
                 requests.exceptions.HTTPError,
             ) as e:
-                targetd = fdir
                 xml = str(e).encode("utf-8")
                 click.secho(
                     f"failed {paper.pmid} {paper.doi} {str(e)}",
                     fg="red",
                 )
                 failed.add(paper.pmid)
+                self.save_page(xml, fdir, paper)
+                self.remove_page(gdir, paper)
 
-            with open(join(Config.DATADIR, targetd, f"{paper.pmid}.html"), "wb") as fp:
-                fp.write(xml)
+            # with open(join(Config.DATADIR, targetd, f"{paper.pmid}.html"), "wb") as fp:
+            #     fp.write(xml)
 
             del todo[paper.pmid]
             print(

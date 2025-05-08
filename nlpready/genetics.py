@@ -16,7 +16,7 @@ ISSN = {
     "0016-6731": "Genetics",
     "1943-2631": "Genetics",
 }
-ARTICLE = "widget.widget-ArticleFulltext.widget-instance-OUP_Article_FullText_Widget"
+ARTICLE = ".widget.widget-ArticleFulltext.widget-instance-OUP_Article_FullText_Widget"
 # ARTICLE = "div.widget-items[data-widgetname=ArticleFulltext]"
 
 
