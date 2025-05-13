@@ -16,7 +16,7 @@ subscription to give you access to the full text of these journals.
 Install required python libraries with:
 
 ```sh
-pip install -r requirements.txt
+poetry install
 ```
 
 First we must create a CSV file containing the pubmed IDs

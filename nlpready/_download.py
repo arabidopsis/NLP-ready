@@ -7,6 +7,7 @@ import time
 from collections import defaultdict
 from glob import glob
 from io import BytesIO
+from itertools import batched
 from typing import Any
 from typing import Iterator
 from typing import TYPE_CHECKING
@@ -30,16 +31,20 @@ ERROR = re.compile("<ERROR>([^<]*)</ERROR>")
 
 def fetchpubmed(
     session: Session,
-    pmid: str,
+    pmid: str | list[str],
     email: str | None = None,
     api_key: str | None = None,
 ) -> bytes | None:
     """Fetch article metadata from NCBI using pubmed id."""
-    params = dict(db="pubmed", retmode="xml", id=pmid)
+    params = dict(db="pubmed", retmode="xml")
     if email is not None:
         params["email"] = email
     if api_key is not None:
         params["api_key"] = api_key
+    if isinstance(pmid, str):
+        pmid = [pmid]
+
+    params["id"] = ",".join(pmid)
     resp = session.get(EFETCH, params=params)
     return resp.content  # need buffer for parsing
 
@@ -62,88 +67,93 @@ class NCBIPaper(TypedDict):
     pmcid: str | None
 
 
-def parse_xml(xml: bytes) -> NCBIPaper | None:
+def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
     """Parse NCBI Journal metadata into a dictionary."""
     ipt = BytesIO(xml)
     tree = etree.parse(ipt)
     error = tree.getroot().tag
     if error == "ERROR":  # no id
         return None
-    article = tree.find("PubmedArticle/MedlineCitation/Article")
-    if article is None:
-        return None
-    t = tree.findtext("PubmedArticle/MedlineCitation/PMID")
-    pmid: str | None = t.strip() if t else None
-    title: str | None = article.findtext("ArticleTitle")
-    abstract = article.findtext("Abstract/AbstractText")
-    authors = article.findall("AuthorList/Author")
-    pages = article.findtext("Pagination/MedlinePgn")
-    journal = article.find("Journal")
-    if journal is not None:
+    for a in tree.findall("PubmedArticle"):
+        article = a.find("MedlineCitation/Article")
+        if article is None:
+            continue
+        t = a.findtext("MedlineCitation/PMID")
+        pmid: str | None = t.strip() if t else None
+        title: str | None = article.findtext("ArticleTitle")
+        abstract = article.findtext("Abstract/AbstractText")
+        authors = article.findall("AuthorList/Author")
+        pages = article.findtext("Pagination/MedlinePgn")
+        journal = article.find("Journal")
+        if journal is not None:
 
-        name = journal.findtext("ISOAbbreviation", None) or journal.findtext(
-            "Title",
-            "",
-        )
-        volume = journal.findtext("JournalIssue/Volume")
-        issue = journal.findtext("JournalIssue/Issue")
-        yearx = journal.findtext("JournalIssue/PubDate/Year")
-        yearx = yearx or journal.findtext("JournalIssue/PubDate/MedlineDate")
-        if yearx:
-            yearx = yearx.strip()[:4]
+            name = journal.findtext("ISOAbbreviation", None) or journal.findtext(
+                "Title",
+                "",
+            )
+            volume = journal.findtext("JournalIssue/Volume")
+            issue = journal.findtext("JournalIssue/Issue")
+            yearx = journal.findtext("JournalIssue/PubDate/Year")
+            yearx = yearx or journal.findtext("JournalIssue/PubDate/MedlineDate")
+            if yearx:
+                yearx = yearx.strip()[:4]
 
-            year = int(yearx)
+                year = int(yearx)
 
-        issn = journal.findtext("ISSN")
-        issn = issn.strip() if issn else None
-    else:
-        name = volume = issue = issn = None
-        year = -1
+            issn = journal.findtext("ISSN")
+            issn = issn.strip() if issn else None
+        else:
+            name = volume = issue = issn = None
+            year = -1
 
-    data = tree.find("PubmedArticle/PubmedData")
-    if data is not None:
-        ids = data.findall("ArticleIdList/ArticleId")
-        if ids:
-            doil = [i.text.strip() for i in ids if i.get("IdType") == "doi" and i.text]
-            doi: str | None
-            if doil:
-                doi = doil[0]
+        data = article.find("PubmedData")
+        if data is not None:
+            ids = data.findall("ArticleIdList/ArticleId")
+            if ids:
+                doil = [
+                    i.text.strip() for i in ids if i.get("IdType") == "doi" and i.text
+                ]
+                doi: str | None
+                if doil:
+                    doi = doil[0]
+                else:
+                    doi = None
+                pmcidl = [
+                    i.text.strip() for i in ids if i.get("IdType") == "pmc" and i.text
+                ]
+                if pmcidl:
+                    pmcid = pmcidl[0]
+                else:
+                    pmcid = None
             else:
-                doi = None
-            pmcidl = [
-                i.text.strip() for i in ids if i.get("IdType") == "pmc" and i.text
-            ]
-            if pmcidl:
-                pmcid = pmcidl[0]
-            else:
-                pmcid = None
+                doi = pmcid = None
         else:
             doi = pmcid = None
-    else:
-        doi = pmcid = None
 
-    # elementtree tries to encode everything as ascii
-    # or if that fails it leaves the string alone
-    # alist = [(a.findtext('LastName'), a.findtext('ForeName'), a.findtext('Initials'))
-    #          for a in authors]
-    alist = [
-        (a.findtext("ForeName"), a.findtext("Initials"), a.findtext("LastName"))
-        for a in authors
-    ]
-    return NCBIPaper(
-        pmid=pmid,
-        year=year,
-        title=title,
-        abstract=abstract,
-        authors=alist,
-        journal=name,
-        volume=volume,
-        issue=issue,
-        pages=pages,
-        doi=doi,
-        issn=issn,
-        pmcid=pmcid,
-    )
+        # elementtree tries to encode everything as ascii
+        # or if that fails it leaves the string alone
+        # alist = [(a.findtext('LastName'), a.findtext('ForeName'), a.findtext('Initials'))
+        #          for a in authors]
+        alist = [
+            (a.findtext("ForeName"), a.findtext("Initials"), a.findtext("LastName"))
+            for a in authors
+        ]
+        yield NCBIPaper(
+            pmid=pmid,
+            year=year,
+            title=title,
+            abstract=abstract,
+            authors=alist,
+            journal=name,
+            volume=volume,
+            issue=issue,
+            pages=pages,
+            doi=doi,
+            issn=issn,
+            pmcid=pmcid,
+        )
+
+    # return data from xml file at NIH in a pythonic dictionary
 
 
 def getmeta(
@@ -154,15 +164,16 @@ def getmeta(
     header: bool = True,
     pcol: int = 0,
     sleep: float = 0.2,
+    batch_size: int = 10,
 ) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
 
     # return data from xml file at NIH in a pythonic dictionary
-    def pubmed_meta(session: Session, pmid: str) -> NCBIPaper | None:
-        xml = fetchpubmed(session, pmid, email=email, api_key=api_key)
+    def pubmed_meta(session: Session, pmids: list[str]) -> Iterator[NCBIPaper]:
+        xml = fetchpubmed(session, pmids, email=email, api_key=api_key)
         if xml is None:
-            return None
-        return parse_xml(xml)
+            return
+        yield from parse_xml(xml)
 
     session = requests.Session()
     e = os.path.exists(pubmeds)
@@ -179,34 +190,37 @@ def getmeta(
         for pmid in read_pubmed_csv(csvfile, header=header, pcol=pcol)
         if pmid not in done
     ]
-    print("%d done. %d todo" % (len(done), len(todo)))
+    click.secho(f"{len(done)} done. {len(todo)} todo", fg="blue")
 
     with open(pubmeds, "a", encoding="utf8") as fp:
         W = csv.writer(fp)
         if not e:
             W.writerow(["pmid", "issn", "name", "year", "doi", "pmcid", "title"])
             fp.flush()
-        for pmid in todo:
-            m = pubmed_meta(session, pmid)
-            if m is None:
-                click.secho("missing: %s" % pmid, fg="red")
-                W.writerow([pmid, "missing-issn", "", "", "", "", ""])
-                continue
-            assert pmid == m["pmid"], m
-            W.writerow(
-                [
-                    pmid,
-                    m["issn"] or "",
-                    m["journal"],
-                    str(m["year"]),
-                    m["doi"] or "",
-                    m["pmcid"] or "",
-                    m["title"],
-                ],
-            )
-            fp.flush()  # in case of interrupt.
-            done.add(pmid)
-            print("%s: %d done" % (pmid, len(done)))
+        for pmids in batched(todo, batch_size):
+            d = []
+            for m in pubmed_meta(session, list(pmids)):
+                pubmed = m["pmid"]
+                if not pubmed:
+                    continue
+                d.append(pubmed)
+                W.writerow(
+                    [
+                        pubmed,
+                        m["issn"] or "",
+                        m["journal"],
+                        str(m["year"]),
+                        m["doi"] or "",
+                        m["pmcid"] or "",
+                        m["title"],
+                    ],
+                )
+                fp.flush()  # in case of interrupt.
+                done.add(pubmed)
+            for p in pmids:
+                if p not in d:
+                    click.secho(f"missing {p}", fg="red")
+            click.secho(f"{len(done)} done", fg="green")
             if sleep:
                 time.sleep(sleep)  # be nice :)
 

@@ -4,6 +4,7 @@ import os
 import warnings
 from collections import Counter
 from collections import namedtuple
+from dataclasses import dataclass
 from importlib import import_module
 from pickle import dump
 from pickle import load
@@ -70,6 +71,21 @@ class NLPMod(TypedDict):
     issn: dict[str, str]
     download: Callable[[str, float, int], None]
     Generate: type[Generate]
+
+
+@dataclass(kw_only=True)
+class UserConfig:
+    email: str | None = None
+    api_key: str | None = None
+
+
+def getconfig() -> UserConfig:
+    import tomllib
+
+    if not os.path.exists("config.toml"):
+        return UserConfig()
+    with open("config.toml", "rb") as fp:
+        return UserConfig(**tomllib.load(fp))
 
 
 def getmod(mod: str) -> NLPMod:
@@ -399,11 +415,19 @@ def summary() -> None:
     default=Config.JCSV,
     help="output filename (will be appended to if exists)",
     show_default=True,
+    type=click.Path(dir_okay=False, file_okay=True, exists=False),
 )
 @click.option(
     "--col",
     default=0,
     help="column in file that contains the pubmed ID",
+    show_default=True,
+)
+@click.option(
+    "-b",
+    "--batch-size",
+    default=10,
+    help="batch size to hit NCBI",
     show_default=True,
 )
 @click.option(
@@ -422,14 +446,20 @@ def journals(
     noheader: bool = False,
     col: int = 0,
     sleep: float = 0.37,
+    batch_size: int = 10,
 ) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of pubmed IDs."""
     # pylint: disable=import-outside-toplevel
     from ._download import getmeta
 
+    conf = getconfig()
+
     if not email:
-        warnings.warn(
-            """
+        if conf.email:
+            email = conf.email
+        else:
+            warnings.warn(
+                """
 Email address is not specified.
 
 To make use of NCBI's E-utilities, NCBI requires you to specify your
@@ -438,8 +468,9 @@ email address with each request.
 In case of excessive usage of the E-utilities, NCBI will attempt to contact
 a user at the email address provided before blocking access to the
 E-utilities.""",
-            UserWarning,
-        )
+                UserWarning,
+            )
+    api_key = api_key or conf.api_key
     if not api_key and sleep < 0.37:
         warnings.warn(
             """
@@ -455,6 +486,7 @@ blocked from the NCBI site.""",
         pcol=col,
         email=email,
         api_key=api_key,
+        batch_size=batch_size,
     )
 
 
