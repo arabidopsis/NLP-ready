@@ -86,3 +86,10 @@ class Selenium:
     def close(self):
         self.driver.close()
         self.driver = None
+
+    def is_cloudflare_challenge(self) -> bool:
+        scripts = [
+            a.get_attribute("src")
+            for a in self.driver.find_elements(by=By.TAG_NAME, value="script")
+        ]
+        return any(["https://challenges.cloudflare.com" in src for src in scripts])
