@@ -19,6 +19,7 @@ from lxml import etree
 
 from ._mlabc import read_pubmed_csv
 from ._mlabc import read_suba_papers_csv
+from ._types import NCBIPaper
 
 if TYPE_CHECKING:
     from requests import Session
@@ -49,24 +50,6 @@ def fetchpubmed(
     return resp.content  # need buffer for parsing
 
 
-from typing import TypedDict
-
-
-class NCBIPaper(TypedDict):
-    pmid: str | None
-    year: int | None
-    title: str | None
-    abstract: str | None
-    authors: list[tuple[str | None, str | None, str | None]]
-    journal: str | None
-    volume: str | None
-    issue: str | None
-    pages: str | None
-    doi: str | None
-    issn: str | None
-    pmcid: str | None
-
-
 def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
     """Parse NCBI Journal metadata into a dictionary."""
     ipt = BytesIO(xml)
@@ -79,7 +62,9 @@ def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
         if article is None:
             continue
         t = a.findtext("MedlineCitation/PMID")
-        pmid: str | None = t.strip() if t else None
+        if not t:
+            continue
+        pmid: str = t.strip()
         title: str | None = article.findtext("ArticleTitle")
         abstract = article.findtext("Abstract/AbstractText")
         authors = article.findall("AuthorList/Author")
@@ -148,12 +133,26 @@ def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
             volume=volume,
             issue=issue,
             pages=pages,
-            doi=doi,
+            doi=doi or "",
             issn=issn,
             pmcid=pmcid,
         )
 
     # return data from xml file at NIH in a pythonic dictionary
+
+
+def pubmed_meta(
+    pmids: list[str],
+    session: Session | None,
+    email: str | None = None,
+    api_key: str | None = None,
+) -> Iterator[NCBIPaper]:
+    if session is None:
+        session = requests.Session()
+    xml = fetchpubmed(session, pmids, email=email, api_key=api_key)
+    if xml is None:
+        return
+    yield from parse_xml(xml)
 
 
 def getmeta(
@@ -167,13 +166,6 @@ def getmeta(
     batch_size: int = 10,
 ) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
-
-    # return data from xml file at NIH in a pythonic dictionary
-    def pubmed_meta(session: Session, pmids: list[str]) -> Iterator[NCBIPaper]:
-        xml = fetchpubmed(session, pmids, email=email, api_key=api_key)
-        if xml is None:
-            return
-        yield from parse_xml(xml)
 
     session = requests.Session()
     e = os.path.exists(pubmeds)
@@ -199,20 +191,20 @@ def getmeta(
             fp.flush()
         for pmids in batched(todo, batch_size):
             d = []
-            for m in pubmed_meta(session, list(pmids)):
-                pubmed = m["pmid"]
+            for m in pubmed_meta(list(pmids), session, email, api_key):
+                pubmed = m.pmid
                 if not pubmed:
                     continue
                 d.append(pubmed)
                 W.writerow(
                     [
                         pubmed,
-                        m["issn"] or "",
-                        m["journal"],
-                        str(m["year"]),
-                        m["doi"] or "",
-                        m["pmcid"] or "",
-                        m["title"],
+                        m.issn or "",
+                        m.journal,
+                        str(m.year),
+                        m.doi or "",
+                        m.pmcid or "",
+                        m.title,
                     ],
                 )
                 fp.flush()  # in case of interrupt.
@@ -233,12 +225,14 @@ def journal_summary() -> None:
     d = defaultdict(list)
     for p in read_suba_papers_csv():
         if p.doi:
-            d[(p.issn, p.name)].append(p.doi)
+            d[(p.issn, p.journal)].append(p.doi)
     header = [["ISSN", "mod", "count", "journal", "doi prefix", "example doi"]]
     ret = []
     i2mod = issn2mod()
     for k in d:
         (issn, name) = k
+        if not issn:
+            continue
         prefix = os.path.commonprefix(d[k])
         ret.append(
             (issn, i2mod.get(issn, "missing!"), len(d[k]), name, prefix, d[k][-1]),
@@ -335,6 +329,6 @@ def wiley_issn() -> None:
     print("pmid,issn,journal,year,doi")
     for p in read_suba_papers_csv():
         if p.issn in i2n:
-            ISSN[p.issn] = p.name
-            print(",".join((p.pmid, p.issn, p.name, str(p.year), p.doi)))
+            ISSN[p.issn] = p.journal
+            print(",".join((p.pmid, p.issn, p.journal or "", str(p.year), p.doi)))
     print(ISSN)

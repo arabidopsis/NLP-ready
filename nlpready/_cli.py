@@ -79,13 +79,22 @@ class UserConfig:
     api_key: str | None = None
 
 
+_CONF = None
+
+
 def getconfig() -> UserConfig:
     import tomllib
 
+    global _CONF
+    if _CONF is not None:
+        return _CONF
+
     if not os.path.exists("config.toml"):
-        return UserConfig()
-    with open("config.toml", "rb") as fp:
-        return UserConfig(**tomllib.load(fp))
+        _CONF = UserConfig()
+    else:
+        with open("config.toml", "rb") as fp:
+            _CONF = UserConfig(**tomllib.load(fp))
+    return _CONF
 
 
 def getmod(mod: str) -> NLPMod:
@@ -122,6 +131,8 @@ def doubles() -> None:
     papers = []
     for pmid in res:
         paper = pmid2doi[pmid]
+        if not paper.issn:
+            continue
         for iissn in res[pmid]:
             d = getmod(iissn)
             g: Generate = d["Generate"](iissn)
@@ -196,7 +207,7 @@ def tohtml(
     total3 = set()
 
     p2i = pmid2doi()
-    issns = {p.issn: p.name for p in p2i.values() if not issn_ or p.issn in issn_}
+    issns = {p.issn: p.journal for p in p2i.values() if not issn_ or p.issn in issn_}
     issnmap = {}
 
     for mmod in mods:

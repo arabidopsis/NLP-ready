@@ -57,6 +57,7 @@ def get_done() -> dict[str, list[str]]:
 
 
 def _summary(showall: bool = True, exclude: set[str] | None = None) -> None:
+    issn: str | None
     issns = defaultdict(list)
     for p in read_suba_papers_csv():
         if p.doi:
@@ -68,7 +69,7 @@ def _summary(showall: bool = True, exclude: set[str] | None = None) -> None:
         if exclude and issn in exclude:
             continue
         if issn in issns:
-            cnt, name = len(issns[issn]), issns[issn][0].name
+            cnt, name = len(issns[issn]), issns[issn][0].journal
         else:
             cnt, name = 0, issn
         pmids = get_dir(xmld, ext=getext(xmld))
@@ -84,10 +85,12 @@ def _summary(showall: bool = True, exclude: set[str] | None = None) -> None:
 
     if showall:
         for issn in issns:
+            if not issn:
+                continue
             if exclude and issn in exclude:
                 continue
             if issn not in dd:
-                cnt, name = len(issns[issn]), issns[issn][0].name
+                cnt, name = len(issns[issn]), issns[issn][0].journal
                 dd[issn] = (name, issn, cnt, 0, 0)
 
     header = "issn,count,done,failed,total,todo,tname".split(",")
@@ -170,11 +173,12 @@ def _todo(
     failed: bool = False,
 ) -> None:
     papers = get_papers_todo(exclude=exclude, failed=failed)
-    issns = {p.issn: p.name for p in papers.values()}
+    issns = {p.issn: p.journal for p in papers.values()}
 
     ISSN = Counter[str]()
     for _, p in papers.items():
-        ISSN[p.issn] += 1
+        if p.issn:
+            ISSN[p.issn] += 1
 
     tbl: list[tuple[str, str, int]]
     if byname:
@@ -183,8 +187,9 @@ def _todo(
         header = ["Journal", "ISSNs", "ToDo"]
         for issn, cnt in ISSN.items():
             j = issns[issn]
-            d1[j] += cnt
-            d2[j].append(issn)
+            if j:
+                d1[j] += cnt
+                d2[j].append(issn)
         tbl = []
         total = 0
         for j in d1:
@@ -197,19 +202,19 @@ def _todo(
         print(tabulate(tbl, headers=header, tablefmt="rst"))
     else:
         header = ["ISSN", "Journal", "ToDo"]
-        tbl = []
+        tbl2 = []
         total = 0
         for issn, cnt in reversed(sorted(ISSN.items(), key=lambda t: t[1])):
-            tbl.append((issn, issns[issn], cnt))
+            tbl2.append((issn, issns[issn], cnt))
             total += cnt
-        tbl.append(("total", "", total))
-        print(tabulate(tbl, headers=header, tablefmt="rst"))
+        tbl2.append(("total", "", total))
+        print(tabulate(tbl2, headers=header, tablefmt="rst"))
 
 
 def _urls(exclude: set[str] | None = None, failed: bool = False) -> None:
 
     papers = get_papers_todo(exclude=exclude, failed=failed)
-    issns = {p.issn: p.name for p in papers.values()}
+    issns = {p.issn: p.journal for p in papers.values()}
     header = {"User-Agent": USER_AGENT, "Referer": "http://www.google.com"}
 
     print("todo", len(papers))
@@ -227,7 +232,7 @@ def _urls(exclude: set[str] | None = None, failed: bool = False) -> None:
                     del papers[pmid]
                     redo.append(row)
 
-    papersl = sorted(papers.values(), key=lambda p: (p.name, p.issn, -p.year))
+    papersl = sorted(papers.values(), key=lambda p: (p.journal, p.issn, -p.year))
     print("%d to scrape" % len(papers))
     with open(fname, "w", encoding="utf8") as fp:
         W = csv.writer(fp)

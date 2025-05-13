@@ -7,3 +7,4 @@ syntax: glob
 nlpready-data/*
 /.venv
 .~lock*
+/config.toml

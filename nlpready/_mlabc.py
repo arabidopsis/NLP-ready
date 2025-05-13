@@ -13,7 +13,6 @@ from typing import Any
 from typing import cast
 from typing import Iterator
 from typing import Literal
-from typing import NamedTuple
 from typing import TYPE_CHECKING
 from typing import TypedDict
 
@@ -27,6 +26,7 @@ from selenium.webdriver.common.by import By
 from . import config as Config
 from ._rescantxt import find_primers
 from ._rescantxt import reduce_nums
+from ._types import Paper
 
 if TYPE_CHECKING:
     from jinja2 import Environment
@@ -65,17 +65,6 @@ class XRef(TypedDict):
     title: str | None
 
 
-# Paper = namedtuple("Paper", ["doi", "year", "pmid", "issn", "name", "pmcid", "title"])
-class Paper(NamedTuple):
-    doi: str
-    year: int
-    pmid: str
-    issn: str
-    name: str
-    pmcid: str | None
-    title: str | None
-
-
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
     " (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36"
@@ -109,10 +98,10 @@ def readx_suba_papers_csv(csvfile: str) -> Iterator[Paper]:
         # print(header)
         for row in R:
             if len(row) == 5:
-                pmid, issn, name, year, doi = row
+                pmid, issn, journal, year, doi = row
                 title = pmcid = None
             else:
-                pmid, issn, name, year, doi, pmcid, title = row
+                pmid, issn, journal, year, doi, pmcid, title = row
                 if issn == "missing-issn":
                     # click.secho("missing %s" % pmid, fg='yellow')
                     continue
@@ -120,7 +109,7 @@ def readx_suba_papers_csv(csvfile: str) -> Iterator[Paper]:
                 doi=doi,
                 year=int(year),
                 issn=issn,
-                name=name,
+                journal=journal,
                 pmid=pmid,
                 pmcid=pmcid,
                 title=title,
@@ -140,17 +129,20 @@ def read_pubmed_csv(csvfile: str, header: bool = True, pcol: int = 0) -> Iterato
 
 def read_issn() -> dict[str, tuple[int, str]]:
 
-    ISSN = defaultdict(list)
+    ISSN: defaultdict[str, list[Paper]] = defaultdict(list[Paper])
     for p in read_suba_papers_csv():
-        ISSN[p.issn].append(p)
-    return {k: (len(v), v[0].name) for k, v in ISSN.items()}
+        if p.issn:
+            ISSN[p.issn].append(p)
+    return {
+        k: (len(v), v[0].journal) for k, v in ISSN.items() if v[0].journal is not None
+    }
 
     # ISSN = {}
     # with open('jcounts.csv', 'r') as fp:
     #     R = csv.reader(fp)
     #     next(R)
     #     for issn, count, name, _, _ in R:
-    #         ISSN[p.issn] = (int(count), p.name)
+    #         ISSN[p.issn] = (int(count), p.journal)
     # return ISSN
 
 
@@ -384,7 +376,7 @@ class Generate:
         if self.issn in {"epmc", "elsevier"}:
             self._journal = self.issn
         else:
-            d = {p.issn: p.name for p in self.pmid2doi.values() if p.name}
+            d = {p.issn: p.journal for p in self.pmid2doi.values() if p.journal}
             # d = read_issn()
             if self.issn in d:
                 # self._journal = d[self.issn][1]
