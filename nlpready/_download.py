@@ -10,6 +10,7 @@ from io import BytesIO
 from itertools import batched
 from typing import Any
 from typing import Iterator
+from typing import Sequence
 from typing import TYPE_CHECKING
 
 import click
@@ -32,7 +33,7 @@ ERROR = re.compile("<ERROR>([^<]*)</ERROR>")
 
 def fetchpubmed(
     session: Session,
-    pmid: str | list[str],
+    pmid: str | Sequence[str],
     email: str | None = None,
     api_key: str | None = None,
 ) -> bytes | None:
@@ -142,7 +143,7 @@ def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
 
 
 def pubmed_meta(
-    pmids: list[str],
+    pmids: Sequence[str],
     session: Session | None,
     email: str | None = None,
     api_key: str | None = None,
@@ -191,7 +192,7 @@ def getmeta(
             fp.flush()
         for pmids in batched(todo, batch_size):
             d = []
-            for m in pubmed_meta(list(pmids), session, email, api_key):
+            for m in pubmed_meta(pmids, session, email, api_key):
                 pubmed = m.pmid
                 if not pubmed:
                     continue
