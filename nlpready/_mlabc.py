@@ -22,6 +22,8 @@ from bs4 import BeautifulSoup
 from requests import ConnectionError as RequestConnectionError
 from requests import Response as RequestResponse
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from . import config as Config
 from ._rescantxt import find_primers
@@ -772,6 +774,7 @@ class DownloadSelenium(Download):
         self.headless = headless
         self.close = close
         self.driver = driver
+        self.wait_: WebDriverWait | None = None
 
     def start(self) -> None:
         # pylint: disable=import-outside-toplevel
@@ -790,21 +793,26 @@ class DownloadSelenium(Download):
         if self.close and self.driver is not None:
             self.driver.close()
 
-    def wait(self):
-        # pylint: disable=import-outside-toplevel
-        from selenium.webdriver.support.ui import WebDriverWait
+    @property
+    def wait(self) -> WebDriverWait:
 
-        return WebDriverWait(self.driver, self.WAIT)
+        if self.wait_ is not None:
+            return self.wait_
+        self.wait_ = WebDriverWait(self.driver, self.WAIT)
+        return self.wait_
+
+    def wait_for_css(self, css: str) -> None:
+        self.wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, css)))
 
     def get_response(self, paper: Paper, header: dict[str, str]) -> Response:
         # pylint: disable=import-outside-toplevel
         from selenium.common.exceptions import TimeoutException
 
         assert self.driver is not None
-        url = f"http://doi.org/{paper.doi}"
+        url = f"https://doi.org/{paper.doi}"
         self.driver.get(url)
         try:
-            self.wait()
+            self.wait_for_css("html")
         except TimeoutException:
             assert False, "selenium timeout"  # trigger failure with
 

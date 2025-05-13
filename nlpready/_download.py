@@ -58,11 +58,11 @@ def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
     error = tree.getroot().tag
     if error == "ERROR":  # no id
         return None
-    for a in tree.findall("PubmedArticle"):
-        article = a.find("MedlineCitation/Article")
+    for diva in tree.findall("PubmedArticle"):
+        article = diva.find("MedlineCitation/Article")
         if article is None:
             continue
-        t = a.findtext("MedlineCitation/PMID")
+        t = diva.findtext("MedlineCitation/PMID")
         if not t:
             continue
         pmid: str = t.strip()
@@ -92,7 +92,7 @@ def parse_xml(xml: bytes) -> Iterator[NCBIPaper]:
             name = volume = issue = issn = None
             year = -1
 
-        data = article.find("PubmedData")
+        data = diva.find("PubmedData")
         if data is not None:
             ids = data.findall("ArticleIdList/ArticleId")
             if ids:
