@@ -213,7 +213,7 @@ def getmeta(
             for p in pmids:
                 if p not in d:
                     click.secho(f"missing {p}", fg="red")
-            click.secho(f"{len(done)} done", fg="green")
+            click.secho(f"{len(done)}/{len(todo)} done", fg="green")
             if sleep:
                 time.sleep(sleep)  # be nice :)
 

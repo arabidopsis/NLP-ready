@@ -279,6 +279,21 @@ files = [
 ]
 
 [[package]]
+name = "html-to-markdown"
+version = "1.3.2"
+description = "Convert HTML to markdown"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "html_to_markdown-1.3.2-py3-none-any.whl", hash = "sha256:cd41a786fee973d28e80b324aef1122e7af1316e242dbb4ed49e757333cd9557"},
+    {file = "html_to_markdown-1.3.2.tar.gz", hash = "sha256:34ccb3806973b833e9babbf9919a7aee63913a41563c8b6ccd58c0afab8458ec"},
+]
+
+[package.dependencies]
+beautifulsoup4 = ">=4.13.4"
+
+[[package]]
 name = "idna"
 version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -835,4 +850,4 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "c7b71003dd39a875c6ce5ba25aea3f0a5572c117c065f57b93329f6c2ace6094"
+content-hash = "ef4bb33c2b67e03ae593e7d3facffeb2ee1a3568bface4b5d60f484408f95681"
