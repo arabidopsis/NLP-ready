@@ -11,11 +11,11 @@ import click
 import requests
 from requests import Session
 
-from ._mlabc import Clean
-from ._mlabc import Config
-from ._mlabc import Generate
-from ._mlabc import read_suba_papers_csv
-from ._mlabc import readxml
+from .._mlabc import Clean
+from .._mlabc import Config
+from .._mlabc import Generate
+from .._mlabc import read_suba_papers_csv
+from .._mlabc import readxml
 
 
 if TYPE_CHECKING:
@@ -142,7 +142,7 @@ class EPMC(Clean):
         return " ".join([t.get_text(" ", strip=True) for t in titles])
 
     def abstract(self) -> list[Tag]:
-        abstracts = self.root.select("article > front> article-meta > abstract")
+        abstracts = self.root.select("article > front > article-meta > abstract")
         return list(abstracts)
 
     def methods(self) -> list[Tag]:

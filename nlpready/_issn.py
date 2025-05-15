@@ -19,17 +19,23 @@ OUP = Location(
     ".widget-ArticleFulltext.widget-instance-OUP_Article_FullText_Widget",
     ".ref-list",
 )
-
-PlantPhysiol = Location(".widget-instance-OUP_Article_FullText_Widget", ".ref-list")
-PlantCell = PlantPhysiol
-JBioChem = Location(
+BMC = Location("main > article", 'section[data-title="References"]')
+CELL = Location("article .Abstracts,article .Body", "", "article section.bibliography")
+SPRINGER = Location("article main .c-article-body", 'section[data-title="Reference"]')
+PLoSONE = Location(".article-content", "ol.references")
+TAYLORFRANCIS = Location("article.article", 'div[id="references-Section"]')
+ScienceDirect = Location(
     "article .Abstracts,article .Body",
     "",
     "article section.bibliography",
 )
+####
+PlantPhysiol = Location(".widget-instance-OUP_Article_FullText_Widget", ".ref-list")
+PlantCell = PlantPhysiol
+JBioChem = ScienceDirect  # Location("article .Abstracts,article .Body","", "article section.bibliography")
 FrontPlantSci = Location(".JournalFullText .JournalFullText", ".References")
 SciRep = Location(".main-content")
-PLoSONE = Location(".article-content", "ol.references")
+
 PlantJ = WILEY
 FEBSLet = WILEY
 PhysiolPlant = WILEY
@@ -48,6 +54,36 @@ JCellSci = Location(
 )
 IntJMolSci = Location("article .html-body section")
 JExpBot = OUP
+JIntegrPlantBiol = WILEY
+PlantCellPhysiol = OUP
+NewPhytol = WILEY
+Nature = Location("article div.c-article-body", 'section[data-title="References"]')
+BMCPlantBiol = BMC
+MolPlant = CELL
+PlantSignalBehav = TAYLORFRANCIS
+Proteomics = WILEY
+BiochemBiophysResCommun = CELL
+PlantPhysiolBiochem = CELL
+Phytochemistry = CELL
+PLoSGenet = PLoSONE
+CurrBiol = CELL
+NatCommun = Nature
+Protoplasma = SPRINGER
+PLoSBiol = PLoSONE
+RNABiol = TAYLORFRANCIS
+PlantMolBiol = SPRINGER
+BiochimBiophysActa = CELL
+JPlantRes = SPRINGER
+BiosciBiotechnolBiochem = OUP
+FrontCellDevBiol = FrontPlantSci
+JProteomeRes = Location(
+    "main article .article_abstract,main article .article_content",
+    "ol#references,.articleCitedByDropzone .cited-by",
+)
+
+JBiolChem = ScienceDirect
+MolPlantMicrobeInteract = Location("main article .article__body")
+Planta = Location('article section[data-title="Abstract"],article .main-content')
 DATA = {
     "1532-2548": PlantPhysiol,
     "1365-313X": PlantJ,
@@ -70,4 +106,30 @@ DATA = {
     "1477-9137": JCellSci,
     "1422-0067": IntJMolSci,
     "1460-2431": JExpBot,
+    "1744-7909": JIntegrPlantBiol,
+    "1471-9053": PlantCellPhysiol,
+    "1469-8137": NewPhytol,
+    "1476-4687": Nature,
+    "1471-2229": BMCPlantBiol,
+    "1752-9867": MolPlant,
+    "1559-2324": PlantSignalBehav,
+    "1615-9861": Proteomics,
+    "1090-2104": BiochemBiophysResCommun,
+    "1873-2690": PlantPhysiolBiochem,
+    "1873-3700": Phytochemistry,
+    "1553-7404": PLoSGenet,
+    "1879-0445": CurrBiol,
+    "2041-1723": NatCommun,
+    "1615-6102": Protoplasma,
+    "1545-7885": PLoSBiol,
+    "1555-8584": RNABiol,
+    "1573-5028": PlantMolBiol,
+    "0006-3002": BiochimBiophysActa,
+    "1618-0860": JPlantRes,
+    "1347-6947": BiosciBiotechnolBiochem,
+    "2296-634X": FrontCellDevBiol,
+    "1535-3907": JProteomeRes,
+    "1083-351X": JBiolChem,
+    "0894-0282": MolPlantMicrobeInteract,
+    "1432-2048": Planta,
 }
