@@ -214,7 +214,7 @@ DATA = {
     "1879-0038": Gene,
     "1520-4995": Biochemistry,
     "1098-5514": JVirol,
-    "1939-4586": MolBiolCell,  # BLOCKS!
+    "1939-4586": MolBiolCell,  # driver.get BLOCKS!
     "1477-9129": Development,
     "1364-3703": MolPlantPathol,
     "1460-2075": EMBOJ,

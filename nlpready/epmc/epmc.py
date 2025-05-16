@@ -97,9 +97,10 @@ class EPMC:
             return None
         return article[0]
 
-    def save_content(self, save: str | Path) -> None:
+    def save_content(self, save: str | Path, pretty: bool = False) -> None:
+        a = self.soup.prettify() if pretty else str(self.soup)
         with open(save, "w", encoding="utf-8") as fp:
-            fp.write(self.soup.prettify())
+            fp.write(a)
 
     def cull(self, article: Tag) -> Tag:
         remove = list(self.REMOVE)
@@ -122,8 +123,6 @@ class EPMC:
         article = self.get_article()
         if article is None:
             return None
-        article = self.cull(article)
-        # lmxl.iterparse seems to miss tail strings!
         pmc = PMCEvents()
         a = str(article)
         html = "".join(pmc.parse(BytesIO(a.encode("utf-8"))))
