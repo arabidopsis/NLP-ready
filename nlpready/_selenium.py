@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from io import StringIO
 from pathlib import Path
+from typing import Literal
 from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
@@ -20,11 +21,14 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("nlpready")
 
+MD = Literal["markdown", "pmarkdown", "html", "phtml", "text"]
+
 
 class Soup:
+    heading_style = "atx"
 
-    def __init__(self, as_markdown: bool = True):
-        self.as_markdown = as_markdown
+    def __init__(self, format: MD = "markdown"):
+        self.format = format
 
     def soupify(self, html: str) -> BeautifulSoup:
         return BeautifulSoup(StringIO(html))
@@ -37,8 +41,17 @@ class Soup:
         if css.remove_css:
             for ref in article.select(css.remove_css):
                 ref.decompose()
-        if self.as_markdown:
-            return convert_to_markdown(str(article))
+        if self.format == "markdown":
+            return convert_to_markdown(str(article), heading_style=self.heading_style)
+        if self.format == "pmarkdown":
+            return convert_to_markdown(
+                article.prettify(),
+                heading_style=self.heading_style,
+            )
+        if self.format == "html":
+            return str(article)
+        if self.format == "phtml":
+            return article.prettify()
         return article.get_text(" ")
 
     @classmethod
@@ -55,16 +68,15 @@ class Selenium(Soup):
         self,
         headless: bool = True,
         timeout: int = 10,
-        as_markdown: bool = True,
+        format: MD = "markdown",
         path: str | Path | None = None,
     ):
-        super().__init__(as_markdown)
+        super().__init__(format)
         options = webdriver.ChromeOptions()
         if headless:
             options.add_argument("headless")
         self.timeout = timeout
         self.driver = webdriver.Chrome(options=options)
-        self.as_markdown = as_markdown
         self.path = path
         self.wait_ = None
 
@@ -82,9 +94,9 @@ class Selenium(Soup):
     def wait_for_css(self, css: str) -> None:
         self.wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, css)))
 
-    def doi(self, doi: str, css: Location | None = None) -> str:
-
-        url = f"https://doi.org/{doi}"
+    def doi(self, url: str, css: Location | None = None) -> str:
+        if not url.startswith(("https://", "http://")):
+            url = f"https://doi.org/{url}"
         self.driver.get(url)
         try:
             if css is not None:
@@ -98,6 +110,13 @@ class Selenium(Soup):
             logger.warning("timeout for: %s", url)
             html = ""
         return html
+
+    @property
+    def current_url(self) -> str | None:
+        try:
+            return self.driver.current_url
+        except InvalidSessionIdException:
+            return None
 
     def run(self, doi: str, css: Location) -> str | None:
         html = self.doi(doi, css)

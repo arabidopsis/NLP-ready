@@ -22,6 +22,7 @@ OUP = Location(
 BMC = Location("main > article", 'section[data-title="References"]')
 CELL = Location("article .Abstracts,article .Body", "", "article section.bibliography")
 SPRINGER = Location("article main .c-article-body", 'section[data-title="Reference"]')
+SPRINGER2 = Location("article main .c-article-body", 'section[data-title="References"]')
 PLoSONE = Location(".article-content", "ol.references")
 TAYLORFRANCIS = Location("article.article", 'div[id="references-Section"]')
 ScienceDirect = Location(
@@ -47,11 +48,18 @@ ProcNatlAcadSciUSA = Location(
     'main article section[data-extent="frontmatter"], main article section[data-extent="bodymatter"]',
     'section[data-extent="backmatter"],.citations',
 )
-
+ProcNatlAcadSciUSA2 = Location(
+    'main article section[id="abstract"],main article section[id="bodymatter"]',
+)
 JCellSci = Location(
     ".widget-ArticleFulltext.widget-instance-ArticleFulltext",
     'h2[data-section-title="References"] ~ div',
 )
+JCellBiol = Location(
+    ".widget-ArticleFulltext.widget-instance-ArticleFulltext_SplitView",
+    'h2[data-section-title="References"] ~ div',
+)
+
 IntJMolSci = Location("article .html-body section")
 JExpBot = OUP
 JIntegrPlantBiol = WILEY
@@ -84,6 +92,33 @@ JProteomeRes = Location(
 JBiolChem = ScienceDirect
 MolPlantMicrobeInteract = Location("main article .article__body")
 Planta = Location('article section[data-title="Abstract"],article .main-content')
+Virology = ScienceDirect
+BMCResNotes = BMC
+JProteomics = CELL
+PlantReprod = SPRINGER2
+MolCellProteomics = ScienceDirect
+PlantSci = CELL
+PhotosynRes = SPRINGER2
+Genetics = OUP
+PlantCellRep = SPRINGER2
+RNA = Location(
+    ".article",
+    ".section.ref-list",
+)  # full-text is on different page with .full attached
+BiochemJ = Location(
+    ".widget-ArticleFulltext.widget-instance-ArticleFulltext",
+    ".ref-list",
+)
+Elife = Location("main .main-content-grid", 'section[id="references"]')
+Mitochondrion = ScienceDirect
+AnnBot = OUP
+JPlantPhysiol = ScienceDirect
+PLoSPathog = PLoSONE
+ScientificWorldJournal = WILEY
+JStructBiol = ScienceDirect
+Gene = ScienceDirect
+Biochemistry = JProteomeRes
+JVirol = ProcNatlAcadSciUSA2
 DATA = {
     "1532-2548": PlantPhysiol,
     "1365-313X": PlantJ,
@@ -132,4 +167,28 @@ DATA = {
     "1083-351X": JBiolChem,
     "0894-0282": MolPlantMicrobeInteract,
     "1432-2048": Planta,
+    "1091-6490": ProcNatlAcadSciUSA2,
+    "1096-0341": Virology,
+    "1756-0500": BMCResNotes,
+    "1876-7737": JProteomics,
+    "2194-7961": PlantReprod,
+    "1535-9484": MolCellProteomics,
+    "1873-2259": PlantSci,
+    "1573-5079": PhotosynRes,
+    "1943-2631": Genetics,
+    "1432-203X": PlantCellRep,
+    "1469-9001": RNA,
+    "1470-8728": BiochemJ,
+    "2050-084X": Elife,
+    "1540-8140": JCellBiol,
+    "1097-4172": Cell,
+    "1872-8278": Mitochondrion,
+    "1095-8290": AnnBot,
+    "1618-1328": JPlantPhysiol,
+    "1553-7374": PLoSPathog,
+    "1537-744X": ScientificWorldJournal,
+    "1095-8657": JStructBiol,
+    "1879-0038": Gene,
+    "1520-4995": Biochemistry,
+    "1098-5514": JVirol,
 }
