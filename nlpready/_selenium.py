@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
-from bs4 import Tag
 from html_to_markdown import convert_to_markdown
 from selenium import webdriver
 from selenium.common.exceptions import InvalidSessionIdException
@@ -17,6 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 if TYPE_CHECKING:
     from ._issn import Location
+    from bs4 import Tag
 
 logger = logging.getLogger("nlpready")
 
@@ -38,7 +38,7 @@ class Soup:
             for ref in article.select(css.remove_css):
                 ref.decompose()
         if self.as_markdown:
-            return convert_to_markdown(article.prettify())
+            return convert_to_markdown(str(article))
         return article.get_text(" ")
 
     @classmethod
