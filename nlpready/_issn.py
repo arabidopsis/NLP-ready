@@ -119,6 +119,29 @@ JStructBiol = ScienceDirect
 Gene = ScienceDirect
 Biochemistry = JProteomeRes
 JVirol = ProcNatlAcadSciUSA2
+MolBiolCell = Location("main article .article__body", "ul.references")  # Blocks?
+Development = Location(
+    ".widget-ArticleMainView.widget-instance-ArticleMainView_Article",
+    # SIC!!!!
+    'h2[data-section-title="<strong>References</strong>"]',
+)
+MolPlantPathol = WILEY
+EMBOJ = Location('div[id="abstract"],main article section[data-extent="bodymatter"]')
+MolBiosyst = Location(
+    "article.article-control",
+    ".ref-list,.article__authors,.drawer-control.fixpadv--m",
+)
+Science = Location(
+    'main article section[id="abstract"],main article section[id="bodymatter"]',
+)
+FEBSJ = WILEY
+NucleicAcidsRes = OUP
+CellRes = Nature
+Traffic = WILEY
+EMBORep = EMBOJ
+MolBiolRep = SPRINGER2
+MolSystBiol = Science
+MolCells = ScienceDirect
 DATA = {
     "1532-2548": PlantPhysiol,
     "1365-313X": PlantJ,
@@ -191,4 +214,18 @@ DATA = {
     "1879-0038": Gene,
     "1520-4995": Biochemistry,
     "1098-5514": JVirol,
+    "1939-4586": MolBiolCell,  # BLOCKS!
+    "1477-9129": Development,
+    "1364-3703": MolPlantPathol,
+    "1460-2075": EMBOJ,
+    "1742-2051": MolBiosyst,
+    "1095-9203": Science,
+    "1742-4658": FEBSJ,
+    "1362-4962": NucleicAcidsRes,
+    "1748-7838": CellRes,
+    "1600-0854": Traffic,
+    "1469-3178": EMBORep,
+    "1573-4978": MolBiolRep,
+    "1744-4292": MolSystBiol,
+    "0219-1032": MolCells,
 }
