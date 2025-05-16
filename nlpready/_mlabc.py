@@ -25,10 +25,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from . import config as Config
 from ._rescantxt import find_primers
 from ._rescantxt import reduce_nums
 from ._types import Paper
+from ._utils import data_dir
+from ._utils import getconfig
 
 if TYPE_CHECKING:
     from jinja2 import Environment
@@ -87,7 +88,8 @@ def read_journals_csv() -> dict[str, Paper]:
 
 def read_suba_papers_csv() -> Iterator[Paper]:
     """suba_papers.csv is a list of *all* pubmed IDs."""
-    return readx_suba_papers_csv(Config.JCSV)
+    conf = getconfig()
+    return readx_suba_papers_csv(conf.suba_csv)
 
 
 def readx_suba_papers_csv(csvfile: str) -> Iterator[Paper]:
@@ -150,7 +152,7 @@ def read_issn() -> dict[str, tuple[int, str]]:
 
 def readxml(d: str) -> Iterator[str]:
     """Scan directory d and return the pubmed ids."""
-    dd = join(Config.DATADIR, d)
+    dd = join(data_dir(), d)
     if not os.path.isdir(dd):
         return
     for f in os.listdir(dd):
@@ -391,7 +393,7 @@ class Generate:
         raise NotImplementedError()
 
     def ensure_dir(self) -> str:
-        dname = join(Config.DATADIR, "cleaned")
+        dname = join(data_dir(), "cleaned")
         if not os.path.isdir(dname):
             os.mkdir(dname)
         name = self.journal.replace(".", "").lower()
@@ -403,9 +405,9 @@ class Generate:
 
     def get_xml_name(self, gdir: str, pmid: str) -> str:
         # pylint: disable=no-self-use
-        fname = join(Config.DATADIR, gdir, f"{pmid}.html")
+        fname = join(data_dir(), gdir, f"{pmid}.html")
         if not os.path.isfile(fname):
-            fname = join(Config.DATADIR, gdir, f"{pmid}.xml")
+            fname = join(data_dir(), gdir, f"{pmid}.xml")
         return fname
 
     def get_soup(self, gdir: str, pmid: str) -> BeautifulSoup:
@@ -644,7 +646,7 @@ class Download:
         fdir = f"failed_{self.issn}"
         gdir = f"xml_{self.issn}"
         for t in [fdir, gdir]:
-            target = join(Config.DATADIR, t)
+            target = join(data_dir(), t)
             if not os.path.isdir(target):
                 os.makedirs(target, exist_ok=True)
 
@@ -673,12 +675,12 @@ class Download:
         return soup
 
     def save_page(self, xml: bytes, targetd: str, paper: Paper) -> None:
-        with open(join(Config.DATADIR, targetd, f"{paper.pmid}.html"), "wb") as fp:
+        with open(join(data_dir(), targetd, f"{paper.pmid}.html"), "wb") as fp:
             fp.write(xml)
 
     def remove_page(self, targetd: str, paper: Paper) -> None:
         try:
-            os.unlink(join(Config.DATADIR, targetd, f"{paper.pmid}.html"))
+            os.unlink(join(data_dir(), targetd, f"{paper.pmid}.html"))
         except FileNotFoundError:
             pass
 
@@ -743,7 +745,7 @@ class Download:
                 self.save_page(xml, fdir, paper)
                 self.remove_page(gdir, paper)
 
-            # with open(join(Config.DATADIR, targetd, f"{paper.pmid}.html"), "wb") as fp:
+            # with open(join(data_dir(), targetd, f"{paper.pmid}.html"), "wb") as fp:
             #     fp.write(xml)
 
             del todo[paper.pmid]

@@ -4,7 +4,6 @@ import os
 import warnings
 from collections import Counter
 from collections import namedtuple
-from dataclasses import dataclass
 from importlib import import_module
 from pickle import dump
 from pickle import load
@@ -12,8 +11,9 @@ from typing import Any
 
 import click
 
-from ._mlabc import Config
+from . import config as Config
 from ._mlabc import Generate
+from ._utils import getconfig
 
 # add module name to this list...
 
@@ -71,30 +71,6 @@ class NLPMod(TypedDict):
     issn: dict[str, str]
     download: Callable[[str, float, int], None]
     Generate: type[Generate]
-
-
-@dataclass(kw_only=True)
-class UserConfig:
-    email: str | None = None
-    api_key: str | None = None
-
-
-_CONF = None
-
-
-def getconfig() -> UserConfig:
-    import tomllib
-
-    global _CONF
-    if _CONF is not None:
-        return _CONF
-
-    if not os.path.exists("config.toml"):
-        _CONF = UserConfig()
-    else:
-        with open("config.toml", "rb") as fp:
-            _CONF = UserConfig(**tomllib.load(fp))
-    return _CONF
 
 
 def getmod(mod: str) -> NLPMod:
@@ -185,10 +161,12 @@ def tohtml(
     # pylint: disable=import-outside-toplevel
     from ._mlabc import pmid2doi, make_jinja_env
 
+    conf = getconfig()
+
     # from pickle import load, dump
 
     env = make_jinja_env()
-    jdir = os.path.join(Config.DATADIR, "html", "journals")
+    jdir = os.path.join(conf.data_dir, "html", "journals")
     os.makedirs(jdir, exist_ok=True)
 
     template = env.get_template("index.html")
@@ -280,7 +258,7 @@ def tohtml(
     # pylint: disable=no-member
     res = template.render(journals=journals_, name=Config.NAME)
 
-    with open(os.path.join(Config.DATADIR, "html", "index.html"), "w") as fp2:
+    with open(os.path.join(conf.data_dir, "html", "index.html"), "w") as fp2:
         fp2.write(res)
     click.secho(
         "found %d pubmeds. %d unique, %d usable"
@@ -359,10 +337,11 @@ def clean(
 
 
 @cli.command()
-@click.option("--d", help="directory to scan", default=Config.DATADIR)
-def cleandirs(d: str) -> None:
+@click.option("--d", help="directory to scan")
+def cleandirs(d: str | None) -> None:
     """Remove empty directories."""
-    d = d or Config.DATADIR
+    if d is None:
+        d = getconfig().data_dir
     for f in os.listdir(d):
         d = os.path.join(d, f)
         if os.path.isdir(d):

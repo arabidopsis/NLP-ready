@@ -13,17 +13,17 @@ import click
 import requests
 from tabulate import tabulate  # type: ignore
 
-from ._mlabc import Config
 from ._mlabc import read_issn
 from ._mlabc import read_suba_papers_csv
 from ._mlabc import USER_AGENT
+from ._utils import data_dir
 
 if TYPE_CHECKING:
     from ._mlabc import Paper
 
 
 def _glob(d, g):
-    return join(Config.DATADIR, d, g)
+    return join(data_dir(), d, g)
 
 
 def get_dir(xmld: str, ext: str = ".xml") -> list[str]:
@@ -42,7 +42,7 @@ def getext(xmld: str) -> str:
 
 
 def get_all_done() -> Iterator[tuple[str, str]]:
-    for xmld in glob.glob(join(Config.DATADIR, "xml_*")):
+    for xmld in glob.glob(join(data_dir(), "xml_*")):
         _, issn = xmld.split("_")
         pmids = get_dir(xmld, ext=getext(xmld))
         for pmid in pmids:
@@ -64,7 +64,7 @@ def _summary(showall: bool = True, exclude: set[str] | None = None) -> None:
             issns[p.issn].append(p)
 
     dd = {}
-    for xmld in glob.glob(join(Config.DATADIR, "xml_*")):
+    for xmld in glob.glob(join(data_dir(), "xml_*")):
         _, issn = xmld.split("_")
         if exclude and issn in exclude:
             continue
@@ -75,7 +75,7 @@ def _summary(showall: bool = True, exclude: set[str] | None = None) -> None:
         pmids = get_dir(xmld, ext=getext(xmld))
         dd[issn] = (name, issn, cnt, len(pmids), 0)
 
-    for xmld in glob.glob(join(Config.DATADIR, "failed_*")):
+    for xmld in glob.glob(join(data_dir(), "failed_*")):
         _, issn = xmld.split("_")
         if exclude and issn in exclude:
             continue
@@ -144,7 +144,7 @@ def get_papers_todo(
     # issns = read_issn()
     papers = {p.pmid: p for p in read_suba_papers_csv() if p.doi}  # papers with doi
 
-    for xmld in glob.glob(join(Config.DATADIR, "xml_*")):
+    for xmld in glob.glob(join(data_dir(), "xml_*")):
         _, issn = xmld.split("_")
         if exclude and issn in exclude:
             continue
@@ -154,7 +154,7 @@ def get_papers_todo(
             if pmid in papers:
                 del papers[pmid]
     if failed:
-        for xmld in glob.glob(join(Config.DATADIR, "failed_*")):
+        for xmld in glob.glob(join(data_dir(), "failed_*")):
             _, issn = xmld.split("_")
             if exclude and issn in exclude:
                 continue
@@ -254,9 +254,9 @@ def _urls(exclude: set[str] | None = None, failed: bool = False) -> None:
 def parsed() -> None:
     ISSN: dict[str, str] = {}
     res = defaultdict(list)
-    for xmld in glob.glob(os.path.join(Config.DATADIR, "cleaned_*")):
+    for xmld in glob.glob(os.path.join(data_dir(), "cleaned_*")):
         _, issn = xmld.split("_")
-        for f in glob.glob(os.path.join(Config.DATADIR, xmld, "*.txt")):
+        for f in glob.glob(os.path.join(data_dir(), xmld, "*.txt")):
             _, fname = os.path.split(f)
             pmid, _ = os.path.splitext(fname)
             pmid, _ = pmid.split("_")

@@ -14,12 +14,13 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 
 from ._mlabc import Clean
-from ._mlabc import Config
 from ._mlabc import DownloadSelenium
 from ._mlabc import dump
 from ._mlabc import Generate
 from ._mlabc import read_suba_papers_csv
 from ._mlabc import readxml
+from ._utils import data_dir
+
 
 if TYPE_CHECKING:
     from bs4 import Tag
@@ -160,10 +161,10 @@ def old_download_cell(
     #           }
     fdir = f"failed_{issn}"
     gdir = f"xml_{issn}"
-    target = join(Config.DATADIR, fdir)
+    target = join(data_dir(), fdir)
     if not os.path.isdir(target):
         os.mkdir(target)
-    target = join(Config.DATADIR, gdir)
+    target = join(data_dir(), gdir)
     if not os.path.isdir(target):
         os.mkdir(target)
     failed = set(readxml(fdir))
@@ -192,7 +193,7 @@ def old_download_cell(
         d = gdir
         done.add(pmid)
 
-        with open(join(Config.DATADIR, d, f"{pmid}.html"), "w") as fp:
+        with open(join(data_dir(), d, f"{pmid}.html"), "w") as fp:
             fp.write(xml)
 
         del todo[pmid]
@@ -427,7 +428,7 @@ def cmds():
     #     for iissn in issn.split(","):
     #         gdir = f"failed_{iissn}"
     #         for pmid in readxml(gdir):
-    #             fname = Config.DATADIR + gdir + f"/{pmid}.html"
+    #             fname = data_dir() + gdir + f"/{pmid}.html"
     #             with open(fname, "rb") as fp:
     #                 err = fp.read().decode("utf-8")
     #                 print(f'{iissn},{pmid},"{err}",{fname}')
