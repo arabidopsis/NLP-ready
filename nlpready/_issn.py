@@ -117,7 +117,7 @@ MolSystBiol = Science
 
 EMBOJ = Location('div[id="abstract"],main article section[data-extent="bodymatter"]')
 EMBORep = EMBOJ
-EMBOJ = Location("main article", 'section[data-extent="backmatter"],.citations')
+# EMBOJ = Location("main article", 'section[data-extent="backmatter"],.citations')
 
 PlantPhysiol = Location(".widget-instance-OUP_Article_FullText_Widget", ".ref-list")
 PlantCell = PlantPhysiol
