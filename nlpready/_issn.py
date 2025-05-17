@@ -83,6 +83,10 @@ MolBiolRep = SPRINGER2
 Protoplasma = SPRINGER
 PlantMolBiol = SPRINGER
 JPlantRes = SPRINGER
+Springerplus = Location(
+    "main article",
+    'section[data-title="References"],.c-article-header',
+)
 
 PLoSONE = PLOSONE
 PLoSGenet = PLOSONE
@@ -115,8 +119,10 @@ Science = Location(
 )
 MolSystBiol = Science
 
+# 1460-2075
 EMBOJ = Location('div[id="abstract"],main article section[data-extent="bodymatter"]')
 EMBORep = EMBOJ
+
 # EMBOJ = Location("main article", 'section[data-extent="backmatter"],.citations')
 
 PlantPhysiol = Location(".widget-instance-OUP_Article_FullText_Widget", ".ref-list")
@@ -253,4 +259,5 @@ DATA = {
     "1573-4978": MolBiolRep,
     "1744-4292": MolSystBiol,
     "0219-1032": MolCells,
+    "2193-1801": Springerplus,
 }
