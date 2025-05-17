@@ -129,11 +129,6 @@ class Selenium(Soup):
         return html
 
     def run(self, doi: str, css: Location) -> str | None:
-        html: str | None = self.doi(doi, css)
-        if not html:
-            if self.is_cloudflare_challenge():
-                return None
-            return html
         html = self.fetch_html(doi, css)
         if not html:
             return html
