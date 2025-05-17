@@ -134,7 +134,6 @@ HTMLTAGS = {
 }
 
 PMCTAGS = {
-    "p": "p",
     "italic": "i",
     "bold": "strong",
     "ref-list": "ol",
@@ -143,38 +142,26 @@ PMCTAGS = {
     "title": "h2",
     "ext-link": "a",
     "uri": "a",
-    "body": "main",
-    "abstract": "div",
-    "caption": "caption",
     "xref": "a",
-    "fig": "figure",
     "pub-id": "a",
-    "sup": "sup",
-    "sub": "sub",
-    "label": "label",
-    "article-title": "i",
     "graphic": "a",
     "article-id": "a",
-    "license": "div",
-    "journal-meta": "div",
-    "list": "ul",
-    "list-item": "li",
     "media": "a",
     "object-id": "a",
+    "body": "main",
+    "abstract": "div",
+    "fig": "figure",
+    "article-title": "i",
+    "article-meta": "div",
+    "journal-meta": "div",
+    "license": "div",
+    "list": "ul",
+    "list-item": "li",
     "def-list": "dl",
-    "term": "dt",
     "def": "dd",
-    "table": "table",
-    "colgroup": "colgroup",
-    "tbody": "tbody",
-    "tr": "tr",
-    "th": "th",
-    "td": "td",
-    "col": "col",
+    "term": "dt",
     "email": "span",
     "title-group": "h1",
-    "article": "article",
-    "article-meta": "div",
     "front": "div",
     "table-wrap": "div",
     "table-wrap-foot": "div",
@@ -209,6 +196,7 @@ class Events:
                             self.missing.add(tag)
                     else:
                         etag = self.TAGS[tag]
+                    assert etag in HTMLTAGS
                     if etag != tag:
                         yield f'<{etag} class="{tag}">'
                     else:
@@ -233,6 +221,7 @@ class Events:
                             etag = "span"
                     else:
                         etag = self.TAGS[tag]
+                    assert etag in HTMLTAGS
                     if etag not in {
                         "hr",
                         "br",
@@ -243,7 +232,6 @@ class Events:
                         "embed",
                         "input",
                     }:
-
                         yield f"</{etag}>"
 
                 if elem.tail:

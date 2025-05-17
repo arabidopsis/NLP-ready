@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from io import BytesIO
 from pathlib import Path
+from typing import Any
 from typing import Self
 
 from bs4 import BeautifulSoup
@@ -19,7 +20,12 @@ XML = (
 )
 
 
-def epmc(pmcid: str, session: Session | None = None) -> bytes | None:
+def epmc(
+    pmcid: str,
+    session: Session | None = None,
+    *,
+    strip_pi: bool = True,
+) -> bytes | None:
     """Given a PUBMED id return the Europmc XML as bytes."""
     url = XML.format(pmcid=pmcid)
     if session is None:
@@ -29,7 +35,8 @@ def epmc(pmcid: str, session: Session | None = None) -> bytes | None:
         return None
     resp.raise_for_status()
     # get rid of <?ConverterInfo.XSLTName jp2nlmx2.xml?> it breaks iterparse!
-    return PE.sub(b"", resp.content)
+
+    return PE.sub(b"", resp.content) if strip_pi else resp.content
 
 
 class EPMC:
@@ -47,8 +54,9 @@ class EPMC:
         "issue",
         "volume",
     )
+
     REMOVE = (
-        ".ref-list",
+        "ref-list",
         "floats-group",
         "front > journal-meta",
         "back",
@@ -62,34 +70,45 @@ class EPMC:
         "award-id",
         "self-uri",
         "counts",
-        # "page-count",
-        # "table-count",
     )
 
-    def __init__(self, content: bytes):
-        self.soup = BeautifulSoup(BytesIO(content), "lxml-xml")
+    MD_STYLE = dict(heading_style="atx")
+
+    PARSER = "lxml-xml"
+
+    def __init__(self, content: bytes, **kwargs: Any):
+        self.soup = BeautifulSoup(BytesIO(content), self.PARSER)
         # self.soup = BeautifulSoup(BytesIO(str(self.soup).encode('utf-8')), "lxml-xml")
         self.missing: set[str] = set()
+        self.md_style = {**self.MD_STYLE, **kwargs}
 
     @classmethod
     def from_pmcid(
         cls,
         pmcid: str,
         session: Session | None = None,
+        strip_pi: bool = True,
+        **kwargs: Any,
     ) -> Self:
-        content = epmc(pmcid, session)
+        content = epmc(pmcid, session, strip_pi=strip_pi)
         if not content:
             raise ValueError(f"no content for {pmcid}")
 
-        return cls(content)
+        return cls(content, **kwargs)
 
     @classmethod
-    def from_file(cls, filename: str | Path, *, strip_pi: bool = False) -> Self:
+    def from_file(
+        cls,
+        filename: str | Path,
+        *,
+        strip_pi: bool = True,
+        **kwargs: Any,
+    ) -> Self:
         with open(filename, "rb") as fp:
             content = fp.read()
         if strip_pi:
             content = PE.sub(b"", content)
-        return cls(content)
+        return cls(content, **kwargs)
 
     def get_article(self) -> Tag | None:
         article = self.soup.select("article")
@@ -123,11 +142,14 @@ class EPMC:
         article = self.get_article()
         if article is None:
             return None
+        article = self.cull(article)
         pmc = PMCEvents()
-        a = str(article)
-        html = "".join(pmc.parse(BytesIO(a.encode("utf-8"))))
+        html = "".join(pmc.parse(BytesIO(str(article).encode("utf-8"))))
         self.missing = pmc.missing
         return html
 
     def html_to_markdown(self, html: str) -> str:
-        return convert_to_markdown(html)
+        return convert_to_markdown(html, **self.md_style)
+
+    def markdown(self):
+        return self.html_to_markdown(self.html())

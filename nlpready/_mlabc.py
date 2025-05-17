@@ -94,29 +94,26 @@ def read_suba_papers_csv() -> Iterator[Paper]:
 
 def readx_suba_papers_csv(csvfile: str) -> Iterator[Paper]:
     if not os.path.isfile(csvfile):
-        click.secho(f"No such file: {csvfile}!", fg="red", bold="True", err=True)
-        return
+        raise ValueError(f'"{csvfile}" is not a file!')
     with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
-        next(R)  # skip header pylint: disable=stop-iteration-return
+        r = next(R)  # skip header pylint: disable=stop-iteration-return
+        if tuple(r) != ("pmid", "issn", "name", "year", "doi", "pmcid", "title"):
+            raise ValueError(f'"{csvfile}" is not a papers file!')
         # print(header)
         for row in R:
-            if len(row) == 5:
-                pmid, issn, journal, year, doi = row
-                title = pmcid = None
-            else:
-                pmid, issn, journal, year, doi, pmcid, title = row
-                if issn == "missing-issn":
-                    # click.secho("missing %s" % pmid, fg='yellow')
-                    continue
+            pmid, issn, journal, year, doi, pmcid, title = row
+            if not issn or issn == "missing-issn":
+                # click.secho("missing %s" % pmid, fg='yellow')
+                continue
             yield Paper(
                 doi=doi,
+                pmid=pmid,
                 year=int(year),
                 issn=issn,
-                journal=journal,
-                pmid=pmid,
-                pmcid=pmcid,
-                title=title,
+                journal=journal or None,
+                pmcid=pmcid or None,
+                title=title or None,
             )
 
 
