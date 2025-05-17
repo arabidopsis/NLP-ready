@@ -166,7 +166,12 @@ MolBiolCell = Location("main article .article__body", "ul.references")  # Blocks
 Development = Location(
     ".widget-ArticleMainView.widget-instance-ArticleMainView_Article",
     # SIC!!!!
-    'h2[data-section-title="<strong>References</strong>"]',
+    'h2[data-section-title="<strong>References</strong>"] ~ div',
+)
+Development2 = Location(
+    ".widget-ArticleMainView.widget-instance-ArticleMainView_Article",
+    # SIC!!!!
+    'h2[data-section-title="References"] ~ div',
 )
 MolBiosyst = Location(
     "article.article-control",
@@ -262,4 +267,6 @@ DATA: dict[str, Location] = {
     "0219-1032": MolCells,
     "2193-1801": Springerplus,
     "1476-4679": NatCellBiol,
+    "0950-1991": Development2,
+    # "0167-4412": PlantMolBiol
 }

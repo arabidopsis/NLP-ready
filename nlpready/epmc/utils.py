@@ -209,7 +209,7 @@ class Events:
                             self.missing.add(tag)
                     else:
                         etag = self.mapping[tag]
-                    assert etag in HTMLTAGS
+                        assert etag in HTMLTAGS
 
                     if etag != tag:
                         yield f'<{etag} class="{tag}">'
@@ -235,7 +235,7 @@ class Events:
                             etag = "span"
                     else:
                         etag = self.mapping[tag]
-                    assert etag in HTMLTAGS
+                        assert etag in HTMLTAGS
                     if etag not in {
                         "hr",
                         "br",

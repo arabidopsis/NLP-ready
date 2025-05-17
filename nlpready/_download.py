@@ -5,17 +5,14 @@ import os
 import re
 import time
 from collections import defaultdict
-from glob import glob
 from io import BytesIO
 from itertools import batched
-from typing import Any
 from typing import Iterator
 from typing import Sequence
 from typing import TYPE_CHECKING
 
 import click
 import requests
-from bs4 import BeautifulSoup
 from lxml import etree
 
 from ._mlabc import read_pubmed_csv
@@ -205,14 +202,14 @@ def getmeta(
                         str(m.year),
                         m.doi or "",
                         m.pmcid or "",
-                        m.title,
+                        m.title or "",
                     ],
                 )
                 fp.flush()  # in case of interrupt.
                 done.add(pubmed)
             for p in pmids:
                 if p not in d:
-                    click.secho(f"missing {p}", fg="red")
+                    click.secho(f"missing {p}", fg="red", err=True)
             click.secho(f"{len(done)}/{len(todo)} done", fg="green")
             if sleep:
                 time.sleep(sleep)  # be nice :)
@@ -243,93 +240,3 @@ def journal_summary() -> None:
     # ret = sorted(ret, key=lambda t: t[2])
     for r in header + ret:
         print(",".join(str(x) for x in r))
-
-
-HREF = re.compile(r"^/journal/.*/\(ISSN\)(.{4}-.{4})$")
-
-
-def fetch_issn(href: str, session: Session | None = None) -> str | None:
-    if session is None:
-        session = Session()
-
-    resp = session.get("http://onlinelibrary.wiley.com" + href)
-    soup = BeautifulSoup(BytesIO(resp.content), "lxml")
-    issn = soup.select("#issn")
-    if not issn:
-        return None
-    return issn[0].text.strip()
-
-
-def wiley_journals(
-    start=0,
-    session: Session | None = None,
-) -> tuple[int, list[tuple[str, str]]]:
-    if session is None:
-        session = Session()
-
-    resp = session.get(
-        "http://onlinelibrary.wiley.com/browse/publications",
-        params=dict(type="journal", start=start),
-    )
-    soup = BeautifulSoup(BytesIO(resp.content), "html.parser")
-    journals = soup.select("#publications li div.details a")
-    ret = []
-    for j in journals:
-        href = j.attrs["href"]
-        name = j.text.strip()
-        m = HREF.match(href)
-        if m:
-            issn = m.group(1)
-            ret.append((issn, name))
-        else:
-            issn = fetch_issn(href, session)
-            if issn:
-                ret.append((issn, name))
-    return len(journals), ret
-
-
-def get_wiley() -> dict[str, Any]:
-    start = 0
-    res = {}
-    session = requests.Session()
-    while True:
-        n, journals = wiley_journals(start=start, session=session)
-        print("found", n, "at ", start)
-
-        if not journals:
-            break
-        start += n
-        for issn, name in journals:
-            res[issn] = name
-
-    with open("wiley_journals.csv", "w") as fp:
-        W = csv.writer(fp)
-        W.writerow(["name", "issn"])
-        for issn, name in sorted(res.items(), key=lambda t: t[1]):
-            W.writerow([name, issn])
-    return res
-
-
-def get_all_cleaned() -> Iterator[tuple[str, str]]:
-
-    for folder in glob("cleaned_*"):
-        for f in glob(f"{folder}/*_cleaned.txt"):
-            _, fname = os.path.split(f)
-            fname, _ = os.path.splitext(fname)
-            pmid, _ = fname.split("_")
-            yield folder, pmid
-
-
-def wiley_issn() -> None:
-
-    with open("wiley_journals.csv") as fp:
-        R = csv.reader(fp)
-        next(R)
-        i2n = {issn: name for name, issn in R}
-    ISSN = {}
-    print("pmid,issn,journal,year,doi")
-    for p in read_suba_papers_csv():
-        if p.issn in i2n:
-            ISSN[p.issn] = p.journal
-            print(",".join((p.pmid, p.issn, p.journal or "", str(p.year), p.doi)))
-    print(ISSN)
