@@ -3,8 +3,10 @@ from __future__ import annotations
 import logging
 from io import StringIO
 from pathlib import Path
+from typing import Any
 from typing import Literal
 from typing import TYPE_CHECKING
+from typing import TypeAlias
 
 from bs4 import BeautifulSoup
 from html_to_markdown import convert_to_markdown
@@ -21,19 +23,20 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("nlpready")
 
-MD = Literal["markdown", "pmarkdown", "html", "phtml", "text"]
+MD: TypeAlias = Literal["markdown", "pmarkdown", "html", "phtml", "text"]
 
 
 class Soup:
-    heading_style = "atx"
+    MD_STYLE = dict(heading_style="atx")
 
-    def __init__(self, format: MD = "markdown"):
+    def __init__(self, format: MD = "markdown", **kwargs: dict[str, Any]):
         self.format = format
+        self.md_style = {**self.MD_STYLE, **kwargs}
 
     def soupify(self, html: str) -> BeautifulSoup:
         return BeautifulSoup(StringIO(html))
 
-    def soup(self, html: str, css: Location) -> str:
+    def tofrag(self, html: str, css: Location) -> str:
         t = self.soupify(html)
         return "\n".join(self.get_text(a, css) for a in t.select(css.article_css))
 
@@ -42,11 +45,11 @@ class Soup:
             for ref in article.select(css.remove_css):
                 ref.decompose()
         if self.format == "markdown":
-            return convert_to_markdown(str(article), heading_style=self.heading_style)
+            return convert_to_markdown(str(article), **self.md_style)
         if self.format == "pmarkdown":
             return convert_to_markdown(
                 article.prettify(),
-                heading_style=self.heading_style,
+                **self.md_style,
             )
         if self.format == "html":
             return str(article)
@@ -92,7 +95,7 @@ class Selenium(Soup):
         return self.wait_
 
     def wait_for_css(self, css: str) -> None:
-        self.wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, css)))
+        self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, css)))
 
     def doi(self, url: str, css: Location | None = None) -> str:
         if not url.startswith(("https://", "http://")):
@@ -118,18 +121,28 @@ class Selenium(Soup):
         except InvalidSessionIdException:
             return None
 
-    def run(self, doi: str, css: Location) -> str | None:
+    def fetch_html(self, doi: str, css: Location | None = None) -> str | None:
         html = self.doi(doi, css)
         if not html:
             if self.is_cloudflare_challenge():
                 return None
+        return html
+
+    def run(self, doi: str, css: Location) -> str | None:
+        html: str | None = self.doi(doi, css)
+        if not html:
+            if self.is_cloudflare_challenge():
+                return None
+            return html
+        html = self.fetch_html(doi, css)
+        if not html:
             return html
         if self.path is not None:
             self.save_html(html, Path(self.path))
-        return self.soup(html, css)
+        return self.tofrag(html, css)
 
     def rerun(self, css: Location) -> str:
-        return self.soup(self.find_html(), css)
+        return self.tofrag(self.find_html(), css)
 
     def close(self):
         self.driver.close()

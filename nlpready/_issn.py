@@ -104,7 +104,7 @@ PlantCellRep = SPRINGER2
 RNA = Location(
     ".article",
     ".section.ref-list",
-)  # full-text is on different page with .full attached
+)  # full-text is on different page with .full attached to url
 BiochemJ = Location(
     ".widget-ArticleFulltext.widget-instance-ArticleFulltext",
     ".ref-list",
