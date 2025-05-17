@@ -104,6 +104,7 @@ RNABiol = TAYLORFRANCIS
 Nature = NATURE
 NatCommun = NATURE
 CellRes = NATURE
+NatCellBiol = NATURE
 
 ProcNatlAcadSciUSA = Location(
     'main article section[data-extent="frontmatter"], main article section[data-extent="bodymatter"]',
@@ -173,7 +174,7 @@ MolBiosyst = Location(
 )
 
 
-DATA = {
+DATA: dict[str, Location] = {
     "1532-2548": PlantPhysiol,
     "1365-313X": PlantJ,
     "1873-3468": FEBSLet,
@@ -260,4 +261,5 @@ DATA = {
     "1744-4292": MolSystBiol,
     "0219-1032": MolCells,
     "2193-1801": Springerplus,
+    "1476-4679": NatCellBiol,
 }

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import re
+from io import BytesIO
+from typing import Any
 from typing import IO
 from typing import Iterator
 
@@ -169,13 +171,24 @@ PMCTAGS = {
 }
 
 
+def attrs(d: dict[str, Any]) -> str:
+    return " ".join(f'{k}="{v}"' for k, v in d.items())
+
+
 class Events:
     TAGS = PMCTAGS
 
-    def __init__(self):
-        self.missing = set()
+    def __init__(self, mapping: dict[str, str] | None = None):
+        self.missing: set[str] = set()
+        if mapping is None:
+            mapping = self.TAGS
+        self.mapping = mapping
+
+    def parse_raw(self, fp: IO[bytes]) -> Iterator[tuple[str, Element]]:
+        yield from etree.iterparse(fp, events=("start", "end"))
 
     def parse(self, fp: IO[bytes]) -> Iterator[str]:
+        elem: Element
         for e, elem in etree.iterparse(fp, events=("start", "end")):
             if e == "start":
                 tag = elem.tag
@@ -188,15 +201,16 @@ class Events:
                     yield getattr(self, stag)(elem)
 
                 else:
-                    if tag not in self.TAGS:
+                    if tag not in self.mapping:
                         if tag in HTMLTAGS:
                             etag = tag
                         else:
                             etag = "span"
                             self.missing.add(tag)
                     else:
-                        etag = self.TAGS[tag]
+                        etag = self.mapping[tag]
                     assert etag in HTMLTAGS
+
                     if etag != tag:
                         yield f'<{etag} class="{tag}">'
                     else:
@@ -214,13 +228,13 @@ class Events:
                 if hasattr(self, stag):
                     yield getattr(self, stag)(elem)
                 else:
-                    if tag not in self.TAGS:
+                    if tag not in self.mapping:
                         if tag in HTMLTAGS:
                             etag = tag
                         else:
                             etag = "span"
                     else:
-                        etag = self.TAGS[tag]
+                        etag = self.mapping[tag]
                     assert etag in HTMLTAGS
                     if etag not in {
                         "hr",
@@ -241,7 +255,11 @@ class Events:
                         yield elem.tail
                 elem.clear()
             else:
-                RuntimeError(f"what event {e}?")
+                raise RuntimeError(f"what event {e}?")
+
+
+def convert_html(html: str, mapping: dict[str, str]) -> str:
+    return "".join(Events(mapping).parse(BytesIO(html.encode("utf8"))))
 
 
 def gethref(elem: Element) -> str | None:
@@ -251,8 +269,8 @@ def gethref(elem: Element) -> str | None:
 
 class PMCEvents(Events):
 
-    def __init__(self, url: str | None = None):
-        super().__init__()
+    def __init__(self, url: str | None = None, mapping: dict[str, str] | None = None):
+        super().__init__(mapping)
         self.url = url
 
     def start_xref(self, elem: Element) -> str:

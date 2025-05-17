@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -20,6 +21,13 @@ XML = (
 )
 
 
+@dataclass
+class Outline:
+    title: Tag
+    abstract: Tag
+    body: Tag
+
+
 def epmc(
     pmcid: str,
     session: Session | None = None,
@@ -34,8 +42,8 @@ def epmc(
     if resp.status_code == 404:
         return None
     resp.raise_for_status()
-    # get rid of <?ConverterInfo.XSLTName jp2nlmx2.xml?> it breaks iterparse!
 
+    # get rid of <?ConverterInfo.XSLTName jp2nlmx2.xml?> it breaks iterparse!
     return PE.sub(b"", resp.content) if strip_pi else resp.content
 
 
@@ -130,13 +138,13 @@ class EPMC:
             s.decompose()
         return article
 
-    def extract(self, article: Tag) -> tuple[Tag, Tag, Tag]:
+    def extract(self, article: Tag) -> Outline:
         title = article.select("> front > article-meta > title-group > article-title")[
             0
         ]
         abstract = article.select("> front > article-meta > abstract")[0]
         body = article.select("> body")[0]
-        return title, abstract, body
+        return Outline(title, abstract, body)
 
     def html(self) -> str | None:
         article = self.get_article()

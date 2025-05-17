@@ -36,8 +36,10 @@ class Soup:
     def soupify(self, html: str) -> BeautifulSoup:
         return BeautifulSoup(StringIO(html))
 
-    def tofrag(self, html: str, css: Location) -> str:
+    def tofrag(self, html: str, css: Location, url: str | None = None) -> str:
         t = self.soupify(html)
+        if url:
+            t = self.udpate_links(t, url)
         return "\n".join(self.get_text(a, css) for a in t.select(css.article_css))
 
     def get_text(self, article: Tag, css: Location) -> str:
@@ -63,6 +65,29 @@ class Soup:
             path.parent.mkdir(parents=True)
         with path.open("wt", encoding="utf8") as fp:
             fp.write(html)
+
+    def udpate_links(self, soup: BeautifulSoup, url: str) -> BeautifulSoup:
+        if not url.endswith("/"):
+            url += "/"
+
+        def add(ref: str) -> str:
+            return url + ref
+
+        URLS = ("https://", "http://")
+
+        for a in soup.select("a"):
+            if "href" in a.attrs:
+                href = a.attrs["href"]
+                if href:
+                    if not href.startswith(URLS):
+                        a.attrs["href"] = add(href)
+        for a in soup.select("img"):
+            if "src" in a.attrs:
+                src = a.attrs["src"]
+                if src:
+                    if not src.startswith(URLS):
+                        a.attrs["src"] = add(src)
+        return soup
 
 
 class Selenium(Soup):
@@ -134,7 +159,7 @@ class Selenium(Soup):
             return html
         if self.path is not None:
             self.save_html(html, Path(self.path))
-        return self.tofrag(html, css)
+        return self.tofrag(html, css, self.current_url)
 
     def rerun(self, css: Location) -> str:
         return self.tofrag(self.find_html(), css)
