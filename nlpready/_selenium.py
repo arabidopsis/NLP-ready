@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from typing import TypeAlias
 
 from bs4 import BeautifulSoup
+from bs4 import Tag
 from html_to_markdown import convert_to_markdown
 from selenium import webdriver
 from selenium.common.exceptions import InvalidSessionIdException
@@ -19,7 +20,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 if TYPE_CHECKING:
     from ._issn import Location
-    from bs4 import Tag
 
 logger = logging.getLogger("nlpready")
 
@@ -97,10 +97,10 @@ class Selenium(Soup):
     def wait_for_css(self, css: str) -> None:
         self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, css)))
 
-    def doi(self, url: str, css: Location | None = None) -> str:
-        if not url.startswith(("https://", "http://")):
-            url = f"https://doi.org/{url}"
-        self.driver.get(url)
+    def doi(self, doi_or_url: str, css: Location | None = None) -> str:
+        if not doi_or_url.startswith(("https://", "http://")):
+            doi_or_url = f"https://doi.org/{doi_or_url}"
+        self.driver.get(doi_or_url)
         try:
             if css is not None:
                 wait = css.wait_css if css.wait_css else css.article_css
@@ -110,7 +110,7 @@ class Selenium(Soup):
 
             html = self.find_html()
         except TimeoutException:
-            logger.warning("timeout for: %s", url)
+            logger.warning("timeout[%s] for: %s", self.timeout, doi_or_url)
             html = ""
         return html
 
@@ -121,15 +121,15 @@ class Selenium(Soup):
         except InvalidSessionIdException:
             return None
 
-    def fetch_html(self, doi: str, css: Location | None = None) -> str | None:
-        html = self.doi(doi, css)
+    def fetch_html(self, doi_or_url: str, css: Location | None = None) -> str | None:
+        html = self.doi(doi_or_url, css)
         if not html:
             if self.is_cloudflare_challenge():
                 return None
         return html
 
-    def run(self, doi: str, css: Location) -> str | None:
-        html = self.fetch_html(doi, css)
+    def run(self, doi_or_url: str, css: Location) -> str | None:
+        html = self.fetch_html(doi_or_url, css)
         if not html:
             return html
         if self.path is not None:

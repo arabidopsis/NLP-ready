@@ -10,6 +10,8 @@ class Location:
     wait_css: str = ""
 
 
+# Generics
+
 WILEY = Location(
     ".article__body",
     "section.article-section__references,section.article-section__citedBy",
@@ -23,27 +25,82 @@ BMC = Location("main > article", 'section[data-title="References"]')
 CELL = Location("article .Abstracts,article .Body", "", "article section.bibliography")
 SPRINGER = Location("article main .c-article-body", 'section[data-title="Reference"]')
 SPRINGER2 = Location("article main .c-article-body", 'section[data-title="References"]')
-PLoSONE = Location(".article-content", "ol.references")
+PLOSONE = Location(".article-content", "ol.references")
 TAYLORFRANCIS = Location("article.article", 'div[id="references-Section"]')
-ScienceDirect = Location(
+SCIENCEDIRECT = Location(
     "article .Abstracts,article .Body",
     "",
     "article section.bibliography",
 )
+NATURE = Location("article div.c-article-body", 'section[data-title="References"]')
+
 ####
-PlantPhysiol = Location(".widget-instance-OUP_Article_FullText_Widget", ".ref-list")
-PlantCell = PlantPhysiol
-JBioChem = ScienceDirect  # Location("article .Abstracts,article .Body","", "article section.bibliography")
-FrontPlantSci = Location(".JournalFullText .JournalFullText", ".References")
-SciRep = Location(".main-content")
+
+JBioChem = SCIENCEDIRECT  # Location("article .Abstracts,article .Body","", "article section.bibliography")
+JBiolChem = SCIENCEDIRECT
+Virology = SCIENCEDIRECT
+MolCellProteomics = SCIENCEDIRECT
+Mitochondrion = SCIENCEDIRECT
+JPlantPhysiol = SCIENCEDIRECT
+JStructBiol = SCIENCEDIRECT
+MolCells = SCIENCEDIRECT
+Gene = SCIENCEDIRECT
+Cell = SCIENCEDIRECT
+
 
 PlantJ = WILEY
 FEBSLet = WILEY
 PhysiolPlant = WILEY
 PlantCellEnviron = WILEY
-Cell = JBioChem
-EMBOJ = Location("main article", 'section[data-extent="backmatter"],.citations')
-GeneDev = Location("div.article.fulltext-view")
+JIntegrPlantBiol = WILEY
+Proteomics = WILEY
+NewPhytol = WILEY
+MolPlantPathol = WILEY
+ScientificWorldJournal = WILEY
+FEBSJ = WILEY
+Traffic = WILEY
+
+JProteomics = CELL
+PlantSci = CELL
+MolPlant = CELL
+BiochemBiophysResCommun = CELL
+PlantPhysiolBiochem = CELL
+Phytochemistry = CELL
+CurrBiol = CELL
+BiochimBiophysActa = CELL
+
+JExpBot = OUP
+PlantCellPhysiol = OUP
+BiosciBiotechnolBiochem = OUP
+Genetics = OUP
+AnnBot = OUP
+NucleicAcidsRes = OUP
+
+PlantReprod = SPRINGER2
+PhotosynRes = SPRINGER2
+PlantCellRep = SPRINGER2
+MolBiolRep = SPRINGER2
+Protoplasma = SPRINGER
+PlantMolBiol = SPRINGER
+JPlantRes = SPRINGER
+
+PLoSONE = PLOSONE
+PLoSGenet = PLOSONE
+PLoSBiol = PLOSONE
+PLoSPathog = PLOSONE
+
+
+BMCPlantBiol = BMC
+BMCResNotes = BMC
+
+PlantSignalBehav = TAYLORFRANCIS
+RNABiol = TAYLORFRANCIS
+
+
+Nature = NATURE
+NatCommun = NATURE
+CellRes = NATURE
+
 ProcNatlAcadSciUSA = Location(
     'main article section[data-extent="frontmatter"], main article section[data-extent="bodymatter"]',
     'section[data-extent="backmatter"],.citations',
@@ -51,6 +108,31 @@ ProcNatlAcadSciUSA = Location(
 ProcNatlAcadSciUSA2 = Location(
     'main article section[id="abstract"],main article section[id="bodymatter"]',
 )
+JVirol = ProcNatlAcadSciUSA2
+
+Science = Location(
+    'main article section[id="abstract"],main article section[id="bodymatter"]',
+)
+MolSystBiol = Science
+
+EMBOJ = Location('div[id="abstract"],main article section[data-extent="bodymatter"]')
+EMBORep = EMBOJ
+EMBOJ = Location("main article", 'section[data-extent="backmatter"],.citations')
+
+PlantPhysiol = Location(".widget-instance-OUP_Article_FullText_Widget", ".ref-list")
+PlantCell = PlantPhysiol
+
+JProteomeRes = Location(
+    "main article .article_abstract,main article .article_content",
+    "ol#references,.articleCitedByDropzone .cited-by",
+)
+Biochemistry = JProteomeRes
+
+FrontPlantSci = Location(".JournalFullText .JournalFullText", ".References")
+FrontCellDevBiol = FrontPlantSci
+
+SciRep = Location(".main-content")
+GeneDev = Location("div.article.fulltext-view")
 JCellSci = Location(
     ".widget-ArticleFulltext.widget-instance-ArticleFulltext",
     'h2[data-section-title="References"] ~ div',
@@ -59,48 +141,11 @@ JCellBiol = Location(
     ".widget-ArticleFulltext.widget-instance-ArticleFulltext_SplitView",
     'h2[data-section-title="References"] ~ div',
 )
-
 IntJMolSci = Location("article .html-body section")
-JExpBot = OUP
-JIntegrPlantBiol = WILEY
-PlantCellPhysiol = OUP
-NewPhytol = WILEY
-Nature = Location("article div.c-article-body", 'section[data-title="References"]')
-BMCPlantBiol = BMC
-MolPlant = CELL
-PlantSignalBehav = TAYLORFRANCIS
-Proteomics = WILEY
-BiochemBiophysResCommun = CELL
-PlantPhysiolBiochem = CELL
-Phytochemistry = CELL
-PLoSGenet = PLoSONE
-CurrBiol = CELL
-NatCommun = Nature
-Protoplasma = SPRINGER
-PLoSBiol = PLoSONE
-RNABiol = TAYLORFRANCIS
-PlantMolBiol = SPRINGER
-BiochimBiophysActa = CELL
-JPlantRes = SPRINGER
-BiosciBiotechnolBiochem = OUP
-FrontCellDevBiol = FrontPlantSci
-JProteomeRes = Location(
-    "main article .article_abstract,main article .article_content",
-    "ol#references,.articleCitedByDropzone .cited-by",
-)
 
-JBiolChem = ScienceDirect
+
 MolPlantMicrobeInteract = Location("main article .article__body")
 Planta = Location('article section[data-title="Abstract"],article .main-content')
-Virology = ScienceDirect
-BMCResNotes = BMC
-JProteomics = CELL
-PlantReprod = SPRINGER2
-MolCellProteomics = ScienceDirect
-PlantSci = CELL
-PhotosynRes = SPRINGER2
-Genetics = OUP
-PlantCellRep = SPRINGER2
 RNA = Location(
     ".article",
     ".section.ref-list",
@@ -110,38 +155,18 @@ BiochemJ = Location(
     ".ref-list",
 )
 Elife = Location("main .main-content-grid", 'section[id="references"]')
-Mitochondrion = ScienceDirect
-AnnBot = OUP
-JPlantPhysiol = ScienceDirect
-PLoSPathog = PLoSONE
-ScientificWorldJournal = WILEY
-JStructBiol = ScienceDirect
-Gene = ScienceDirect
-Biochemistry = JProteomeRes
-JVirol = ProcNatlAcadSciUSA2
 MolBiolCell = Location("main article .article__body", "ul.references")  # Blocks?
 Development = Location(
     ".widget-ArticleMainView.widget-instance-ArticleMainView_Article",
     # SIC!!!!
     'h2[data-section-title="<strong>References</strong>"]',
 )
-MolPlantPathol = WILEY
-EMBOJ = Location('div[id="abstract"],main article section[data-extent="bodymatter"]')
 MolBiosyst = Location(
     "article.article-control",
     ".ref-list,.article__authors,.drawer-control.fixpadv--m",
 )
-Science = Location(
-    'main article section[id="abstract"],main article section[id="bodymatter"]',
-)
-FEBSJ = WILEY
-NucleicAcidsRes = OUP
-CellRes = Nature
-Traffic = WILEY
-EMBORep = EMBOJ
-MolBiolRep = SPRINGER2
-MolSystBiol = Science
-MolCells = ScienceDirect
+
+
 DATA = {
     "1532-2548": PlantPhysiol,
     "1365-313X": PlantJ,
@@ -158,6 +183,8 @@ DATA = {
     "1040-4651": PlantCell,
     "0092-8674": Cell,
     "0261-4189": EMBOJ,
+    "1460-2075": EMBOJ,
+    "1469-3178": EMBORep,
     "0014-5793": FEBSLet,
     "0890-9369": GeneDev,
     "0027-8424": ProcNatlAcadSciUSA,
@@ -217,14 +244,12 @@ DATA = {
     "1939-4586": MolBiolCell,  # driver.get BLOCKS!
     "1477-9129": Development,
     "1364-3703": MolPlantPathol,
-    "1460-2075": EMBOJ,
     "1742-2051": MolBiosyst,
     "1095-9203": Science,
     "1742-4658": FEBSJ,
     "1362-4962": NucleicAcidsRes,
     "1748-7838": CellRes,
     "1600-0854": Traffic,
-    "1469-3178": EMBORep,
     "1573-4978": MolBiolRep,
     "1744-4292": MolSystBiol,
     "0219-1032": MolCells,
