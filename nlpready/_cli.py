@@ -11,7 +11,6 @@ from typing import Any
 
 import click
 
-from . import config as Config
 from ._mlabc import Generate
 from ._utils import getconfig
 
@@ -145,9 +144,9 @@ def cli():
 @click.option("--num", is_flag=True, help="reduce numbers to NUMBER etc.")
 @click.option(
     "--cache",
-    default=Config.PKLFILE,
-    help="cached pickle file",
-    show_default=True,
+    # default=Config.PKLFILE,
+    help=f"cached pickle file. Defaults to {getconfig().data_dir}/{getconfig().cache}",
+    # show_default=True,
 )
 def tohtml(
     cache: str,
@@ -162,6 +161,9 @@ def tohtml(
     from ._mlabc import pmid2doi, make_jinja_env
 
     conf = getconfig()
+
+    if cache is None:
+        cache = os.path.join(conf.data_dir, conf.cache)
 
     # from pickle import load, dump
 
@@ -256,7 +258,7 @@ def tohtml(
 
     journals_ = sorted(journals_, key=sortf())
     # pylint: disable=no-member
-    res = template.render(journals=journals_, name=Config.NAME)
+    res = template.render(journals=journals_, name=conf.name)
 
     with open(os.path.join(conf.data_dir, "html", "index.html"), "w") as fp2:
         fp2.write(res)
@@ -402,10 +404,10 @@ def summary() -> None:
 @click.option("--api-key", help="your NCBI API_KEY")
 @click.option(
     "--out",
-    default=Config.JCSV,
-    help="output filename (will be appended to if exists)",
-    show_default=True,
-    type=click.Path(dir_okay=False, file_okay=True, exists=False),
+    # default=Config.JCSV,
+    help=f"output filename (will be appended to if exists). Defaults to {getconfig().suba_csv}",
+    # show_default=True,
+    type=click.Path(dir_okay=False, file_okay=True),
 )
 @click.option(
     "--col",
@@ -430,7 +432,7 @@ def summary() -> None:
 @click.argument("csvfile", type=click.Path(dir_okay=False, exists=True, file_okay=True))
 def journals(
     csvfile: str,
-    out: str,
+    out: str | None,
     email: str | None,
     api_key: str | None,
     noheader: bool = False,
@@ -443,6 +445,8 @@ def journals(
     from ._download import getmeta
 
     conf = getconfig()
+    if out is None:
+        out = conf.suba_csv
 
     if not email:
         if conf.email:

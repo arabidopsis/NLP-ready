@@ -2,6 +2,8 @@
 #
 # Name of current project
 # only used for html output
+from __future__ import annotations
+
 NAME = "nlpready"
 
 # Where to put the downloaded xml/html files
@@ -17,4 +19,4 @@ JCSV = "nlpready-journals.csv"
 # for `python -m nlpready tohtml --cache={PKLFILE}`
 # saves state so we can reproduce html
 # on a per module basis
-PKLFILE = DATADIR + "/nlpready.pkl"
+PKLFILE = "nlpready.pkl"
