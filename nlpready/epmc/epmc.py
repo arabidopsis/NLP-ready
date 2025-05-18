@@ -16,7 +16,9 @@ from .utils import PMCEvents
 
 PE = re.compile(b"<[?][^?]+[?]>")
 
-XML = "https://ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"  # noqa: E221
+XML = (
+    "https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"  # noqa: E221
+)
 
 
 @dataclass
