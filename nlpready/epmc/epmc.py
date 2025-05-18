@@ -16,9 +16,7 @@ from .utils import PMCEvents
 
 PE = re.compile(b"<[?][^?]+[?]>")
 
-XML = (
-    "https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"  # noqa: E221
-)
+XML = "https://ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"  # noqa: E221
 
 
 @dataclass
@@ -78,6 +76,9 @@ class EPMC:
         "award-id",
         "self-uri",
         "counts",
+        "custom-meta-group",
+        "issue-id",
+        "alt-title",
     )
 
     MD_STYLE = dict(heading_style="atx")

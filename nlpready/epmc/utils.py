@@ -168,6 +168,8 @@ PMCTAGS = {
     "table-wrap": "div",
     "table-wrap-foot": "div",
     "break": "br",
+    "styled-content": "span",
+    "sc": "span",
 }
 
 
@@ -187,9 +189,10 @@ class Events:
     def parse_raw(self, fp: IO[bytes]) -> Iterator[tuple[str, Element]]:
         yield from etree.iterparse(fp, events=("start", "end"))
 
-    def parse(self, fp: IO[bytes]) -> Iterator[str]:
+    def parse(self, fp: IO[bytes]) -> Iterator[str]:  # noqa C901:
         elem: Element
         for e, elem in etree.iterparse(fp, events=("start", "end")):
+            missing = False
             if e == "start":
                 tag = elem.tag
                 m = NSRE.match(tag)
@@ -207,11 +210,15 @@ class Events:
                         else:
                             etag = "span"
                             self.missing.add(tag)
+                            missing = True
+
                     else:
                         etag = self.mapping[tag]
                         assert etag in HTMLTAGS
 
-                    if etag != tag:
+                    if missing:
+                        yield f'<b class="missing"> missing: {tag} '
+                    elif etag != tag:
                         yield f'<{etag} class="{tag}">'
                     else:
                         yield f"<{etag}>"
@@ -233,6 +240,7 @@ class Events:
                             etag = tag
                         else:
                             etag = "span"
+                            missing = True
                     else:
                         etag = self.mapping[tag]
                         assert etag in HTMLTAGS
@@ -246,7 +254,10 @@ class Events:
                         "embed",
                         "input",
                     }:
-                        yield f"</{etag}>"
+                        if missing:
+                            yield "</b>"
+                        else:
+                            yield f"</{etag}>"
 
                 if elem.tail:
                     if elem.tail == "\n":
