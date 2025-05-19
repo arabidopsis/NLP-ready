@@ -145,6 +145,7 @@ class Selenium(Soup):
         timeout: int = 10,
         format: MD = "markdown",
         cache: str | Path | None = None,
+        page_load_timeout: int = 20,
     ):
         super().__init__(format)
         options = webdriver.ChromeOptions()
@@ -154,6 +155,8 @@ class Selenium(Soup):
         self.driver = webdriver.Chrome(options=options)
         self.cache = Path(cache) if cache else None
         self.wait_ = None
+        if page_load_timeout:
+            self.driver.set_page_load_timeout(page_load_timeout)
 
     # @classmethod
     # def has_driver(self) -> bool:
@@ -244,7 +247,7 @@ class Selenium(Soup):
         return self.tofrag(self.find_html(), css, fmt=fmt)
 
     def close(self):
-        self.driver.close()
+        self.driver.close()  # or quit()?
         self.driver = None
 
     def __del__(self):
