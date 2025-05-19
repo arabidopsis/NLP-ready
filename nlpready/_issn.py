@@ -1,6 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from urllib.parse import urlparse
+
+import requests
+from bs4 import BeautifulSoup
 
 
 @dataclass
@@ -8,15 +12,33 @@ class Location:
     article_css: str
     remove_css: str = ""
     wait_css: str = ""
+    pdf_accessible: bool = False
 
     def full(self, url: str) -> str:
         return url
+
+    def pdf(self, soup: BeautifulSoup, url: str) -> bytes | None:
+        return None
 
 
 @dataclass
 class RNALocation(Location):
     def full(self, url: str) -> str:
         return url + ".full"
+
+
+@dataclass
+class NatureLocation(Location):
+    def __post_init__(self):
+        self.pdf_accessible = True
+
+    def pdf(self, soup: BeautifulSoup, url: str) -> bytes | None:
+        a = soup.select('a[data-article-pdf="true"]')[0]
+        href = a.get("href")
+        c = urlparse(url)
+        u = f"{c.scheme}://{c.netloc}{href}"
+        resp = requests.get(u)
+        return resp.content
 
 
 # Generics
@@ -30,7 +52,10 @@ OUP = Location(
     ".widget-ArticleFulltext.widget-instance-OUP_Article_FullText_Widget",
     ".ref-list",
 )
-BMC = Location("main > article", 'section[data-title="References"]')
+BMC = Location(
+    "main > article",
+    'section[data-title="References"],.c-article-author-list,.c-article-info-details,.c-article-metrics-bar__wrapper',
+)
 SPRINGER = Location("article main .c-article-body", 'section[data-title="Reference"]')
 SPRINGER2 = Location("article main .c-article-body", 'section[data-title="References"]')
 PLOSONE = Location(".article-content", "ol.references")
@@ -40,7 +65,14 @@ CELL = SCIENCEDIRECT = Location(
     "",
     "article section.bibliography",
 )
-NATURE = Location("article div.c-article-body", 'section[data-title="References"]')
+NATURE = NatureLocation(
+    "article div.c-article-body",
+    'section[data-title="References"],section[data-track-component="inline-recommendations"],section[aria-labelledby="content-related-subjects"]',
+)
+
+ASMJournals = Location(
+    'main article [id="abstracts"], main article section[data-extent="bodymatter"]',
+)
 
 ####
 
@@ -65,6 +97,11 @@ FoodMicrobiol = SCIENCEDIRECT
 AnalBiochem = SCIENCEDIRECT
 CellStressChaperones = SCIENCEDIRECT
 DevBiol = SCIENCEDIRECT
+TrendsPlantSci = SCIENCEDIRECT
+ArchBiochemBiophys = SCIENCEDIRECT
+BiophysJ = SCIENCEDIRECT
+MolCellBiolResCommun = SCIENCEDIRECT
+ProteinExprPurif = SCIENCEDIRECT
 
 PlantJ = WILEY
 FEBSLet = WILEY
@@ -85,6 +122,8 @@ Electrophoresis = WILEY
 PlantBiotechnolJ = WILEY
 IntEndodJ = WILEY
 PlantBiol_Stuttg_ = WILEY
+JCellBiochem = WILEY
+Genesis = WILEY
 
 JProteomics = CELL
 PlantSci = CELL
@@ -138,6 +177,7 @@ GenomeBiol = BMC
 BMCGenomics = BMC
 BMCBiotechnol = BMC
 PlantMethods = BMC
+BMCBiochem = BMC
 
 PlantSignalBehav = TAYLORFRANCIS
 RNABiol = TAYLORFRANCIS
@@ -154,6 +194,12 @@ NatBiotechnol = NATURE
 CellMolLifeSci = NATURE
 Chromosoma = NATURE
 DevGenesEvol = NATURE
+CellDeathDiffer = NATURE
+ApplMicrobiolBiotechnol = NATURE
+TheorApplGenet = NATURE
+CurrGenet = NATURE
+MolGenGenet = NATURE
+JMolEvol = NATURE
 
 ProcNatlAcadSciUSA = Location(
     'main article section[data-extent="frontmatter"], main article section[data-extent="bodymatter"]',
@@ -235,9 +281,8 @@ MolBiosyst = Location(
     ".ref-list,.article__authors,.drawer-control.fixpadv--m",
 )
 
-IntJArtifOrgans = Location(
-    'main article [id="abstracts"], main article section[data-extent="bodymatter"]',
-)
+IntJArtifOrgans = ASMJournals
+JBacteriol = ASMJournals
 
 
 @dataclass
@@ -247,11 +292,13 @@ class JStage(Location):
 
 
 CellStructFunct = JStage("body", 'a[name="references"] ~ table')
+GenesGenetSyst = CellStructFunct
 
 AnnuRevPlantBiol = Location(
     "div#html-body",
-    "span.references,div.menuButton,div.dropDownMenu",
+    "span.references,div.menuButton,div.dropDownMenu,ul.article-header-metadata,.article-title-and-authors",
 )
+JGenVirol = AnnuRevPlantBiol
 
 DATA: dict[str, Location] = {
     "1532-2548": PlantPhysiol,
@@ -424,4 +471,27 @@ DATA: dict[str, Location] = {
     "1746-4811": PlantMethods,
     "1543-5008": AnnuRevPlantBiol,
     "1047-8477": JStructBiol,
+    "0305-7364": AnnBot,
+    "1360-1385": TrendsPlantSci,
+    "0003-9861": ArchBiochemBiophys,
+    "1350-9047": CellDeathDiffer,
+    "0175-7598": ApplMicrobiolBiotechnol,
+    "0022-538X": JVirol,
+    "0386-7196": CellStructFunct,
+    "0006-3495": BiophysJ,
+    "0021-9193": JBacteriol,
+    "0040-5752": TheorApplGenet,
+    "0009-5915": Chromosoma,
+    "0730-2312": JCellBiochem,
+    "1471-2091": BMCBiochem,
+    "1526-954X": Genesis,
+    "1340-2838": DNARes,
+    "0172-8083": CurrGenet,
+    "0022-1317": JGenVirol,
+    "1522-4724": MolCellBiolResCommun,
+    "1341-7568": GenesGenetSyst,
+    "0026-8925": MolGenGenet,
+    "0305-1048": NucleicAcidsRes,
+    "1046-5928": ProteinExprPurif,
+    "0022-2844": JMolEvol,
 }

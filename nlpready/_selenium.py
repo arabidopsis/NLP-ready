@@ -273,3 +273,12 @@ class Selenium(Soup):
 
     def resoupify(self) -> BeautifulSoup:
         return self.soupify(self.find_html())
+
+    def pdf(self, css: Location) -> bytes | None:
+        if not css.pdf_accessible:
+            return None
+        url = self.current_url
+        if not url:
+            return None
+        soup = self.resoupify()
+        return css.pdf(soup, url)

@@ -13,6 +13,15 @@ class Paper:
     journal: str | None
     pmcid: str | None
 
+    @property
+    def key(self):
+        return (
+            self.journal.replace(" ", "")
+            .replace(".", "")
+            .replace("(", "_")
+            .replace(")", "_")
+        )
+
 
 @dataclass(kw_only=True)
 class NCBIPaper(Paper):
