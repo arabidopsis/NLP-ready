@@ -12,10 +12,12 @@ from bs4 import Tag
 from html_to_markdown import convert_to_markdown
 from requests import Session
 
+from .._selenium import MD_STYLE
 from .utils import PMCEvents
 
 PE = re.compile(b"<[?][^?]+[?]>")
 
+# see https://europepmc.org/RestfulWebService#!/Europe32PMC32Articles32RESTful32API/fullTextXML
 XML = (
     "https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"  # noqa: E221
 )
@@ -83,15 +85,12 @@ class EPMC:
         "alt-title",
     )
 
-    MD_STYLE = dict(heading_style="atx")
-
     PARSER = "lxml-xml"
 
     def __init__(self, content: bytes, **kwargs: Any):
         self.soup = BeautifulSoup(BytesIO(content), self.PARSER)
-        # self.soup = BeautifulSoup(BytesIO(str(self.soup).encode('utf-8')), "lxml-xml")
         self.missing: set[str] = set()
-        self.md_style = {**self.MD_STYLE, **kwargs}
+        self.md_style = {**MD_STYLE, **kwargs}
 
     @classmethod
     def from_pmcid(
