@@ -135,3 +135,4 @@ scifeeder-data/*
 /.venv
 .~lock*
 /sciconfig.toml
+/mycache

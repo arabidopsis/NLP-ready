@@ -18,6 +18,8 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from urllib3.exceptions import MaxRetryError
+
 
 if TYPE_CHECKING:
     from .issn import Location
@@ -71,7 +73,8 @@ class Soup:
         *,
         fmt: MD | None = None,
     ) -> str:
-
+        if fmt is None:
+            fmt = self.format
         return "\n".join(
             self.get_text(a, css, fmt=fmt) for a in soup.select(css.article_css)
         )
@@ -95,7 +98,7 @@ class Soup:
         return article.get_text(" ")
 
     @classmethod
-    def save_html(self, html, path: Path) -> None:
+    def save_html(self, html: str, path: Path) -> None:
         if not path.parent.exists():
             path.parent.mkdir(parents=True)
         with path.open("wt", encoding="utf8") as fp:
@@ -136,16 +139,16 @@ class Soup:
         return soup
 
 
-def gen_driver(headless: bool = True) -> WebDriver:
+def stealth_driver(headless: bool = True) -> WebDriver:
+    from .config import USER_AGENT
     import undetected_chromedriver as uc
     from selenium_stealth import stealth
 
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.140 Safari/537.36"
     chrome_options = uc.ChromeOptions()
     if headless:
         chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--start-maximized")
-    chrome_options.add_argument(f"user-agent={user_agent}")
+    chrome_options.add_argument(f"user-agent={USER_AGENT}")
     driver = uc.Chrome(options=chrome_options)
     stealth(
         driver,
@@ -263,7 +266,7 @@ class Selenium(Soup):
         if self and self.driver is not None:
             try:
                 self.close()
-            except InvalidSessionIdException:
+            except (InvalidSessionIdException, MaxRetryError):
                 pass
 
     def is_cloudflare_challenge(self) -> bool:
@@ -295,8 +298,12 @@ class Selenium(Soup):
         soup = self.resoupify()
         return css.pdf(soup, url)
 
+    def stealth(self) -> str:
+        self.driver.get("https://bot.sannysoft.com/")
+        return self.driver.find_element(By.XPATH, "/html/body").text
 
-class UndetectedSelenium(Selenium):
+
+class StealthSelenium(Selenium):
 
     def mkdriver(self, headless: bool = True) -> WebDriver:
-        return gen_driver(headless)
+        return stealth_driver(headless)

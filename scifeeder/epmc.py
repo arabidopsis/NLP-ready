@@ -12,15 +12,22 @@ from bs4 import Tag
 from html_to_markdown import convert_to_markdown
 from requests import Session
 
+from .config import USER_AGENT
+from .issn import Location
+from .selenium_cls import MD
 from .selenium_cls import MD_STYLE
+from .selenium_cls import Soup
+from .utils import getconfig
 from .xml_utils import PMCEvents
 
 PE = re.compile(b"<[?][^?]+[?]>")
 
-# see https://europepmc.org/RestfulWebService#!/Europe32PMC32Articles32RESTful32API/fullTextXML
+# see https://europepmc.org/RestfulWebService#meths
 XML = (
     "https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"  # noqa: E221
 )
+
+HTML = "https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
 
 
 @dataclass
@@ -47,6 +54,27 @@ def epmc(
 
     # get rid of <?ConverterInfo.XSLTName jp2nlmx2.xml?> it breaks iterparse!
     return PE.sub(b"", resp.content) if strip_pi else resp.content
+
+
+def ncbi_epmc(
+    pmcid: str,
+    email: str | None,
+    session: Session | None = None,
+) -> str | None:
+    """Given a PUBMED id return the Europmc XML as bytes."""
+    url = HTML.format(pmcid=pmcid)
+    if session is None:
+        session = Session()
+    params = params = dict(email=email) if email else {}
+    resp = session.get(
+        url,
+        params=params,
+        headers={"User-Agent": USER_AGENT},
+    )
+    if resp.status_code == 404:
+        return None
+    resp.raise_for_status()
+    return resp.text
 
 
 class EPMC:
@@ -99,10 +127,10 @@ class EPMC:
         session: Session | None = None,
         strip_pi: bool = True,
         **kwargs: Any,
-    ) -> Self:
+    ) -> Self | None:
         content = epmc(pmcid, session, strip_pi=strip_pi)
         if not content:
-            raise ValueError(f"no content for {pmcid}")
+            return None
 
         return cls(content, **kwargs)
 
@@ -166,3 +194,40 @@ class EPMC:
 
     def markdown(self):
         return self.html_to_markdown(self.html())
+
+
+NCBI_CSS = Location(
+    "main > article",
+    "section.ref-list,section.front-matter,section.pmc-layout__citation",
+)
+
+
+class NCBI(Soup):
+
+    def __init__(self, html: str, format: MD = "markdown", **kwargs: dict[str, Any]):
+        super().__init__(format, **kwargs)
+        self.soup = self.soupify(html)
+
+    def html(self, pretty: bool = False) -> str:
+        return self.soup.prettify() if pretty else str(self.soup)
+
+    def article(self, css: Location | None = None, fmt: MD | None = None) -> str:
+        if css is None:
+            css = NCBI_CSS
+        return self.tofrag(self.soup, css, fmt=fmt)
+
+    @classmethod
+    def from_pmcid(
+        cls,
+        pmcid: str,
+        session: Session | None = None,
+        format: MD = "markdown",
+        email: str | None = None,
+        **kwargs: dict[str, Any],
+    ) -> Self | None:
+        if email is None:
+            email = getconfig().email
+        html = ncbi_epmc(pmcid, email, session)
+        if not html:
+            return None
+        return cls(html, format, **kwargs)

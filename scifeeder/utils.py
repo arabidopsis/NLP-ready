@@ -4,13 +4,14 @@ import csv
 import os
 import tomllib
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterator
 
 from . import config as Config
 from .types import Paper
 
 
-def read_papers_csv(csvfile: str) -> Iterator[Paper]:
+def read_papers_csv(csvfile: str | Path) -> Iterator[Paper]:
     if not os.path.isfile(csvfile):
         raise ValueError(f'"{csvfile}" is not a file!')
     with open(csvfile, encoding="utf8") as fp:
@@ -35,7 +36,11 @@ def read_papers_csv(csvfile: str) -> Iterator[Paper]:
             )
 
 
-def read_pubmed_csv(csvfile: str, header: bool = True, pcol: int = 0) -> Iterator[str]:
+def read_pubmed_csv(
+    csvfile: str | Path,
+    header: bool = True,
+    pcol: int = 0,
+) -> Iterator[str]:
     """File csvfile is a list of *all* pubmed IDs."""
     with open(csvfile, encoding="utf8") as fp:
         R = csv.reader(fp)
@@ -48,7 +53,7 @@ def read_pubmed_csv(csvfile: str, header: bool = True, pcol: int = 0) -> Iterato
 
 @dataclass(kw_only=True)
 class UserConfig:
-    suba_csv: str
+    papers_csv: str
     data_dir: str
     email: str | None = None
     api_key: str | None = None
@@ -63,7 +68,7 @@ def getconfig() -> UserConfig:
     if _CONF is not None:
         return _CONF
     default = dict(
-        suba_csv=Config.JCSV,
+        papers_csv=Config.JCSV,
         data_dir=Config.DATADIR,
     )
     if not os.path.exists("sciconfig.toml"):

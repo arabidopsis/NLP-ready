@@ -6,6 +6,7 @@ import re
 import time
 from io import BytesIO
 from itertools import batched
+from pathlib import Path
 from typing import Iterator
 from typing import Sequence
 from typing import TYPE_CHECKING
@@ -13,8 +14,11 @@ from typing import TYPE_CHECKING
 import click
 import requests
 from lxml import etree
+from tqdm import tqdm
 
 from .types import NCBIPaper
+from .types import Paper
+from .utils import read_papers_csv
 from .utils import read_pubmed_csv
 
 if TYPE_CHECKING:
@@ -151,9 +155,72 @@ def pubmed_meta(
     yield from parse_xml(xml)
 
 
-def getmeta(
-    csvfile: str,
-    pubmeds: str,
+class Runner:
+    def __init__(
+        self,
+        papers_csv: str | Path,
+        done_csv: str | Path,
+        batch_size: int = 1,
+        sleep=0.0,
+    ):
+        self.done_csv = Path(done_csv)
+        self.papers_csv = Path(papers_csv)
+        self.batch_size = batch_size
+        self.sleep = sleep
+
+    def start(self) -> None:
+        pass
+
+    def end(self) -> None:
+        pass
+
+    def run(self, nb: bool = False):
+        from .issn import DATA
+
+        if nb:
+            from tqdm.notebook import tqdm
+        else:
+            from tqdm import tqdm
+
+        if self.done_csv.exists():
+            with self.done_csv.open("r", encoding="utf8") as fp:
+                R = csv.reader(fp)
+                done = {row[0] for row in R}
+        else:
+            done = set()
+
+        todo = [
+            paper
+            for paper in read_papers_csv(self.papers_csv)
+            if paper.pmid not in done
+            and paper.doi
+            and paper.issn
+            and paper.issn in DATA
+        ]
+        self.start()
+        try:
+            with self.done_csv.open("a", encoding="utf8") as fp:
+                W = csv.writer(fp)
+                with tqdm(total=len(todo)) as pbar:
+                    for papers in batched(todo, self.batch_size):
+                        for paper in papers:
+                            status = self.work(paper, pbar)
+                            W.writerow([paper.pmid, status])
+                            fp.flush()
+                        pbar.update(len(papers))
+                        if self.sleep:
+                            time.sleep(self.sleep)
+        finally:
+            self.end()
+
+    def work(self, paper: Paper, tqdm: tqdm) -> str:
+        return "done"
+
+
+def get_ncbi_metadata(
+    pubmeds_todo: str,
+    papers_csv: str,
+    *,
     email: str | None = None,
     api_key: str | None = None,
     header: bool = True,
@@ -165,9 +232,9 @@ def getmeta(
     from tqdm import tqdm
 
     session = requests.Session()
-    e = os.path.exists(pubmeds)
-    if e:
-        with open(pubmeds, encoding="utf8") as fp:
+    exists = os.path.exists(papers_csv)
+    if exists:
+        with open(papers_csv, encoding="utf8") as fp:
             R = csv.reader(fp)
             next(R)  # skip header
             done = {row[0] for row in R}
@@ -176,14 +243,14 @@ def getmeta(
 
     todo = [
         pmid
-        for pmid in read_pubmed_csv(csvfile, header=header, pcol=pcol)
+        for pmid in read_pubmed_csv(pubmeds_todo, header=header, pcol=pcol)
         if pmid not in done
     ]
     click.secho(f"{len(done)} done. {len(todo)} todo", fg="blue", bold=True)
 
-    with open(pubmeds, "a", encoding="utf8") as fp:
+    with open(papers_csv, "a", encoding="utf8") as fp:
         W = csv.writer(fp)
-        if not e:
+        if not exists:
             W.writerow(["pmid", "issn", "name", "year", "doi", "pmcid", "title"])
             fp.flush()
         with tqdm(total=len(todo)) as pbar:
@@ -211,7 +278,7 @@ def getmeta(
                 missing = [p for p in pmids if p not in batch]
                 if missing:
                     msg = ",".join(missing)
-                    pbar.set_description(f"missing: {msg}")
+                    pbar.write(click.style(f"missing: {msg}", fg="red"), bold=True)
                 # pbar.secho(f"{len(done)}/{len(todo)} done", fg="green")
                 if sleep:
                     time.sleep(sleep)  # be nice :)

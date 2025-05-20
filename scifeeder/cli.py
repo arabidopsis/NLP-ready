@@ -35,7 +35,7 @@ def clean_cache(data_dir: str | None) -> None:
 @click.option("--api-key", help="your NCBI API_KEY")
 @click.option(
     "--out",
-    help=f'output filename (will be appended to if exists). Defaults to "{getconfig().suba_csv}"',
+    help=f'output CSV filename (will be appended to if exists). Defaults to "{getconfig().papers_csv}"',
     type=click.Path(dir_okay=False, file_okay=True),
 )
 @click.option(
@@ -58,9 +58,12 @@ def clean_cache(data_dir: str | None) -> None:
     show_default=True,
 )
 @click.option("--noheader", is_flag=True, help="csvfile has no header")
-@click.argument("csvfile", type=click.Path(dir_okay=False, exists=True, file_okay=True))
+@click.argument(
+    "pubmed_csv",
+    type=click.Path(dir_okay=False, exists=True, file_okay=True),
+)
 def make_papers(
-    csvfile: str,
+    pubmed_csv: str,
     out: str | None,
     email: str | None,
     api_key: str | None,
@@ -71,11 +74,11 @@ def make_papers(
 ) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, pmcid, title) from list of pubmed IDs."""
     # pylint: disable=import-outside-toplevel
-    from .ncbi import getmeta
+    from .ncbi import get_ncbi_metadata
 
     conf = getconfig()
     if out is None:
-        out = conf.suba_csv
+        out = conf.papers_csv
 
     if not email:
         if conf.email:
@@ -101,10 +104,10 @@ More than 3 hits per second without an --api-key may get you
 blocked from the NCBI site.""",
             UserWarning,
         )
-    getmeta(
-        csvfile,
+    get_ncbi_metadata(
+        pubmeds_todo=pubmed_csv,
+        papers_csv=out,
         sleep=sleep,
-        pubmeds=out,
         header=not noheader,
         pcol=col,
         email=email,

@@ -14,3 +14,6 @@ DATADIR = "scifeeder-data"
 # This finds ISSN of journal and DOI/PMCID of paper
 # by scraping NCBI website.
 JCSV = "scifeeder-papers.csv"
+
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.140 Safari/537.36"
