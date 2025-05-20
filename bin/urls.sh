@@ -4,4 +4,3 @@ if [ "$#" -ne 2 ] ; then
         exit 1
 fi
 cat $1 | grep $2 | cut -d, -f2,3 | uniq | awk -F, -e '{print "\""$1"\": " "\""$2"\"," }'
-

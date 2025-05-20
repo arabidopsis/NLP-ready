@@ -136,3 +136,4 @@ scifeeder-data/*
 .~lock*
 /sciconfig.toml
 /mycache
+/scache

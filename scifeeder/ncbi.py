@@ -6,28 +6,55 @@ import re
 import time
 from io import BytesIO
 from itertools import batched
-from pathlib import Path
+from typing import Any
 from typing import Iterator
+from typing import Self
 from typing import Sequence
 from typing import TYPE_CHECKING
 
 import click
 import requests
 from lxml import etree
-from tqdm import tqdm
 
+from .config import USER_AGENT
+from .selenium_cls import Soup
+from .types import Location
 from .types import NCBIPaper
-from .types import Paper
-from .utils import read_papers_csv
+from .utils import getconfig
 from .utils import read_pubmed_csv
 
 if TYPE_CHECKING:
     from requests import Session
+    from .selenium_cls import MD
 
 EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
 # html that is sent back by NIH
 ERROR = re.compile("<ERROR>([^<]*)</ERROR>")
+
+
+HTML = "https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
+
+
+def ncbi_epmc(
+    pmcid: str,
+    email: str | None,
+    session: Session | None = None,
+) -> str | None:
+    """Given a PUBMED id return the Europmc XML as bytes."""
+    url = HTML.format(pmcid=pmcid)
+    if session is None:
+        session = requests.Session()
+    params = params = dict(email=email) if email else {}
+    resp = session.get(
+        url,
+        params=params,
+        headers={"User-Agent": USER_AGENT},
+    )
+    if resp.status_code == 404:
+        return None
+    resp.raise_for_status()
+    return resp.text
 
 
 def fetchpubmed(
@@ -155,68 +182,6 @@ def pubmed_meta(
     yield from parse_xml(xml)
 
 
-class Runner:
-    def __init__(
-        self,
-        papers_csv: str | Path,
-        done_csv: str | Path,
-        batch_size: int = 1,
-        sleep=0.0,
-    ):
-        self.done_csv = Path(done_csv)
-        self.papers_csv = Path(papers_csv)
-        self.batch_size = batch_size
-        self.sleep = sleep
-
-    def start(self) -> None:
-        pass
-
-    def end(self) -> None:
-        pass
-
-    def run(self, nb: bool = False):
-        from .issn import DATA
-
-        if nb:
-            from tqdm.notebook import tqdm
-        else:
-            from tqdm import tqdm
-
-        if self.done_csv.exists():
-            with self.done_csv.open("r", encoding="utf8") as fp:
-                R = csv.reader(fp)
-                done = {row[0] for row in R}
-        else:
-            done = set()
-
-        todo = [
-            paper
-            for paper in read_papers_csv(self.papers_csv)
-            if paper.pmid not in done
-            and paper.doi
-            and paper.issn
-            and paper.issn in DATA
-        ]
-        self.start()
-        try:
-            with self.done_csv.open("a", encoding="utf8") as fp:
-                W = csv.writer(fp)
-                with tqdm(total=len(todo)) as pbar:
-                    for papers in batched(todo, self.batch_size):
-                        for paper in papers:
-                            status = self.work(paper, pbar)
-                            W.writerow([paper.pmid, status])
-                            fp.flush()
-                        pbar.update(len(papers))
-                        if self.sleep:
-                            time.sleep(self.sleep)
-        finally:
-            self.end()
-
-    def work(self, paper: Paper, tqdm: tqdm) -> str:
-        return "done"
-
-
 def get_ncbi_metadata(
     pubmeds_todo: str,
     papers_csv: str,
@@ -258,6 +223,7 @@ def get_ncbi_metadata(
                 batch = []
                 for m in pubmed_meta(pmids, session, email, api_key):
                     pubmed = m.pmid
+                    # what can we do without a pubmed id?
                     if not pubmed:
                         continue
                     batch.append(pubmed)
@@ -282,3 +248,40 @@ def get_ncbi_metadata(
                 # pbar.secho(f"{len(done)}/{len(todo)} done", fg="green")
                 if sleep:
                     time.sleep(sleep)  # be nice :)
+
+
+NCBI_CSS = Location(
+    "main > article",
+    "section.ref-list,section.front-matter,section.pmc-layout__citation",
+)
+
+
+class NCBI(Soup):
+
+    def __init__(self, html: str, format: MD = "markdown", **kwargs: dict[str, Any]):
+        super().__init__(format, **kwargs)
+        self.soup = self.soupify(html)
+
+    def html(self, pretty: bool = False) -> str:
+        return self.soup.prettify() if pretty else str(self.soup)
+
+    def article(self, css: Location | None = None, fmt: MD | None = None) -> str:
+        if css is None:
+            css = NCBI_CSS
+        return self.tofrag(self.soup, css, fmt=fmt)
+
+    @classmethod
+    def from_pmcid(
+        cls,
+        pmcid: str,
+        session: Session | None = None,
+        format: MD = "markdown",
+        email: str | None = None,
+        **kwargs: dict[str, Any],
+    ) -> Self | None:
+        if email is None:
+            email = getconfig().email
+        html = ncbi_epmc(pmcid, email, session)
+        if not html:
+            return None
+        return cls(html, format, **kwargs)

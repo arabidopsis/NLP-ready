@@ -17,7 +17,7 @@ class Cache:
         if not self.cache_dir.exists():
             self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    def locate(self, paper) -> tuple[Path | None, FileFormat]:
+    def locate(self, paper: Paper) -> tuple[Path | None, FileFormat]:
 
         for typ in ["html", "xml", "ncbi"]:
             ext = "xml" if typ == "xml" else "html"

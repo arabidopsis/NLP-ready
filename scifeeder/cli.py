@@ -116,5 +116,22 @@ blocked from the NCBI site.""",
     )
 
 
+@cli.command()
+@click.argument(
+    "papers_csv",
+    type=click.Path(dir_okay=False, exists=True, file_okay=True),
+)
+def runner(papers_csv: str) -> None:
+    """Grab HTML pages from Journals"""
+    import logging
+    from .runner import SeleniumRunner
+
+    logger = logging.getLogger("scifeeder")
+    logger.setLevel(logging.WARNING)
+
+    r = SeleniumRunner(papers_csv)
+    r.run()
+
+
 if __name__ == "__main__":
     cli()

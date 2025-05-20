@@ -19,13 +19,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from urllib3.exceptions import MaxRetryError
+from urllib3.exceptions import NewConnectionError
 
 
 if TYPE_CHECKING:
     from .issn import Location
     from selenium.webdriver.remote.webdriver import WebDriver
 
-logger = logging.getLogger("nlpready")
+logger = logging.getLogger("scifeeder")
 
 MD: TypeAlias = Literal["markdown", "pmarkdown", "html", "phtml", "text"]
 
@@ -139,6 +140,15 @@ class Soup:
         return soup
 
 
+# from https://stackoverflow.com/questions/68289474
+# /selenium-headless-how-to-bypass-cloudflare-detection-using-selenium
+def get_service():
+    from selenium.webdriver.chrome.service import Service
+    from webdriver_manager.chrome import ChromeDriverManager
+
+    return Service(ChromeDriverManager().install())
+
+
 def stealth_driver(headless: bool = True) -> WebDriver:
     from .config import USER_AGENT
     import undetected_chromedriver as uc
@@ -150,6 +160,7 @@ def stealth_driver(headless: bool = True) -> WebDriver:
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument(f"user-agent={USER_AGENT}")
     driver = uc.Chrome(options=chrome_options)
+    # driver = uc.Chrome(service=get_service(), options=chrome_options)
     stealth(
         driver,
         languages=["en-US", "en"],
@@ -216,7 +227,7 @@ class Selenium(Soup):
 
             html = self.find_html()
         except TimeoutException:
-            logger.warning("timeout[%s] for: %s", self.timeout, doi_or_url)
+            logger.info("timeout[%s] for: %s", self.timeout, doi_or_url)
             html = ""
         return html
 
@@ -266,7 +277,7 @@ class Selenium(Soup):
         if self and self.driver is not None:
             try:
                 self.close()
-            except (InvalidSessionIdException, MaxRetryError):
+            except (InvalidSessionIdException, MaxRetryError, NewConnectionError):
                 pass
 
     def is_cloudflare_challenge(self) -> bool:

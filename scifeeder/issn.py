@@ -1,30 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
 
+from .types import Location
+from .types import RNALocation
 
-@dataclass
-class Location:
-    article_css: str
-    remove_css: str = ""
-    wait_css: str = ""
-    pdf_accessible: bool = False
-
-    def full(self, url: str) -> str:
-        return url
-
-    def pdf(self, soup: BeautifulSoup, url: str) -> bytes | None:
-        return None
-
-
-@dataclass
-class RNALocation(Location):
-    def full(self, url: str) -> str:
-        return url + ".full"
+if TYPE_CHECKING:
+    from bs4 import BeautifulSoup
 
 
 @dataclass
@@ -33,6 +19,7 @@ class NatureLocation(Location):
         self.pdf_accessible = True
 
     def pdf(self, soup: BeautifulSoup, url: str) -> bytes | None:
+
         a = soup.select('a[data-article-pdf="true"]')[0]
         href = a.get("href")
         c = urlparse(url)
@@ -237,7 +224,7 @@ FrontPlantSci = Location(".JournalFullText .JournalFullText", ".References")
 FrontCellDevBiol = FrontPlantSci
 
 SciRep = Location(".main-content")
-GeneDev = Location("div.article.fulltext-view")
+GeneDev = RNALocation("div.article.fulltext-view")
 JCellSci = Location(
     ".widget-ArticleFulltext.widget-instance-ArticleFulltext",
     'h2[data-section-title="References"] ~ div',
@@ -303,7 +290,7 @@ AnnuRevPlantBiol = Location(
 )
 JGenVirol = AnnuRevPlantBiol
 
-DATA: dict[str, Location] = {
+ISSN_MAP: dict[str, Location] = {
     "1532-2548": PlantPhysiol,
     "1365-313X": PlantJ,
     "1873-3468": FEBSLet,
