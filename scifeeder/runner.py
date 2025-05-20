@@ -6,10 +6,6 @@ from itertools import batched
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .cache import Cache
-from .issn import ISSN_MAP
-from .selenium_cls import Selenium
-from .selenium_cls import StealthSelenium
 from .types import Paper
 from .utils import read_papers_csv
 
@@ -83,45 +79,3 @@ class Runner:
 
     def work(self, paper: Paper, tqdm: tqdm) -> str:
         return "done"
-
-
-class SeleniumRunner(Runner):
-    cache: Cache
-    web: Selenium
-
-    def start(self):
-
-        self.cache = Cache("scache")
-        self.web = self.create_driver()
-
-    def create_driver(self):
-        return StealthSelenium(headless=True)
-
-    def work(self, paper, tqdm):
-        tqdm.write(f"working... {paper.pmid}")
-        if not paper.doi:
-            return "nodoi"
-        if paper.issn not in ISSN_MAP:
-            return "noissn"
-
-        try:
-            html = self.web.fetch_html(paper.doi, ISSN_MAP[paper.issn])
-            if html is None:
-                self.web = self.create_driver()
-                tqdm.write("retry....")
-                html = self.web.fetch_html(paper.doi, ISSN_MAP[paper.issn])
-            if html is None:
-                retval = "cc"
-            elif not html:
-                retval = "timeout"
-            else:
-                self.cache.save_html(paper, html)
-                retval = "ok"
-        except Exception as e:
-            tqdm.write(f"failed: {paper.pmid} {e}")
-            retval = "failed"
-        tqdm.write(retval)
-        return retval
-
-    def end(self):
-        self.web.close()

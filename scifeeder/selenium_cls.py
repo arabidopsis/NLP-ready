@@ -1,17 +1,8 @@
 from __future__ import annotations
 
-import logging
-from io import StringIO
-from pathlib import Path
-from typing import Any
-from typing import Literal
 from typing import TYPE_CHECKING
-from typing import TypeAlias
-from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
-from bs4 import Tag
-from html_to_markdown import convert_to_markdown
 from selenium import webdriver
 from selenium.common.exceptions import InvalidSessionIdException
 from selenium.common.exceptions import TimeoutException
@@ -21,123 +12,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from urllib3.exceptions import MaxRetryError
 from urllib3.exceptions import NewConnectionError
 
+from .cache import Cache
+from .issn import ISSN_MAP
+from .runner import Runner
+from .soup import logger
+from .soup import MD
+from .soup import Soup
+
 
 if TYPE_CHECKING:
     from .issn import Location
     from selenium.webdriver.remote.webdriver import WebDriver
-
-logger = logging.getLogger("scifeeder")
-
-MD: TypeAlias = Literal["markdown", "pmarkdown", "html", "phtml", "text"]
-
-
-def custom_div_converter(
-    *,
-    tag: Tag,
-    text: str,
-    convert_as_inline: bool,
-    **kwargs,
-) -> str:
-    # if tag.attrs.get('role') == 'paragraph':
-    return "\n" + text + "\n"
-
-
-def sanitize(title: str) -> str:
-    return " ".join(
-        t
-        for t in title.replace("[", "(").replace("]", ")").replace("\n", " ").split()
-        if t
-    )
-
-
-MD_STYLE = dict(
-    heading_style="atx",
-    escape_misc=False,
-    custom_converters={"div": custom_div_converter},
-)
-
-
-class Soup:
-    PARSER = "lxml"
-
-    def __init__(self, format: MD = "markdown", **kwargs: dict[str, Any]):
-        self.format = format
-        self.md_style = {**MD_STYLE, **kwargs}
-
-    def soupify(self, html: str) -> BeautifulSoup:
-        return BeautifulSoup(StringIO(html), self.PARSER)
-
-    def tofrag(
-        self,
-        soup: BeautifulSoup,
-        css: Location,
-        *,
-        fmt: MD | None = None,
-    ) -> str:
-        if fmt is None:
-            fmt = self.format
-        return "\n".join(
-            self.get_text(a, css, fmt=fmt) for a in soup.select(css.article_css)
-        )
-
-    def get_text(self, article: Tag, css: Location, *, fmt: MD | None = None) -> str:
-        if css.remove_css:
-            for ref in article.select(css.remove_css):
-                ref.decompose()
-        fmt = fmt or self.format
-        if fmt == "markdown":
-            return convert_to_markdown(str(article), **self.md_style)
-        if fmt == "pmarkdown":
-            return convert_to_markdown(
-                article.prettify(),
-                **self.md_style,
-            )
-        if fmt == "html":
-            return str(article)
-        if fmt == "phtml":
-            return article.prettify()
-        return article.get_text(" ")
-
-    @classmethod
-    def save_html(self, html: str, path: Path) -> None:
-        if not path.parent.exists():
-            path.parent.mkdir(parents=True)
-        with path.open("wt", encoding="utf8") as fp:
-            fp.write(html)
-
-    def update_links(self, soup: BeautifulSoup, url: str | None) -> BeautifulSoup:
-        if url is None:
-            return soup
-        if not url.endswith("/"):
-            url += "/"
-        purl = urlparse(url)
-        baseurl = f"{purl.scheme}://{purl.netloc}"
-
-        def add(ref: str) -> str:
-            ref = ref.replace(" ", "%20").replace("|", "%7C").replace(",", "%2C")
-            if ref.startswith("//"):
-                return purl.scheme + ":" + ref
-            if ref.startswith("/"):
-                return baseurl + ref
-            return url + ref
-
-        URLS = ("https://", "http://")
-
-        for a in soup.select("a"):
-            href = a.get("href")
-
-            if href:
-                if not href.startswith(URLS):
-                    a.attrs["href"] = add(href)
-            title = a.get("title")
-            if title:
-                a.attrs["title"] = sanitize(title)
-        for a in soup.select("img,script"):
-            src = a.get("src")
-            if src:
-                if not src.startswith(URLS):
-                    a.attrs["src"] = add(src)
-        return soup
 
 
 # from https://stackoverflow.com/questions/68289474
@@ -318,3 +203,45 @@ class StealthSelenium(Selenium):
 
     def mkdriver(self, headless: bool = True) -> WebDriver:
         return stealth_driver(headless)
+
+
+class SeleniumRunner(Runner):
+    cache: Cache
+    web: Selenium
+
+    def start(self):
+
+        self.cache = Cache("scache")
+        self.web = self.create_driver()
+
+    def create_driver(self):
+        return StealthSelenium(headless=True)
+
+    def work(self, paper, tqdm):
+        tqdm.write(f"working... {paper.pmid}")
+        if not paper.doi:
+            return "nodoi"
+        if paper.issn not in ISSN_MAP:
+            return "noissn"
+
+        try:
+            html = self.web.fetch_html(paper.doi, ISSN_MAP[paper.issn])
+            if html is None:
+                self.web = self.create_driver()
+                tqdm.write("retry....")
+                html = self.web.fetch_html(paper.doi, ISSN_MAP[paper.issn])
+            if html is None:
+                retval = "cc"
+            elif not html:
+                retval = "timeout"
+            else:
+                self.cache.save_html(paper, html)
+                retval = "ok"
+        except Exception as e:
+            tqdm.write(f"failed: {paper.pmid} {e}")
+            retval = "failed"
+        tqdm.write(retval)
+        return retval
+
+    def end(self):
+        self.web.close()

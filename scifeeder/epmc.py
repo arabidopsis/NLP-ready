@@ -12,7 +12,7 @@ from bs4 import Tag
 from html_to_markdown import convert_to_markdown
 from requests import Session
 
-from .selenium_cls import MD_STYLE
+from .soup import MD_STYLE
 from .xml_utils import PMCEvents
 
 PE = re.compile(b"<[?][^?]+[?]>")

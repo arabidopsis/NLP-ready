@@ -17,7 +17,7 @@ import requests
 from lxml import etree
 
 from .config import USER_AGENT
-from .selenium_cls import Soup
+from .soup import Soup
 from .types import Location
 from .types import NCBIPaper
 from .utils import getconfig
@@ -25,7 +25,7 @@ from .utils import read_pubmed_csv
 
 if TYPE_CHECKING:
     from requests import Session
-    from .selenium_cls import MD
+    from .soup import MD
 
 EFETCH = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
