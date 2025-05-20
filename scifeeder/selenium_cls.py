@@ -20,8 +20,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 if TYPE_CHECKING:
-    from ._issn import Location
-    from ._types import Paper
+    from .issn import Location
+    from .types import Paper
 
 logger = logging.getLogger("nlpready")
 
