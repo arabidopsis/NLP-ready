@@ -21,7 +21,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 if TYPE_CHECKING:
     from .issn import Location
-    from .types import Paper
+    from selenium.webdriver.remote.webdriver import WebDriver
 
 logger = logging.getLogger("nlpready")
 
@@ -66,17 +66,14 @@ class Soup:
 
     def tofrag(
         self,
-        html: str,
+        soup: BeautifulSoup,
         css: Location,
-        url: str | None = None,
         *,
         fmt: MD | None = None,
     ) -> str:
-        t = self.soupify(html)
-        if url:
-            t = self.udpate_links(t, url)
+
         return "\n".join(
-            self.get_text(a, css, fmt=fmt) for a in t.select(css.article_css)
+            self.get_text(a, css, fmt=fmt) for a in soup.select(css.article_css)
         )
 
     def get_text(self, article: Tag, css: Location, *, fmt: MD | None = None) -> str:
@@ -104,7 +101,9 @@ class Soup:
         with path.open("wt", encoding="utf8") as fp:
             fp.write(html)
 
-    def udpate_links(self, soup: BeautifulSoup, url: str) -> BeautifulSoup:
+    def update_links(self, soup: BeautifulSoup, url: str | None) -> BeautifulSoup:
+        if url is None:
+            return soup
         if not url.endswith("/"):
             url += "/"
         purl = urlparse(url)
@@ -121,20 +120,43 @@ class Soup:
         URLS = ("https://", "http://")
 
         for a in soup.select("a"):
-            if "href" in a.attrs:
-                href = a.attrs["href"]
-                if href:
-                    if not href.startswith(URLS):
-                        a.attrs["href"] = add(href)
-                if "title" in a.attrs:
-                    a.attrs["title"] = sanitize(a.attrs["title"])
-        for a in soup.select("img"):
-            if "src" in a.attrs:
-                src = a.attrs["src"]
-                if src:
-                    if not src.startswith(URLS):
-                        a.attrs["src"] = add(src)
+            href = a.get("href")
+
+            if href:
+                if not href.startswith(URLS):
+                    a.attrs["href"] = add(href)
+            title = a.get("title")
+            if title:
+                a.attrs["title"] = sanitize(title)
+        for a in soup.select("img,script"):
+            src = a.get("src")
+            if src:
+                if not src.startswith(URLS):
+                    a.attrs["src"] = add(src)
         return soup
+
+
+def gen_driver(headless: bool = True) -> WebDriver:
+    import undetected_chromedriver as uc
+    from selenium_stealth import stealth
+
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.140 Safari/537.36"
+    chrome_options = uc.ChromeOptions()
+    if headless:
+        chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument(f"user-agent={user_agent}")
+    driver = uc.Chrome(options=chrome_options)
+    stealth(
+        driver,
+        languages=["en-US", "en"],
+        vendor="Google Inc.",
+        platform="Win32",
+        webgl_vendor="Intel Inc.",
+        renderer="Intel Iris OpenGL Engine",
+        fix_hairline=True,
+    )
+    return driver
 
 
 class Selenium(Soup):
@@ -144,19 +166,20 @@ class Selenium(Soup):
         headless: bool = True,
         timeout: int = 10,
         format: MD = "markdown",
-        cache: str | Path | None = None,
         page_load_timeout: int = 20,
     ):
         super().__init__(format)
+        self.wait_ = None
+        self.timeout = timeout
+        self.driver = self.mkdriver(headless)
+        if page_load_timeout:
+            self.driver.set_page_load_timeout(page_load_timeout)
+
+    def mkdriver(self, headless: bool = True) -> WebDriver:
         options = webdriver.ChromeOptions()
         if headless:
             options.add_argument("headless")
-        self.timeout = timeout
-        self.driver = webdriver.Chrome(options=options)
-        self.cache = Path(cache) if cache else None
-        self.wait_ = None
-        if page_load_timeout:
-            self.driver.set_page_load_timeout(page_load_timeout)
+        return webdriver.Chrome(options=options)
 
     # @classmethod
     # def has_driver(self) -> bool:
@@ -214,37 +237,23 @@ class Selenium(Soup):
         css: Location,
         *,
         fmt: MD | None = None,
-    ) -> str | None:
+    ) -> tuple[str | None, BeautifulSoup | None]:
         html = self.fetch_html(doi_or_url, css)
         if not html:
-            return html
-        return self.tofrag(html, css, self.current_url, fmt=fmt)
+            return None, None
+        soup = self.soupify(html)
+        soup = self.update_links(soup, self.current_url)
+        return self.tofrag(soup, css, fmt=fmt), soup
 
-    def check_run(
+    def rerun(
         self,
-        paper: Paper,
         css: Location,
         *,
         fmt: MD | None = None,
-    ) -> str | None:
-        html = None
-        if self.cache:
-            path = self.cache / f"{paper.pmid}.html"
-            if path.exists():
-                with path.open("rt", encoding="utf8") as fp:
-                    html = fp.read()
-        if not html:
-            html = self.fetch_html(paper.doi, css)
-            if html and self.cache:
-                path = self.cache / f"{paper.pmid}.html"
-                with path.open("wt", encoding="utf8") as fp:
-                    fp.write(html)
-        if not html:
-            return html
-        return self.tofrag(html, css, self.current_url, fmt=fmt)
-
-    def rerun(self, css: Location, *, fmt: MD | None = None) -> str:
-        return self.tofrag(self.find_html(), css, fmt=fmt)
+    ) -> tuple[str | None, BeautifulSoup | None]:
+        soup = self.resoupify()
+        soup = self.update_links(soup, self.current_url)
+        return self.tofrag(soup, css, fmt=fmt), soup
 
     def close(self):
         self.driver.close()  # or quit()?
@@ -285,3 +294,9 @@ class Selenium(Soup):
             return None
         soup = self.resoupify()
         return css.pdf(soup, url)
+
+
+class UndetectedSelenium(Selenium):
+
+    def mkdriver(self, headless: bool = True) -> WebDriver:
+        return gen_driver(headless)

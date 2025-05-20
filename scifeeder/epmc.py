@@ -126,8 +126,11 @@ class EPMC:
             return None
         return article[0]
 
+    def to_xml(self, pretty: bool = False) -> str:
+        return self.soup.prettify() if pretty else str(self.soup)
+
     def save_content(self, save: str | Path, pretty: bool = False) -> None:
-        a = self.soup.prettify() if pretty else str(self.soup)
+        a = self.to_xml(pretty)
         with open(save, "w", encoding="utf-8") as fp:
             fp.write(a)
 

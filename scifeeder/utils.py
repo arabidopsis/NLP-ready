@@ -50,7 +50,6 @@ def read_pubmed_csv(csvfile: str, header: bool = True, pcol: int = 0) -> Iterato
 class UserConfig:
     suba_csv: str
     data_dir: str
-    name: str
     email: str | None = None
     api_key: str | None = None
 
@@ -66,12 +65,11 @@ def getconfig() -> UserConfig:
     default = dict(
         suba_csv=Config.JCSV,
         data_dir=Config.DATADIR,
-        name=Config.NAME,
     )
-    if not os.path.exists("config.toml"):
+    if not os.path.exists("sciconfig.toml"):
         _CONF = UserConfig(**default)
     else:
-        with open("config.toml", "rb") as fp:
+        with open("sciconfig.toml", "rb") as fp:
             _CONF = UserConfig(**{**default, **tomllib.load(fp)})
     return _CONF
 

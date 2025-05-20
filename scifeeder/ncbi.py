@@ -162,6 +162,7 @@ def getmeta(
     batch_size: int = 10,
 ) -> None:
     """Create a CSV of (pmid, issn, name, year, doi, title) from list of pubmed IDs."""
+    from tqdm import tqdm
 
     session = requests.Session()
     e = os.path.exists(pubmeds)
@@ -178,36 +179,39 @@ def getmeta(
         for pmid in read_pubmed_csv(csvfile, header=header, pcol=pcol)
         if pmid not in done
     ]
-    click.secho(f"{len(done)} done. {len(todo)} todo", fg="blue")
+    click.secho(f"{len(done)} done. {len(todo)} todo", fg="blue", bold=True)
 
     with open(pubmeds, "a", encoding="utf8") as fp:
         W = csv.writer(fp)
         if not e:
             W.writerow(["pmid", "issn", "name", "year", "doi", "pmcid", "title"])
             fp.flush()
-        for pmids in batched(todo, batch_size):
-            d = []
-            for m in pubmed_meta(pmids, session, email, api_key):
-                pubmed = m.pmid
-                if not pubmed:
-                    continue
-                d.append(pubmed)
-                W.writerow(
-                    [
-                        pubmed,
-                        m.issn or "",
-                        m.journal,
-                        str(m.year),
-                        m.doi or "",
-                        m.pmcid or "",
-                        m.title or "",
-                    ],
-                )
-                fp.flush()  # in case of interrupt.
-                done.add(pubmed)
-            for p in pmids:
-                if p not in d:
-                    click.secho(f"missing {p}", fg="red", err=True)
-            click.secho(f"{len(done)}/{len(todo)} done", fg="green")
-            if sleep:
-                time.sleep(sleep)  # be nice :)
+        with tqdm(total=len(todo)) as pbar:
+            for pmids in batched(todo, batch_size):
+                batch = []
+                for m in pubmed_meta(pmids, session, email, api_key):
+                    pubmed = m.pmid
+                    if not pubmed:
+                        continue
+                    batch.append(pubmed)
+                    W.writerow(
+                        [
+                            pubmed,
+                            m.issn or "",
+                            m.journal,
+                            str(m.year),
+                            m.doi or "",
+                            m.pmcid or "",
+                            m.title or "",
+                        ],
+                    )
+                    fp.flush()  # in case of interrupt.
+                    done.add(pubmed)
+                pbar.update(len(pmids))
+                missing = [p for p in pmids if p not in batch]
+                if missing:
+                    msg = ",".join(missing)
+                    pbar.set_description(f"missing: {msg}")
+                # pbar.secho(f"{len(done)}/{len(todo)} done", fg="green")
+                if sleep:
+                    time.sleep(sleep)  # be nice :)

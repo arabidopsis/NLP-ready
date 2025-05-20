@@ -57,7 +57,10 @@ BMC = Location(
     'section[data-title="References"],.c-article-author-list,.c-article-info-details,.c-article-metrics-bar__wrapper',
 )
 SPRINGER = Location("article main .c-article-body", 'section[data-title="Reference"]')
-SPRINGER2 = Location("article main .c-article-body", 'section[data-title="References"]')
+SPRINGER2 = Location(
+    "article main .c-article-body",
+    'section[data-title="References"],section[data-title="REFERENCES"]',
+)
 PLOSONE = Location(".article-content", "ol.references")
 TAYLORFRANCIS = Location("article.article", 'div[id="references-Section"]')
 CELL = SCIENCEDIRECT = Location(
@@ -154,7 +157,7 @@ PlantCellRep = SPRINGER2
 MolBiolRep = SPRINGER2
 Protoplasma = SPRINGER
 Protoplasma2 = SPRINGER2
-PlantMolBiol = SPRINGER
+PlantMolBiol = SPRINGER2
 PlantMolBiol2 = SPRINGER2
 JPlantRes = SPRINGER
 JPlantRes2 = SPRINGER2
