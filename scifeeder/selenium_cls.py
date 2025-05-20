@@ -18,11 +18,13 @@ from .runner import Runner
 from .soup import logger
 from .soup import MD
 from .soup import Soup
+from .utils import getconfig
 
 
 if TYPE_CHECKING:
     from .issn import Location
     from selenium.webdriver.remote.webdriver import WebDriver
+    from tqdm import tqdm
 
 
 # from https://stackoverflow.com/questions/68289474
@@ -206,18 +208,19 @@ class StealthSelenium(Selenium):
 
 
 class SeleniumRunner(Runner):
-    cache: Cache
     web: Selenium
+    cache: Cache
 
     def start(self):
-
-        self.cache = Cache("scache")
         self.web = self.create_driver()
+        self.cache = (
+            Cache(self.cache_dir) if self.cache_dir else Cache(getconfig().data_dir)
+        )
 
     def create_driver(self):
         return StealthSelenium(headless=True)
 
-    def work(self, paper, tqdm):
+    def work(self, paper, tqdm: tqdm) -> str:
         tqdm.write(f"working... {paper.pmid}")
         if not paper.doi:
             return "nodoi"

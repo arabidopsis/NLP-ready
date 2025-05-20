@@ -15,5 +15,5 @@ DATADIR = "scifeeder-data"
 # by scraping NCBI website.
 JCSV = "scifeeder-papers.csv"
 
-
+CONFIG_FILE = "sciconfig.toml"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.140 Safari/537.36"

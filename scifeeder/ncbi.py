@@ -38,14 +38,19 @@ HTML = "https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/"
 
 def ncbi_epmc(
     pmcid: str,
-    email: str | None,
+    email: str | None = None,
+    api_key: str | None = None,
     session: Session | None = None,
 ) -> str | None:
     """Given a PUBMED id return the Europmc XML as bytes."""
     url = HTML.format(pmcid=pmcid)
     if session is None:
         session = requests.Session()
-    params = params = dict(email=email) if email else {}
+    params = {}
+    if email:
+        params["email"] = email
+    if api_key:
+        params["api_key"] = api_key
     resp = session.get(
         url,
         params=params,
@@ -277,11 +282,14 @@ class NCBI(Soup):
         session: Session | None = None,
         format: MD = "markdown",
         email: str | None = None,
+        api_key: str | None = None,
         **kwargs: dict[str, Any],
     ) -> Self | None:
         if email is None:
             email = getconfig().email
-        html = ncbi_epmc(pmcid, email, session)
+        if api_key is None:
+            api_key = getconfig().api_key
+        html = ncbi_epmc(pmcid, email, api_key, session)
         if not html:
             return None
         return cls(html, format, **kwargs)

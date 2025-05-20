@@ -71,10 +71,10 @@ def getconfig() -> UserConfig:
         papers_csv=Config.JCSV,
         data_dir=Config.DATADIR,
     )
-    if not os.path.exists("sciconfig.toml"):
+    if not os.path.exists(Config.CONFIG_FILE):
         _CONF = UserConfig(**default)
     else:
-        with open("sciconfig.toml", "rb") as fp:
+        with open(Config.CONFIG_FILE, "rb") as fp:
             _CONF = UserConfig(**{**default, **tomllib.load(fp)})
     return _CONF
 

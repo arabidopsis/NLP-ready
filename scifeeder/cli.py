@@ -124,7 +124,7 @@ blocked from the NCBI site.""",
 def runner(papers_csv: str) -> None:
     """Grab HTML pages from Journals"""
     import logging
-    from .runner import SeleniumRunner
+    from .selenium_cls import SeleniumRunner
 
     logger = logging.getLogger("scifeeder")
     logger.setLevel(logging.WARNING)

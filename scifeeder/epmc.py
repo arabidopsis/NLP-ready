@@ -164,5 +164,8 @@ class EPMC:
     def html_to_markdown(self, html: str) -> str:
         return convert_to_markdown(html, **self.md_style)
 
-    def markdown(self):
-        return self.html_to_markdown(self.html())
+    def markdown(self) -> str | None:
+        html = self.html()
+        if html is None:
+            return None
+        return self.html_to_markdown(html)

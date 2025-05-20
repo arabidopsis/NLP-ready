@@ -20,6 +20,7 @@ class Runner:
         done_csv: str | Path | None = None,
         batch_size: int = 1,
         sleep=0.0,
+        cache_dir: str | Path | None = None,
     ):
         self.papers_csv = Path(papers_csv)
         if done_csv is None:
@@ -27,6 +28,7 @@ class Runner:
         self.done_csv = Path(done_csv)
         self.batch_size = batch_size
         self.sleep = sleep
+        self.cache_dir = cache_dir
 
     def start(self) -> None:
         pass
