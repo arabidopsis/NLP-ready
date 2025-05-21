@@ -2,18 +2,21 @@ from __future__ import annotations
 
 import csv
 import time
+from abc import ABC
+from abc import abstractmethod
 from itertools import batched
 from pathlib import Path
+from typing import Iterator
 from typing import TYPE_CHECKING
 
-from .types import Paper
 from .utils import read_papers_csv
 
 if TYPE_CHECKING:
     from tqdm import tqdm
+    from .types import Paper
 
 
-class Runner:
+class Runner(ABC):
     def __init__(
         self,
         papers_csv: str | Path,
@@ -69,8 +72,7 @@ class Runner:
                 W = csv.writer(fp)
                 with tqdm(total=len(todo)) as pbar:
                     for papers in batched(todo, self.batch_size):
-                        for paper in papers:
-                            status = self.work(paper, pbar)
+                        for paper, status in self.batch_worker(papers, tqdm):
                             W.writerow([paper.pmid, status])
                             fp.flush()
                         pbar.update(len(papers))
@@ -79,5 +81,14 @@ class Runner:
         finally:
             self.end()
 
+    def batch_worker(
+        self,
+        batch: tuple[Paper, ...],
+        tqdm: tqdm,
+    ) -> Iterator[tuple[Paper, str]]:
+        for paper in batch:
+            yield paper, self.work(paper, tqdm)
+
+    @abstractmethod
     def work(self, paper: Paper, tqdm: tqdm) -> str:
-        return "done"
+        raise NotImplementedError

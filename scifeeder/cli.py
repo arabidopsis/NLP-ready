@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import warnings
 
 import click
@@ -13,21 +12,21 @@ def cli():
     pass
 
 
-@cli.command()
-@click.argument("data_dir", required=False)
-def clean_cache(data_dir: str | None) -> None:
-    """Remove empty directories."""
-    if data_dir is None:
-        data_dir = getconfig().data_dir
-    if not os.path.exists(data_dir):
-        return
-    for f in os.listdir(data_dir):
-        d = os.path.join(data_dir, f)
-        if os.path.isdir(d):
-            n = len(os.listdir(d))
-            if n == 0:
-                click.secho(f"removing: {f}", fg="yellow")
-                os.removedirs(d)
+# @cli.command()
+# @click.argument("data_dir", required=False)
+# def clean_cache(data_dir: str | None) -> None:
+#     """Remove empty directories."""
+#     if data_dir is None:
+#         data_dir = getconfig().data_dir
+#     if not os.path.exists(data_dir):
+#         return
+#     for f in os.listdir(data_dir):
+#         d = os.path.join(data_dir, f)
+#         if os.path.isdir(d):
+#             n = len(os.listdir(d))
+#             if n == 0:
+#                 click.secho(f"removing: {f}", fg="yellow")
+#                 os.removedirs(d)
 
 
 @cli.command()
@@ -53,7 +52,7 @@ def clean_cache(data_dir: str | None) -> None:
 )
 @click.option(
     "--sleep",
-    default=1.0,
+    default=3.0,
     help="wait sleep seconds between requests",
     show_default=True,
 )

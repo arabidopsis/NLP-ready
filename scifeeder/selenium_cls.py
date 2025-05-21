@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import click
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import InvalidSessionIdException
@@ -229,7 +230,7 @@ class SeleniumRunner(Runner):
 
         try:
             html = self.web.fetch_html(paper.doi, ISSN_MAP[paper.issn])
-            if html is None:
+            if html is None:  # cloudflare
                 self.web = self.create_driver()
                 tqdm.write("retry....")
                 html = self.web.fetch_html(paper.doi, ISSN_MAP[paper.issn])
@@ -241,8 +242,10 @@ class SeleniumRunner(Runner):
                 self.cache.save_html(paper, html)
                 retval = "ok"
         except Exception as e:
-            tqdm.write(f"failed: {paper.pmid} {e}")
+            tqdm.write(click.style(f"failed: {paper.pmid} {e}", fg="red", bold=True))
             retval = "failed"
+        if retval == "ok":
+            retval = click.style(retval, fg="green", bold=True)
         tqdm.write(retval)
         return retval
 
