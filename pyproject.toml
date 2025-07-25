@@ -1,5 +1,5 @@
 [project]
-name = "scifeeder"
+name = "nlpready"
 version = "0.1.1"
 description = ""
 authors = [{ name = "arabidopsis", email = "ian.castleden@gmail.com" }]
@@ -22,7 +22,7 @@ all = [
 ]
 
 [project.scripts]
-scifeeder = "scifeeder.__main__:cli"
+nlpready = "scifeeder.__main__:cli"
 
 [build-system]
 requires = ["hatchling"]
